@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources
+	xmlns:tools="http://schemas.android.com/tools"
+	tools:ignore="MissingTranslation">
+
+	<string-array name="purpose">
+		<item>找个情人</item>
+		<item>长期X伴侣</item>
+		<item>偶尔放纵</item>
+		<item>假日X伙伴</item>
+		<item>都可以啦</item>
+	</string-array>
+
+	<string-array name="where">
+		<item>家里</item>
+		<item>宾馆</item>
+		<item>车上</item>
+		<item>野外</item>
+	</string-array>
+
+	<string-array name="doWhatFirst">
+		<item>一起吃饭，看电影</item>
+		<item>如果喜欢，可以拉手散步</item>
+		<item>如果喜欢，可以拥抱亲吻</item>
+		<item>如果喜欢，可以开房爱爱</item>
+	</string-array>
+
+	<string-array name="conception">
+		<item>金钱至上</item>
+		<item>好聚好散</item>
+		<item>顺其自然</item>
+		<item>从一而终</item>
+		<item>大胆开放</item>
+	</string-array>
+
+	<string-array name="education">
+		<item>小学</item>
+		<item>初中</item>
+		<item>职高</item>
+		<item>高中</item>
+		<item>中专</item>
+		<item>大专</item>
+		<item>本科</item>
+	</string-array>
+
+	<!--<string-array name="occupation">
+		<item>学生</item>
+		<item>待业</item>
+		<item>个体户</item>
+		<item>白领</item>
+		<item>公务员</item>
+		<item>高收入族</item>
+		<item>小老板</item>
+		<item>大老板</item>
+		<item>小官员</item>
+		<item>大官员</item>
+	</string-array>-->
+
+	<string-array name="occupation">
+		<!--<item>在校学生</item>-->
+		<item>军人</item>
+		<item>私营业主</item>
+		<item>企业职工</item>
+		<item>农业劳动者</item>
+		<item>政府机关/事业单位工作者</item>
+		<item>其他</item>
+	</string-array>
+
+	<string-array name="constellation">
+		<item>白羊座</item>
+		<item>金牛座</item>
+		<item>双子座</item>
+		<item>巨蟹座</item>
+		<item>狮子座</item>
+		<item>处女座</item>
+		<item>天枰座</item>
+		<item>天蝎座</item>
+		<item>射手座</item>
+		<item>摩羯座</item>
+		<item>水平座</item>
+		<item>双鱼座</item>
+	</string-array>
+
+	<string-array name="intrest">
+		<item>读书</item>
+		<item>看电影</item>
+		<item>旅行</item>
+		<item>蹦极</item>
+		<item>运动</item>
+		<item>唱歌</item>
+		<item>交友</item>
+		<item>听音乐</item>
+	</string-array>
+
+	<string-array name="female_sex_part">
+		<item>眼睛</item>
+		<item>鼻子</item>
+		<item>胸部</item>
+		<item>臀部</item>
+		<item>头发</item>
+		<item>身材</item>
+		<item>腿</item>
+		<item>手</item>
+		<item>嘴</item>
+	</string-array>
+
+	<string-array name="male_sex_part">
+		<item>眼睛</item>
+		<item>耳朵</item>
+		<item>鼻子</item>
+		<item>头发</item>
+		<item>身材</item>
+		<item>腿</item>
+		<item>胸肌</item>
+		<item>嘴</item>
+	</string-array>
+
+	<string-array name="female_lable">
+		<item>萌</item>
+		<item>吃货</item>
+		<item>宅</item>
+		<item>起床困难户</item>
+		<item>白富美</item>
+		<item>女神经</item>
+		<item>女神</item>
+		<item>文艺</item>
+		<item>文静</item>
+		<item>小清新</item>
+		<item>妩媚</item>
+		<item>妖艳</item>
+	</string-array>
+
+	<string-array name="male_lable">
+		<item>暖男</item>
+		<item>大叔</item>
+		<item>八块腹肌</item>
+		<item>长腿欧巴</item>
+		<item>高富帅</item>
+		<item>阳光</item>
+		<item>宅</item>
+		<item>光棍一枚</item>
+		<item>有胸肌</item>
+		<item>帅酷</item>
+	</string-array>
+
+</resources>

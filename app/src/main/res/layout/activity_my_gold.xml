@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <include
+        android:id="@+id/toolbar"
+        layout="@layout/toolbar_actionbar_with_headerbar"/>
+
+    <android.support.v4.widget.NestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/my_gold_num"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:paddingLeft="20dp"
+                android:gravity="center_vertical"
+                android:background="@android:color/white"
+                android:text="0"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="30dp"
+                android:layout_marginLeft="20dp"
+                android:gravity="center_vertical"
+                android:text="@string/select_gold_num_text"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1px"
+                android:background="@color/divider_color"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/recyclerview"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="@android:color/white"
+                android:fastScrollAlwaysVisible="true"
+                android:fastScrollEnabled="true"
+                android:scrollbarStyle="insideOverlay"
+                android:scrollbars="none"/>
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="@dimen/divider_height"
+                android:layout_marginLeft="@dimen/divider_margin_left"
+                android:layout_marginRight="@dimen/divider_margin_left"
+                android:background="@color/divider_color"
+                android:contentDescription="@null"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingLeft="20dp"
+                android:layout_marginTop="10dp"
+                android:text="金币说明"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="20dp"
+                android:text="@string/gold_info_1"
+                android:textSize="12sp"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="20dp"
+                android:text="@string/gold_info_2"
+                android:textSize="12sp"/>
+            <TextView
+                android:id="@+id/gold_info_3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:paddingLeft="20dp"
+                android:text="@string/gold_info_3"
+                android:textSize="12sp"
+                android:visibility="gone"/>
+
+        </LinearLayout>
+    </android.support.v4.widget.NestedScrollView>
+
+</LinearLayout>
+
+
