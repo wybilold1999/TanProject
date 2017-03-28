@@ -25,8 +25,6 @@ import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
-import com.amap.api.location.AMapLocation;
-import com.amap.api.location.LocationManagerProxy;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.AppConstants;
@@ -43,18 +41,10 @@ import com.cyanbirds.tanlove.listener.MessageUnReadListener;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.manager.NotificationManager;
 import com.cyanbirds.tanlove.net.request.GetOSSTokenRequest;
-import com.cyanbirds.tanlove.net.request.UploadTokenRequest;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.PushMsgUtil;
 import com.cyanbirds.tanlove.utils.ToastUtil;
-import com.huawei.hms.api.ConnectionResult;
-import com.huawei.hms.api.HuaweiApiAvailability;
-import com.huawei.hms.api.HuaweiApiClient;
-import com.huawei.hms.support.api.client.PendingResult;
-import com.huawei.hms.support.api.client.ResultCallback;
-import com.huawei.hms.support.api.push.HuaweiPush;
-import com.huawei.hms.support.api.push.TokenResult;
 import com.igexin.sdk.PushManager;
 import com.tencent.android.tpush.XGPushManager;
 import com.umeng.analytics.MobclickAgent;
@@ -68,10 +58,8 @@ import java.util.Set;
 import cn.jpush.android.api.JPushInterface;
 import cn.jpush.android.api.TagAliasCallback;
 
-public class MainActivity extends BaseActivity implements MessageUnReadListener.OnMessageUnReadListener, HuaweiApiClient.ConnectionCallbacks, HuaweiApiClient.OnConnectionFailedListener,
-		HuaweiApiAvailability.OnUpdateListener {
+public class MainActivity extends BaseActivity implements MessageUnReadListener.OnMessageUnReadListener {
 
-	private String TAG = this.getClass().getSimpleName();
 	private FragmentTabHost mTabHost;
 	private int mCurrentTab;
 	private ClientConfiguration mOSSConf;
@@ -82,8 +70,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	private static final int MSG_SET_TAGS = 1002;//极光推送设置tag
 
 	private long clickTime = 0; //记录第一次点击的时间
-
-	private static HuaweiApiClient huaweiApiClient;
 
 	private final Handler mHandler = new Handler() {
 		@Override
@@ -143,8 +129,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		initGeTuiPush();
 
 		initJPush();
-
-		initHuaWeiPush();
 
 		/**
 		 * 启动程序的时候删除apk文件夹下的内容
@@ -272,12 +256,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 			}
 			mHandler.sendMessage(mHandler.obtainMessage(MSG_SET_TAGS, tag));
 		}
-	}
-
-	private void initHuaWeiPush() {
-		huaweiApiClient = new HuaweiApiClient.Builder(this).addApi(HuaweiPush.PUSH_API).addConnectionCallbacks(this)
-				.addOnConnectionFailedListener(this).build();
-		huaweiApiClient.connect();
 	}
 
 	@Override
@@ -414,48 +392,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 			}
 		}
 	};
-
-	/**
-	 * ====================================华为推送=================================
-	 */
-	@Override
-	protected void onStart() {
-		Log.i(TAG, "onStart, ErrorCode: " + HuaweiApiAvailability.getInstance().isHuaweiMobileServicesAvailable(this));
-		super.onStart();
-		huaweiApiClient.connect();
-	}
-
-	@Override
-	public void onConnected() {
-		Log.i(TAG, "onConnected, IsConnected: " + huaweiApiClient.isConnected());
-		if (huaweiApiClient.isConnected()) {
-			// 异步调用方式
-			PendingResult<TokenResult> tokenResult = HuaweiPush.HuaweiPushApi.getToken(huaweiApiClient);
-			tokenResult.setResultCallback(new ResultCallback<TokenResult>() {
-
-				@Override
-				public void onResult(TokenResult result) {
-					new UploadTokenRequest().request(result.getTokenRes().getToken());
-				}
-
-			});
-		}
-	}
-
-	@Override
-	public void onConnectionFailed(ConnectionResult result) {
-		Log.i(TAG, "onConnectionFailed, ErrorCode: " + result.getErrorCode());
-	}
-
-	@Override
-	public void onConnectionSuspended(int cause) {
-		Log.i(TAG, "onConnectionSuspended, cause: " + cause + ", IsConnected: " + huaweiApiClient.isConnected());
-	}
-
-	@Override
-	public void onUpdateFailed(ConnectionResult result) {
-		Log.i(TAG, "onUpdateFailed, ErrorCode: " + result.getErrorCode());
-	}
 
 
 	@Override
