@@ -175,6 +175,8 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 	TextView mAdress;
 	@BindView(R.id.map_card)
 	CardView mMapCard;
+	@BindView(R.id.my_location)
+	TextView mMyLocation;
 
 	private AMap aMap;
 	private UiSettings mUiSettings;
@@ -319,14 +321,20 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 		if (AppManager.getClientUser().isShowVip) {
 			mSocialCard.setVisibility(View.VISIBLE);
 			mSocialText.setVisibility(View.VISIBLE);
+			mMyLocation.setVisibility(View.VISIBLE);
+			mMapCard.setVisibility(View.VISIBLE);
 		} else {
 			mSocialCard.setVisibility(View.GONE);
 			mSocialText.setVisibility(View.GONE);
+			mMyLocation.setVisibility(View.GONE);
+			mMapCard.setVisibility(View.GONE);
 		}
 		if (!TextUtils.isEmpty(clientUser.distance) && !"0.0".equals(clientUser.distance)) {
+			mMyLocation.setVisibility(View.VISIBLE);
 			mMapCard.setVisibility(View.VISIBLE);
 		} else {
 			mMapCard.setVisibility(View.GONE);
+			mMyLocation.setVisibility(View.GONE);
 		}
 		if (!TextUtils.isEmpty(clientUser.purpose)) {
 			mPurpose.setText(clientUser.purpose);
