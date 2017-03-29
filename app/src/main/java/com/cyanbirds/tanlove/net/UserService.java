@@ -210,6 +210,6 @@ public interface UserService {
      */
     @FormUrlEncoded
     @POST("user/uploadToken")
-    Call<ResponseBody> uploadToken(@FieldMap ArrayMap<String, String> params, @Header("token") String token);
+    Call<ResponseBody> uploadToken( @Field("hwToken") String hwToken, @Header("token") String token);
 
 }

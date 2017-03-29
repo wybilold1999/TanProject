@@ -9,7 +9,6 @@ import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentTabHost;
 import android.text.TextUtils;
@@ -46,10 +45,6 @@ import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.PushMsgUtil;
 import com.cyanbirds.tanlove.utils.ToastUtil;
-import com.huawei.hms.api.ConnectionResult;
-import com.huawei.hms.api.HuaweiApiAvailability;
-import com.huawei.hms.api.HuaweiApiClient;
-import com.huawei.hms.support.api.push.HuaweiPush;
 import com.igexin.sdk.PushManager;
 import com.tencent.android.tpush.XGPushManager;
 import com.umeng.analytics.MobclickAgent;
@@ -63,9 +58,7 @@ import java.util.Set;
 import cn.jpush.android.api.JPushInterface;
 import cn.jpush.android.api.TagAliasCallback;
 
-public class MainActivity extends BaseActivity implements MessageUnReadListener.OnMessageUnReadListener,
-		HuaweiApiClient.ConnectionCallbacks, HuaweiApiClient.OnConnectionFailedListener,
-		HuaweiApiAvailability.OnUpdateListener {
+public class MainActivity extends BaseActivity implements MessageUnReadListener.OnMessageUnReadListener {
 
 	private String TAG = this.getClass().getSimpleName();
 	private FragmentTabHost mTabHost;
@@ -78,10 +71,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	private static final int MSG_SET_TAGS = 1002;//极光推送设置tag
 
 	private long clickTime = 0; //记录第一次点击的时间
-
-	private static HuaweiApiClient huaweiApiClient;
-	private static final int REQUEST_RESOLVE_ERROR = 1001;
-	private boolean mResolvingError = false;
 
 	private final Handler mHandler = new Handler() {
 		@Override
@@ -141,10 +130,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		initGeTuiPush();
 
 		initJPush();
-
-		if ("HUAWEI".equals(AppManager.getDeviceName())) {
-			initHWPush();
-		}
 
 		/**
 		 * 启动程序的时候删除apk文件夹下的内容
@@ -272,14 +257,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 			}
 			mHandler.sendMessage(mHandler.obtainMessage(MSG_SET_TAGS, tag));
 		}
-	}
-
-	private void initHWPush() {
-		huaweiApiClient = new HuaweiApiClient.Builder(this)
-				.addApi(HuaweiPush.PUSH_API)
-				.addConnectionCallbacks(this)
-				.addOnConnectionFailedListener(this).build();
-		huaweiApiClient.connect();
 	}
 
 	@Override
@@ -416,58 +393,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 			}
 		}
 	};
-
-	@Override
-	protected void onStart() {
-		super.onStart();
-		huaweiApiClient.connect();
-	}
-
-	@Override
-	public void onConnected() {
-		Log.i(TAG, "onConnected, IsConnected: " + huaweiApiClient.isConnected());
-	}
-
-	@Override
-	public void onConnectionFailed(ConnectionResult result) {
-		Log.i(TAG, "onConnectionFailed, ErrorCode: " + result.getErrorCode());
-		if (mResolvingError) {
-			return;
-		}
-		final int errorCode = result.getErrorCode();
-		final HuaweiApiAvailability availability = HuaweiApiAvailability.getInstance();
-		if (availability.isUserResolvableError(errorCode)) {
-			mResolvingError = true;
-			availability.resolveError(this, errorCode, REQUEST_RESOLVE_ERROR, this);
-		}
-	}
-
-	@Override
-	public void onConnectionSuspended(int cause) {
-		Log.i(TAG, "onConnectionSuspended, cause: " + cause + ", IsConnected: " + huaweiApiClient.isConnected());
-	}
-
-	@Override
-	public void onUpdateFailed(ConnectionResult result) {
-		mResolvingError = false;
-		Log.i(TAG, "onUpdateFailed, ErrorCode: " + result.getErrorCode());
-	}
-
-	@Override
-	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == REQUEST_RESOLVE_ERROR) {
-			mResolvingError = false;
-			final int errorCode = HuaweiApiAvailability.getInstance().isHuaweiMobileServicesAvailable(this);
-			if (errorCode == ConnectionResult.SUCCESS) {
-				if (!huaweiApiClient.isConnecting() && !huaweiApiClient.isConnected()) {
-					huaweiApiClient.connect();
-				}
-			} else {
-				// TODO: 处理errorCode
-			}
-		}
-	}
 
 
 	@Override
