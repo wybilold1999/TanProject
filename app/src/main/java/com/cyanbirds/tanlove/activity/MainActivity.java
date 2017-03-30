@@ -41,6 +41,8 @@ import com.cyanbirds.tanlove.listener.MessageUnReadListener;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.manager.NotificationManager;
 import com.cyanbirds.tanlove.net.request.GetOSSTokenRequest;
+import com.cyanbirds.tanlove.service.MyIntentService;
+import com.cyanbirds.tanlove.service.MyPushService;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.PushMsgUtil;
@@ -236,8 +238,9 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 					REQUEST_PERMISSION);
 		} else {
 			// SDK初始化，第三方程序启动时，都要进行SDK初始化工作
-			PushManager.getInstance().initialize(this.getApplicationContext());
+			PushManager.getInstance().initialize(this.getApplicationContext(), MyPushService.class);
 		}
+		PushManager.getInstance().registerPushIntentService(this.getApplicationContext(), MyIntentService.class);
 	}
 
 	private void initJPush() {
@@ -356,15 +359,15 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 		if (requestCode == REQUEST_PERMISSION) {
 			if ((grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
-				PushManager.getInstance().initialize(this.getApplicationContext());
+				PushManager.getInstance().initialize(this.getApplicationContext(), MyPushService.class);
 			} else {
 				Log.e("GetuiSdkDemo",
 						"we highly recommend that you need to grant the special permissions before initializing the SDK, otherwise some "
 								+ "functions will not work");
-				PushManager.getInstance().initialize(this.getApplicationContext());
+				PushManager.getInstance().initialize(this.getApplicationContext(), MyPushService.class);
 			}
 		} else {
-			onRequestPermissionsResult(requestCode, permissions, grantResults);
+			super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 		}
 	}
 

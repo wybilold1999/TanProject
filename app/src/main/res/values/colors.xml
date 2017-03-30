@@ -18,6 +18,7 @@
 
     <color name="body_text_1">#de000000</color>
     <color name="red">#f22f2f</color>
+    <color name="reg_default">#282727</color>
 
     <color name="gray_background">#999999</color>
 

@@ -19,8 +19,8 @@ import retrofit2.Callback;
  * @email 395044952@qq.com
  */
 public class UploadTokenRequest extends ResultPostExecute<String> {
-    public void request(final String token){
-        Call<ResponseBody> call = AppManager.getUserService().uploadToken(null, AppManager.getClientUser().sessionId);
+    public void request(final String gtClientId){
+        Call<ResponseBody> call = AppManager.getUserService().uploadToken(gtClientId, AppManager.getClientUser().sessionId);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {

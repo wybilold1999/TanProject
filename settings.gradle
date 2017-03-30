@@ -1,1 +1,1 @@
-include ':app', ':UploadUtils'
+include ':app'

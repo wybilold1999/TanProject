@@ -45,8 +45,8 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:gravity="center_vertical"
-            fancy:fb_defaultColor="@color/gray_background"
-            fancy:fb_focusColor="@color/gray_text"
+            fancy:fb_defaultColor="@color/reg_default"
+            fancy:fb_focusColor="@color/body_text_1"
             fancy:fb_radius="5dp"
             fancy:fb_text="注册"
             fancy:fb_textColor="@android:color/white" />
