@@ -5,11 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
-import android.text.TextUtils;
-import android.util.Log;
 
-import com.cyanbirds.tanlove.CSApplication;
-import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.utils.PushMsgUtil;
 import com.igexin.sdk.PushConsts;
@@ -29,12 +25,14 @@ public class GeTuiPushReceiver extends BroadcastReceiver {
                 byte[] payload = bundle.getByteArray("payload");
                 if (payload != null) {
                     final String data = new String(payload);
-                    mHandler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                            PushMsgUtil.getInstance().handlePushMsg(true, data);
-                        }
-                    });
+                    if (AppManager.getClientUser().isShowVip) {
+                        mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                                PushMsgUtil.getInstance().handlePushMsg(true, data);
+                            }
+                        });
+                    }
                 }
                 break;
 
