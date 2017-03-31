@@ -133,6 +133,8 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 
 		initJPush();
 
+		initMeizuPush();
+
 		/**
 		 * 启动程序的时候删除apk文件夹下的内容
 		 */
@@ -260,6 +262,11 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 			}
 			mHandler.sendMessage(mHandler.obtainMessage(MSG_SET_TAGS, tag));
 		}
+	}
+
+	private void initMeizuPush() {
+		com.meizu.cloud.pushsdk.PushManager.register(this,
+				AppConstants.MZ_APP_ID, AppConstants.MZ_APP_KEY);
 	}
 
 	@Override

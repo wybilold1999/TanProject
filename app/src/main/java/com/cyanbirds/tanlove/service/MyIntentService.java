@@ -12,7 +12,6 @@ import com.cyanbirds.tanlove.utils.PushMsgUtil;
 import com.igexin.sdk.GTIntentService;
 import com.igexin.sdk.PushConsts;
 import com.igexin.sdk.PushManager;
-import com.igexin.sdk.message.FeedbackCmdMessage;
 import com.igexin.sdk.message.GTCmdMessage;
 import com.igexin.sdk.message.GTTransmitMessage;
 import com.igexin.sdk.message.SetTagCmdMessage;
@@ -29,6 +28,8 @@ public class MyIntentService extends GTIntentService {
 	private static final String TAG = "GetuiSdkDemo";
 
 	private Handler mHandler = new Handler(Looper.getMainLooper());
+
+	private boolean isAlreadyUpload = false;
 
 	public MyIntentService() {
 
@@ -60,7 +61,8 @@ public class MyIntentService extends GTIntentService {
 
 	@Override
 	public void onReceiveClientId(Context context, String clientid) {
-		if (!TextUtils.isEmpty(clientid)) {
+		if (!TextUtils.isEmpty(clientid) && !isAlreadyUpload) {
+			isAlreadyUpload = true;
 			PushManager.getInstance().bindAlias(context, AppManager.getClientUser().userId);
 			new UploadTokenRequest().request(clientid);
 		}
@@ -68,7 +70,6 @@ public class MyIntentService extends GTIntentService {
 
 	@Override
 	public void onReceiveOnlineState(Context context, boolean online) {
-		Log.d(TAG, "onReceiveOnlineState -> " + (online ? "online" : "offline"));
 	}
 
 	@Override
@@ -78,7 +79,6 @@ public class MyIntentService extends GTIntentService {
 		if (action == PushConsts.SET_TAG_RESULT) {
 			setTagResult((SetTagCmdMessage) cmdMessage);
 		} else if ((action == PushConsts.THIRDPART_FEEDBACK)) {
-			feedbackResult((FeedbackCmdMessage) cmdMessage);
 		}
 	}
 
@@ -135,15 +135,4 @@ public class MyIntentService extends GTIntentService {
 		Log.d(TAG, "settag result sn = " + sn + ", code = " + code + ", text = " + text);
 	}
 
-	private void feedbackResult(FeedbackCmdMessage feedbackCmdMsg) {
-		String appid = feedbackCmdMsg.getAppid();
-		String taskid = feedbackCmdMsg.getTaskId();
-		String actionid = feedbackCmdMsg.getActionId();
-		String result = feedbackCmdMsg.getResult();
-		long timestamp = feedbackCmdMsg.getTimeStamp();
-		String cid = feedbackCmdMsg.getClientId();
-
-		Log.d(TAG, "onReceiveCommandResult -> " + "appid = " + appid + "\ntaskid = " + taskid + "\nactionid = " + actionid + "\nresult = " + result
-				+ "\ncid = " + cid + "\ntimestamp = " + timestamp);
-	}
 }

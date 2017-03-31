@@ -140,6 +140,7 @@ dependencies {
     compile 'com.wx.goodview:goodview:1.0.0'
     compile 'android.lib.verticalmarqueetextview:VerticalMarqueeTextView:+'
     compile 'com.liulishuo.filedownloader:library:1.2.1'
+    compile 'com.meizu.flyme.internet:push-internal:3.3.170329@aar'
 
     compile 'com.facebook.stetho:stetho:1.4.1'
     compile 'com.facebook.stetho:stetho-okhttp3:1.4.1'
