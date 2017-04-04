@@ -229,8 +229,10 @@ public class PersonalFragment extends Fragment {
 	class DownloadPortraitTask extends DownloadFileRequest {
 		@Override
 		public void onPostExecute(String s) {
-			AppManager.getClientUser().face_local = s;
-			PreferencesUtils.setFaceLocal(getActivity(), s);
+			if (!TextUtils.isEmpty(s)) {
+				AppManager.getClientUser().face_local = s;
+				PreferencesUtils.setFaceLocal(getActivity(), s);
+			}
 		}
 
 		@Override

@@ -18,6 +18,7 @@ import com.cyanbirds.tanlove.adapter.TabFragmentAdapter;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.eventtype.MakeMoneyEvent;
 import com.cyanbirds.tanlove.eventtype.SnackBarEvent;
+import com.cyanbirds.tanlove.fragment.ClickBusinessFragment;
 import com.cyanbirds.tanlove.fragment.DownloadAppFragment;
 import com.cyanbirds.tanlove.fragment.DownloadBanlanceFragment;
 import com.cyanbirds.tanlove.fragment.DownloadPayFragment;
@@ -65,15 +66,15 @@ public class MakeMoneyActivity extends BaseActivity {
 	private void setupView() {
 		tabList = new ArrayList<>(3);
 		fragmentList = new ArrayList<>(3);
-		tabList.add("下载赚钱");
-		tabList.add("赚钱会员");
+		tabList.add("免费赚钱");
+		tabList.add("赚更多钱");
 		tabList.add("余额提现");
 		mTabLayout.setTabMode(TabLayout.MODE_FIXED);//设置tab模式，当前为系统默认模式
 		mTabLayout.addTab(mTabLayout.newTab().setText(tabList.get(0)));//添加tab选项卡
 		mTabLayout.addTab(mTabLayout.newTab().setText(tabList.get(1)));
 		mTabLayout.addTab(mTabLayout.newTab().setText(tabList.get(2)));
 
-		DownloadAppFragment downloadAppFragment = new DownloadAppFragment();
+		ClickBusinessFragment downloadAppFragment = new ClickBusinessFragment();
 		DownloadPayFragment downloadPayFragment = new DownloadPayFragment();
 		DownloadBanlanceFragment downloadBanlanceFragment = new DownloadBanlanceFragment();
 		fragmentList.add(downloadAppFragment);

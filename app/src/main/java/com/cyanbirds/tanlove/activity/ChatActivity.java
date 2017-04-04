@@ -263,8 +263,10 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 
 	private void setupData() {
 		mClientUser = (ClientUser) getIntent().getSerializableExtra(ValueKey.USER);
-		mConversation = ConversationSqlManager.getInstance(this)
-				.queryConversationForByTalkerId(mClientUser.userId);
+		if (mClientUser != null) {
+			mConversation = ConversationSqlManager.getInstance(this)
+					.queryConversationForByTalkerId(mClientUser.userId);
+		}
 		initEmoticon();
 		initEmotionUI();
 		mIMessages = new ArrayList<>();

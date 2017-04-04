@@ -65,7 +65,7 @@
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
             fancy:fb_defaultColor="@color/colorPrimary"
-            fancy:fb_focusColor="@android:color/white"
+            fancy:fb_focusColor="@color/colorAccent"
             fancy:fb_radius="5dp"
             fancy:fb_text="登录"
             fancy:fb_textColor="#ffffffff"/>

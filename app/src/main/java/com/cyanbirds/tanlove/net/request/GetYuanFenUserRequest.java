@@ -50,8 +50,6 @@ public class GetYuanFenUserRequest extends ResultPostExecute<List<YuanFenModel>>
                     e.printStackTrace();
                     onErrorExecute(CSApplication.getInstance().getResources()
                             .getString(R.string.data_load_error));
-                } finally {
-                    response.body().close();
                 }
             }
 

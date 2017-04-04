@@ -1014,7 +1014,7 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 					.parse("file://" + FileUtils.getPath(this, originalUri)));
 		} else if (resultCode == RESULT_OK && requestCode == PHOTO_CUT_RESULT) {
 			mPortraitUri = data.getData();
-			if (mPortraitUri == null) {
+			if (mPortraitUri == null && mCutFile != null) {
 				mPortraitUri = Uri.parse(mCutFile.getPath());
 			}
 			if (mPortraitUri != null

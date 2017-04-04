@@ -76,7 +76,7 @@ public class AttentionMeActivity extends BaseActivity {
         mAdapter.setOnItemClickListener(mOnItemClickListener);
         mRecyclerView.setAdapter(mAdapter);
         mCircularProgress.setVisibility(View.VISIBLE);
-        new FollowListTask().request("followFormeList", 1, 100);
+        new FollowListTask().request("followFormeList", 1, 13);
     }
 
     private AttentionMeAdapter.OnItemClickListener mOnItemClickListener = new AttentionMeAdapter.OnItemClickListener() {

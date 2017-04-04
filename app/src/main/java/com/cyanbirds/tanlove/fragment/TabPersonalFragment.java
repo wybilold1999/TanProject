@@ -233,6 +233,7 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 			mUiSettings = aMap.getUiSettings();
 			mUiSettings.setZoomControlsEnabled(false);// 不显示缩放按钮
 			mUiSettings.setLogoPosition(-50);
+			mUiSettings.setZoomGesturesEnabled(false);
 			aMap.moveCamera(CameraUpdateFactory.zoomTo(16));// 设置缩放比例
 		}
 		// 地理编码
@@ -247,12 +248,6 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 	}
 
 	private void setupEvent() {
-		mapView.setOnTouchListener(new View.OnTouchListener() {
-			@Override
-			public boolean onTouch(View v, MotionEvent event) {
-				return false;
-			}
-		});
 	}
 
 	private void setupViews() {
@@ -335,6 +330,10 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 		} else {
 			mMapCard.setVisibility(View.GONE);
 			mMyLocation.setVisibility(View.GONE);
+		}
+		if (clientUser.userId.equals(AppManager.getClientUser().userId)) {
+			mMyLocation.setVisibility(View.GONE);
+			mMapCard.setVisibility(View.GONE);
 		}
 		if (!TextUtils.isEmpty(clientUser.purpose)) {
 			mPurpose.setText(clientUser.purpose);
