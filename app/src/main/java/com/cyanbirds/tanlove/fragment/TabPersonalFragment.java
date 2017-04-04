@@ -692,8 +692,7 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 		if (rCode == 0) {
 			if (result != null && result.getRegeocodeAddress() != null
 					&& result.getRegeocodeAddress().getFormatAddress() != null) {
-				PoiItem poiItem = new PoiItem("", mLatLonPoint, getResources()
-						.getString(R.string.location_symbol), result
+				PoiItem poiItem = new PoiItem("", mLatLonPoint, "", result
 						.getRegeocodeAddress().getFormatAddress());
 				mAddress = poiItem.getSnippet();
 				mAdress.setText(mAddress);

@@ -38,6 +38,8 @@ public class AttentionMeActivity extends BaseActivity {
     private TextView mNoUserinfo;
     private AttentionMeAdapter mAdapter;
     private List<FollowModel> mFollowModels;
+    private int pageNo = 1;
+    private int pageSize = 13;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,12 +73,15 @@ public class AttentionMeActivity extends BaseActivity {
     }
 
     private void setupData(){
+        if (AppManager.getClientUser().is_vip) {
+            pageSize = 200;
+        }
         mFollowModels = new ArrayList<>();
         mAdapter = new AttentionMeAdapter(AttentionMeActivity.this);
         mAdapter.setOnItemClickListener(mOnItemClickListener);
         mRecyclerView.setAdapter(mAdapter);
         mCircularProgress.setVisibility(View.VISIBLE);
-        new FollowListTask().request("followFormeList", 1, 13);
+        new FollowListTask().request("followFormeList", pageNo, pageSize);
     }
 
     private AttentionMeAdapter.OnItemClickListener mOnItemClickListener = new AttentionMeAdapter.OnItemClickListener() {
