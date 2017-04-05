@@ -316,15 +316,13 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 		if (AppManager.getClientUser().isShowVip) {
 			mSocialCard.setVisibility(View.VISIBLE);
 			mSocialText.setVisibility(View.VISIBLE);
-			mMyLocation.setVisibility(View.VISIBLE);
-			mMapCard.setVisibility(View.VISIBLE);
 		} else {
 			mSocialCard.setVisibility(View.GONE);
 			mSocialText.setVisibility(View.GONE);
-			mMyLocation.setVisibility(View.GONE);
-			mMapCard.setVisibility(View.GONE);
 		}
-		if (!TextUtils.isEmpty(clientUser.distance) && !"0.0".equals(clientUser.distance)) {
+		if (AppManager.getClientUser().isShowVip &&
+				!TextUtils.isEmpty(clientUser.distance) &&
+				!"0.0".equals(clientUser.distance)) {
 			mMyLocation.setVisibility(View.VISIBLE);
 			mMapCard.setVisibility(View.VISIBLE);
 		} else {
