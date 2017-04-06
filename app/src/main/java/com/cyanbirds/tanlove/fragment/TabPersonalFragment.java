@@ -5,12 +5,10 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -18,7 +16,6 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
-import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -54,11 +51,9 @@ import com.cyanbirds.tanlove.net.request.UpdateGoldRequest;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.StringUtil;
 import com.cyanbirds.tanlove.utils.ToastUtil;
+import com.dl7.tag.TagLayout;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.umeng.analytics.MobclickAgent;
-import com.zhy.view.flowlayout.FlowLayout;
-import com.zhy.view.flowlayout.TagAdapter;
-import com.zhy.view.flowlayout.TagFlowLayout;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -94,11 +89,11 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 	@BindView(R.id.signature)
 	TextView mSignature;
 	@BindView(R.id.plable_flowlayout)
-	TagFlowLayout mPlableFlowlayout;
+	TagLayout mPlableFlowlayout;
 	@BindView(R.id.part_flowlayout)
-	TagFlowLayout mPartFlowlayout;
+	TagLayout mPartFlowlayout;
 	@BindView(R.id.intrest_flowlayout)
-	TagFlowLayout mIntrestFlowlayout;
+	TagLayout mIntrestFlowlayout;
 	@BindView(R.id.purpose)
 	TextView mPurpose;
 	@BindView(R.id.loveWhere)
@@ -402,22 +397,34 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 			mPartFlowlayout.setVisibility(View.VISIBLE);
 			mVals.clear();
 			mVals = StringUtil.stringToIntList(clientUser.part_tag);
-			mPartFlowlayout.setAdapter(
-					new PersonalTagAdapter(mVals, mPartFlowlayout));
+			for (int i = 0; i < mVals.size(); i++) {
+				if ("".equals(mVals.get(i)) || " ".equals(mVals.get(i))) {
+					mVals.remove(i);
+				}
+			}
+			mPartFlowlayout.setTags(mVals);
 		}
 		if (!TextUtils.isEmpty(clientUser.personality_tag)) {
 			mPlableFlowlayout.setVisibility(View.VISIBLE);
 			mVals.clear();
 			mVals = StringUtil.stringToIntList(clientUser.personality_tag);
-			mPlableFlowlayout.setAdapter(
-					new PersonalTagAdapter(mVals, mPlableFlowlayout));
+			for (int i = 0; i < mVals.size(); i++) {
+				if ("".equals(mVals.get(i)) || " ".equals(mVals.get(i))) {
+					mVals.remove(i);
+				}
+			}
+			mPlableFlowlayout.setTags(mVals);
 		}
 		if (!TextUtils.isEmpty(clientUser.intrest_tag)) {
 			mIntrestFlowlayout.setVisibility(View.VISIBLE);
 			mVals.clear();
 			mVals = StringUtil.stringToIntList(clientUser.intrest_tag);
-			mIntrestFlowlayout.setAdapter(
-					new PersonalTagAdapter(mVals, mIntrestFlowlayout));
+			for (int i = 0; i < mVals.size(); i++) {
+				if ("".equals(mVals.get(i)) || " ".equals(mVals.get(i))) {
+					mVals.remove(i);
+				}
+			}
+			mIntrestFlowlayout.setTags(mVals);
 		}
 	}
 
@@ -542,58 +549,6 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 		builder.show();
 	}
 
-	/**
-	 * tag的适配器
-	 */
-	class PersonalTagAdapter extends TagAdapter<String> {
-		private TagFlowLayout mLayout;
-
-		public PersonalTagAdapter(List<String> datas, TagFlowLayout layout) {
-			super(datas);
-			this.mLayout = layout;
-		}
-
-		@Override
-		public View getView(FlowLayout parent, int position, String t) {
-			TextView tv = (TextView) LayoutInflater.from(
-					getActivity()).inflate(R.layout.item_tv,
-					mLayout, false);
-			setIntrestItemColor(mLayout, tv);
-			tv.setText(t);
-			return tv;
-		}
-	}
-
-	/**
-	 * 根据不同类型设置不同的颜色
-	 *
-	 * @param mLayout
-	 * @param tv
-	 */
-	private void setIntrestItemColor(FlowLayout mLayout, TextView tv) {
-		if (mLayout == mPlableFlowlayout) {
-			if (Build.VERSION.SDK_INT >= 16) {
-				tv.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.hot_lable_checked_bg));
-			} else {
-				tv.setBackgroundDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.hot_lable_checked_bg));
-			}
-			tv.setTextColor(getResources().getColor(R.color.book_text_color));
-		} else if (mLayout == mPartFlowlayout) {
-			if (Build.VERSION.SDK_INT >= 16) {
-				tv.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.hot_lable_music_bg));
-			} else {
-				tv.setBackgroundDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.hot_lable_music_bg));
-			}
-			tv.setTextColor(getResources().getColor(R.color.music_text_color));
-		} else if (mLayout == mIntrestFlowlayout) {
-			if (Build.VERSION.SDK_INT >= 16) {
-				tv.setBackground(ContextCompat.getDrawable(getActivity(), R.drawable.hot_lable_intrest_bg));
-			} else {
-				tv.setBackgroundDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.hot_lable_intrest_bg));
-			}
-			tv.setTextColor(getResources().getColor(R.color.travel_text_color));
-		}
-	}
 
 	@Override
 	public void onDestroy() {

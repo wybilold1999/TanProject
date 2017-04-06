@@ -766,8 +766,8 @@
 
 						<com.facebook.drawee.view.SimpleDraweeView
 							android:id="@+id/plable_icon"
-							android:layout_width="18dp"
-							android:layout_height="18dp"
+							android:layout_width="22dp"
+							android:layout_height="22dp"
 							android:layout_alignParentLeft="true"
 							android:layout_alignParentStart="true"
 							android:layout_centerVertical="true"
@@ -779,22 +779,17 @@
 							app:placeholderImageScaleType="centerCrop"
 							app:roundAsCircle="true"/>
 
-						<com.zhy.view.flowlayout.TagFlowLayout
+						<com.dl7.tag.TagLayout
 							android:id="@+id/plable_flowlayout"
+							app:tag_view_border_color="@color/book_text_color"
+							app:tag_view_text_color="@color/book_text_color"
+							style="@style/TagLayout.custom.personal"
+							android:layout_toRightOf="@id/plable_icon"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
-							android:layout_alignParentLeft="true"
-							android:layout_alignParentStart="true"
 							android:layout_centerVertical="true"
-							android:layout_marginLeft="20dp"
-							android:layout_marginStart="20dp"
-							android:paddingBottom="8dp"
-							android:paddingTop="5dp"
-							android:paddingLeft="5dp"
-							android:paddingRight="5dp"
-							android:visibility="gone"
-							app:max_select="-1">
-						</com.zhy.view.flowlayout.TagFlowLayout>
+							android:layout_marginLeft="8dp"
+							android:layout_marginStart="8dp"/>
 
 						<View
 							android:layout_width="match_parent"
@@ -815,8 +810,8 @@
 
 						<com.facebook.drawee.view.SimpleDraweeView
 							android:id="@+id/part_icon"
-							android:layout_width="18dp"
-							android:layout_height="18dp"
+							android:layout_width="22dp"
+							android:layout_height="22dp"
 							android:layout_alignParentLeft="true"
 							android:layout_alignParentStart="true"
 							android:layout_centerVertical="true"
@@ -828,22 +823,18 @@
 							app:placeholderImageScaleType="centerCrop"
 							app:roundAsCircle="true"/>
 
-						<com.zhy.view.flowlayout.TagFlowLayout
+
+						<com.dl7.tag.TagLayout
 							android:id="@+id/part_flowlayout"
+							app:tag_view_border_color="@color/music_text_color"
+							app:tag_view_text_color="@color/music_text_color"
+							style="@style/TagLayout.custom.personal"
+							android:layout_toRightOf="@id/part_icon"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
-							android:layout_alignParentLeft="true"
-							android:layout_alignParentStart="true"
 							android:layout_centerVertical="true"
-							android:layout_marginLeft="20dp"
-							android:layout_marginStart="20dp"
-							android:paddingBottom="8dp"
-							android:paddingTop="5dp"
-							android:paddingLeft="5dp"
-							android:paddingRight="5dp"
-							android:visibility="gone"
-							app:max_select="-1">
-						</com.zhy.view.flowlayout.TagFlowLayout>
+							android:layout_marginLeft="8dp"
+							android:layout_marginStart="8dp"/>
 
 						<View
 							android:layout_width="match_parent"
@@ -864,8 +855,8 @@
 
 						<com.facebook.drawee.view.SimpleDraweeView
 							android:id="@+id/intrest_icon"
-							android:layout_width="18dp"
-							android:layout_height="18dp"
+							android:layout_width="22dp"
+							android:layout_height="22dp"
 							android:layout_alignParentLeft="true"
 							android:layout_alignParentStart="true"
 							android:layout_centerVertical="true"
@@ -877,22 +868,17 @@
 							app:placeholderImageScaleType="centerCrop"
 							app:roundAsCircle="true"/>
 
-						<com.zhy.view.flowlayout.TagFlowLayout
+						<com.dl7.tag.TagLayout
 							android:id="@+id/intrest_flowlayout"
+							style="@style/TagLayout.custom.personal"
+							app:tag_view_border_color="@color/travel_text_color"
+							app:tag_view_text_color="@color/travel_text_color"
+							android:layout_toRightOf="@id/intrest_icon"
 							android:layout_width="wrap_content"
 							android:layout_height="wrap_content"
-							android:layout_alignParentLeft="true"
-							android:layout_alignParentStart="true"
 							android:layout_centerVertical="true"
-							android:layout_marginLeft="20dp"
-							android:layout_marginStart="20dp"
-							android:paddingBottom="8dp"
-							android:paddingTop="5dp"
-							android:paddingLeft="5dp"
-							android:paddingRight="5dp"
-							android:visibility="gone"
-							app:max_select="-1">
-						</com.zhy.view.flowlayout.TagFlowLayout>
+							android:layout_marginLeft="8dp"
+							android:layout_marginStart="8dp"/>
 
 						<View
 							android:layout_width="match_parent"
