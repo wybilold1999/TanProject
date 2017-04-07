@@ -650,14 +650,22 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 				mAddress = poiItem.getSnippet();
 				mAdress.setText(mAddress);
 			} else {
-				ToastUtil.showMessage(R.string.no_result);
+				mMyLocation.setVisibility(View.GONE);
+				mMapCard.setVisibility(View.GONE);
+//				ToastUtil.showMessage(R.string.no_result);
 			}
 		} else if (rCode == 27) {
-			ToastUtil.showMessage(R.string.error_network);
+			mMyLocation.setVisibility(View.GONE);
+			mMapCard.setVisibility(View.GONE);
+//			ToastUtil.showMessage(R.string.error_network);
 		} else if (rCode == 32) {
-			ToastUtil.showMessage(R.string.error_key);
+			mMyLocation.setVisibility(View.GONE);
+			mMapCard.setVisibility(View.GONE);
+//			ToastUtil.showMessage(R.string.error_key);
 		} else {
-			ToastUtil.showMessage(getString(R.string.error_other) + rCode);
+			mMyLocation.setVisibility(View.GONE);
+			mMapCard.setVisibility(View.GONE);
+//			ToastUtil.showMessage(getString(R.string.error_other) + rCode);
 		}
 	}
 
