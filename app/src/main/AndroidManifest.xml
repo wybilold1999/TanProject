@@ -591,7 +591,7 @@
 
         <provider
             android:name="com.igexin.download.DownloadProvider"
-            android:authorities="downloads.com.getui.demo"
+            android:authorities="com.cyanbirds.tanlove"
             android:exported="true"
             android:process=":pushservice"/>
 
