@@ -18,6 +18,7 @@ import com.dl7.tag.TagLayout;
 import com.facebook.drawee.view.SimpleDraweeView;
 
 import java.text.DecimalFormat;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -110,12 +111,18 @@ public class FindLoveAdapter extends
             }
             if (!TextUtils.isEmpty(clientUser.personality_tag)) {
                 List<String> tags = StringUtil.stringToIntList(clientUser.personality_tag);
+                List<String> pTags = new ArrayList<>(3);
                 for (int i = 0; i < tags.size(); i++) {
                     if ("".equals(tags.get(i)) || " ".equals(tags.get(i))) {
                         tags.remove(i);
+                    } else {
+                        pTags.add(tags.get(i));
+                        if (pTags.size() == 3) {
+                            break;
+                        }
                     }
                 }
-                itemViewHolder.tag_layout.setTags(tags);
+                itemViewHolder.tag_layout.setTags(pTags);
             }
         }
     }
