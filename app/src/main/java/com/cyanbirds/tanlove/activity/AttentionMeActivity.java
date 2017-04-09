@@ -114,6 +114,9 @@ public class AttentionMeActivity extends BaseActivity {
                 mAdapter.setFollowModels(mFollowModels);
             } else {
                 mAdapter.setIsShowFooter(false);
+                if (followModels != null) {
+                    mFollowModels.addAll(followModels);
+                }
                 mAdapter.setFollowModels(mFollowModels);
             }
             if (mFollowModels != null && mFollowModels.size() > 0) {
