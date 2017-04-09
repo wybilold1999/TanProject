@@ -98,7 +98,7 @@ public class AttentionMeActivity extends BaseActivity {
         @Override
         public void onPostExecute(List<FollowModel> followModels) {
             mCircularProgress.setVisibility(View.GONE);
-            if(followModels != null && followModels.size() > 0){
+            if(followModels != null && followModels.size() > 0 && followModels.size() > 10){
                 if (!AppManager.getClientUser().is_vip) {//如果不是vip，移除前面3个
                     mAdapter.setIsShowFooter(true);
                     List<String> urls = new ArrayList<>(3);
