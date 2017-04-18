@@ -2,15 +2,19 @@ package com.cyanbirds.tanlove.activity;
 
 import android.Manifest;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentTabHost;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.KeyEvent;
@@ -18,6 +22,7 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.OSS;
@@ -68,6 +73,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	private ClientConfiguration mOSSConf;
 
 	private static final int REQUEST_PERMISSION = 0;
+	private final int REQUEST_LOCATION_PERMISSION = 1000;
 
 	private static final int MSG_SET_ALIAS = 1001;//极光推送设置别名
 	private static final int MSG_SET_TAGS = 1002;//极光推送设置tag
@@ -135,25 +141,12 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 
 		initMeizuPush();
 
-		/**
-		 * 启动程序的时候删除apk文件夹下的内容
-		 */
-		mHandler.post(new Runnable() {
-			@Override
-			public void run() {
-				File file = FileAccessorUtils.getAPKPathName();
-				if (file != null && file.exists()) {
-					File[] files = file.listFiles();
-					if (files.length > 0) {
-						for(File f : files) {
-							f.delete();
-						}
-					}
-				}
-			}
-		});
-
 		loadData();
+
+		if (!PreferencesUtils.getAccessLocationStatus(this)) {//还没获取到位置权限
+			AppManager.requestLocationPermission(this);
+		}
+
 	}
 
 	/**
@@ -368,14 +361,40 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 			if ((grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
 				PushManager.getInstance().initialize(this.getApplicationContext(), MyPushService.class);
 			} else {
-				Log.e("GetuiSdkDemo",
-						"we highly recommend that you need to grant the special permissions before initializing the SDK, otherwise some "
-								+ "functions will not work");
 				PushManager.getInstance().initialize(this.getApplicationContext(), MyPushService.class);
+			}
+		} else if (requestCode == REQUEST_LOCATION_PERMISSION) {
+			// 拒绝授权
+			if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+				// 勾选了不再提示
+				if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION) &&
+						!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+				} else {
+					showAccessLocationDialog();
+				}
+			} else {
+				PreferencesUtils.setAccessLocationStatus(this, true);
 			}
 		} else {
 			super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 		}
+	}
+
+	private void showAccessLocationDialog(){
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(R.string.access_location);
+		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+				if (Build.VERSION.SDK_INT >= 23) {
+					ActivityCompat.requestPermissions(MainActivity.this, new String[] {android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION},
+							REQUEST_LOCATION_PERMISSION);
+				}
+
+			}
+		});
+		builder.show();
 	}
 
 	/**

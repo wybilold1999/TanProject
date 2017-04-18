@@ -96,6 +96,8 @@ public class PreferencesUtils {
 	public static final String SETTINGS_LATITUDE = "com.cyanbird.tanlove_latitude";
 	/**纬度**/
 	public static final String SETTINGS_LONGITUDE = "com.cyanbird.tanlove_longitude";
+	/**获取位置权限**/
+	public static final String SETTINGS_ACCESS_LOCATION = "com.cyanbird.tanlove_access_location";
 
 	/**
 	 * 获取RL账号
@@ -1023,6 +1025,18 @@ public class PreferencesUtils {
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(context);
 		sp.edit().putString(SETTINGS_LONGITUDE, longitude).commit();
+	}
+
+	public static boolean getAccessLocationStatus(final Context context) {
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sp.getBoolean(SETTINGS_ACCESS_LOCATION, false);
+	}
+
+	public static void setAccessLocationStatus(final Context context, final boolean isAccessed) {
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		sp.edit().putBoolean(SETTINGS_ACCESS_LOCATION, isAccessed).commit();
 	}
 
 }

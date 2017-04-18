@@ -219,6 +219,7 @@
     <string name="get_banlance">提现申请最少100元，必须为100的整数倍</string>
     <string name="account_banlance">账户余额:%1$d元</string>
     <string name="today_money">今日已赚:%1$d元</string>
+    <string name="access_location">获取您的位置后才能查看附近用户，是否获取？</string>
 
     <string name="errcode_success">发送成功</string>
     <string name="errcode_cancel">发送取消</string>

@@ -4,9 +4,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Color;
-import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
@@ -24,9 +22,9 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
-import com.amap.api.location.LocationManagerProxy;
-import com.amap.api.location.LocationProviderProxy;
 import com.amap.api.maps2d.AMap;
 import com.amap.api.maps2d.CameraUpdateFactory;
 import com.amap.api.maps2d.MapView;
@@ -50,7 +48,6 @@ import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.UpdateGoldRequest;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.StringUtil;
-import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.dl7.tag.TagLayout;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.umeng.analytics.MobclickAgent;
@@ -72,7 +69,7 @@ import butterknife.OnClick;
  * @email: 395044952@qq.com
  * @description:
  */
-public class TabPersonalFragment extends Fragment implements AMapLocationListener, Runnable, GeocodeSearch.OnGeocodeSearchListener,
+public class TabPersonalFragment extends Fragment implements AMapLocationListener, GeocodeSearch.OnGeocodeSearchListener,
 		AMap.OnMapScreenShotListener{
 	@BindView(R.id.occupation)
 	TextView mOccupation;
@@ -175,16 +172,14 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 
 	private AMap aMap;
 	private UiSettings mUiSettings;
-	private LocationManagerProxy aMapLocManager = null;
-	private AMapLocation aMapLocation;// 用于判断定位超时
 	private GeocodeSearch geocoderSearch;
+	private AMapLocationClientOption mLocationOption;
+	private AMapLocationClient mlocationClient;
 
 	private LatLonPoint mLatLonPoint;
 	private String mAddress;// 选中的地址
 	private double latitude;
 	private double longitude;
-
-	private Handler handler = new Handler();
 
 	private View rootView;
 
@@ -195,7 +190,6 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 	private TabPersonalPhotosAdapter mAdapter;
 	private LinearLayoutManager layoutManager;
 	private LinearLayoutManager mGiftLayoutManager;
-//	private Gson gson = new Gson();
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -231,15 +225,24 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 			mUiSettings.setZoomGesturesEnabled(false);
 			aMap.moveCamera(CameraUpdateFactory.zoomTo(16));// 设置缩放比例
 		}
+
+		mlocationClient = new AMapLocationClient(getActivity());
+		//初始化定位参数
+		mLocationOption = new AMapLocationClientOption();
+		//设置定位监听
+		mlocationClient.setLocationListener(this);
+		//设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
+		mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+		//获取最近3s内精度最高的一次定位结果：
+		mLocationOption.setOnceLocationLatest(true);
+		//设置定位参数
+		mlocationClient.setLocationOption(mLocationOption);
+		//启动定位
+		mlocationClient.startLocation();
+
 		// 地理编码
 		geocoderSearch = new GeocodeSearch(getActivity());
 		geocoderSearch.setOnGeocodeSearchListener(this);
-		// 定位
-		aMapLocManager = LocationManagerProxy.getInstance(getActivity());
-		aMapLocManager.setGpsEnable(false);
-		aMapLocManager.requestLocationData(LocationProviderProxy.AMapNetwork,
-				-1, 10, this);
-		handler.postDelayed(this, 12000);// 设置超过12秒还没有定位到就停止定位
 	}
 
 	private void setupEvent() {
@@ -314,19 +317,6 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 		} else {
 			mSocialCard.setVisibility(View.GONE);
 			mSocialText.setVisibility(View.GONE);
-		}
-		if (AppManager.getClientUser().isShowVip &&
-				!TextUtils.isEmpty(clientUser.distance) &&
-				!"0.0".equals(clientUser.distance)) {
-			mMyLocation.setVisibility(View.VISIBLE);
-			mMapCard.setVisibility(View.VISIBLE);
-		} else {
-			mMapCard.setVisibility(View.GONE);
-			mMyLocation.setVisibility(View.GONE);
-		}
-		if (clientUser.userId.equals(AppManager.getClientUser().userId)) {
-			mMyLocation.setVisibility(View.GONE);
-			mMapCard.setVisibility(View.GONE);
 		}
 		if (!TextUtils.isEmpty(clientUser.purpose)) {
 			mPurpose.setText(clientUser.purpose);
@@ -568,7 +558,6 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 	public void onPause() {
 		super.onPause();
 		mapView.onPause();
-		stopLocation();// 停止定位
 		MobclickAgent.onPageEnd(this.getClass().getName());
 	}
 
@@ -578,26 +567,56 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 		mapView.onSaveInstanceState(outState);
 	}
 
-	/**
-	 * 销毁定位
-	 */
-	private void stopLocation() {
-		if (aMapLocManager != null) {
-			aMapLocManager.removeUpdates(this);
-			aMapLocManager.destroy();
-		}
-		aMapLocManager = null;
-	}
-
 	@Override
 	public void onLocationChanged(final AMapLocation location) {
 		if (location != null) {
-			AppManager.getExecutorService().execute(new Runnable() {
+			if (AppManager.getClientUser().isShowVip &&
+					!TextUtils.isEmpty(clientUser.distance) &&
+					!"0.0".equals(clientUser.distance)) {
+				mMyLocation.setVisibility(View.VISIBLE);
+				mMapCard.setVisibility(View.VISIBLE);
+			} else {
+				mMapCard.setVisibility(View.GONE);
+				mMyLocation.setVisibility(View.GONE);
+			}
+			if (clientUser.userId.equals(AppManager.getClientUser().userId)) {
+				mMyLocation.setVisibility(View.GONE);
+				mMapCard.setVisibility(View.GONE);
+			}
+			PreferencesUtils.setLatitude(getActivity(), String.valueOf(location.getLatitude()));
+			PreferencesUtils.setLongitude(getActivity(), String.valueOf(location.getLongitude()));
+			LatLonPoint latLonPoint = new LatLonPoint(location.getLatitude() + latitude,
+					location.getLongitude() + longitude);
+			mLatLonPoint = latLonPoint;
+			LatLng latLng = new LatLng(location.getLatitude() + latitude,
+					location.getLongitude() + longitude);
+			aMap.animateCamera(CameraUpdateFactory.changeLatLng(latLng));
+			RegeocodeQuery query = new RegeocodeQuery(latLonPoint, 1000,
+					GeocodeSearch.AMAP);// 第一个参数表示一个Latlng，第二参数表示范围多少米，第三个参数表示是火系坐标系还是GPS原生坐标系
+			geocoderSearch.getFromLocationAsyn(query);// 设置同步逆地理编码请求
+			/*AppManager.getExecutorService().execute(new Runnable() {
 				@Override
 				public void run() {
+					*//*getActivity().runOnUiThread(new Runnable() {
+						@Override
+						public void run() {
+							if (AppManager.getClientUser().isShowVip &&
+									!TextUtils.isEmpty(clientUser.distance) &&
+									!"0.0".equals(clientUser.distance)) {
+								mMyLocation.setVisibility(View.VISIBLE);
+								mMapCard.setVisibility(View.VISIBLE);
+							} else {
+								mMapCard.setVisibility(View.GONE);
+								mMyLocation.setVisibility(View.GONE);
+							}
+							if (clientUser.userId.equals(AppManager.getClientUser().userId)) {
+								mMyLocation.setVisibility(View.GONE);
+								mMapCard.setVisibility(View.GONE);
+							}
+						}
+					});*//*
 					PreferencesUtils.setLatitude(getActivity(), String.valueOf(location.getLatitude()));
 					PreferencesUtils.setLongitude(getActivity(), String.valueOf(location.getLongitude()));
-					aMapLocation = location;// 判断超时机制
 					LatLonPoint latLonPoint = new LatLonPoint(location.getLatitude() + latitude,
 							location.getLongitude() + longitude);
 					mLatLonPoint = latLonPoint;
@@ -608,31 +627,12 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 							GeocodeSearch.AMAP);// 第一个参数表示一个Latlng，第二参数表示范围多少米，第三个参数表示是火系坐标系还是GPS原生坐标系
 					geocoderSearch.getFromLocationAsyn(query);// 设置同步逆地理编码请求
 				}
-			});
+			});*/
 		} else {
 			mMapCard.setVisibility(View.GONE);
 		}
 	}
 
-	@Override
-	public void onLocationChanged(Location location) {
-
-	}
-
-	@Override
-	public void onStatusChanged(String provider, int status, Bundle extras) {
-
-	}
-
-	@Override
-	public void onProviderEnabled(String provider) {
-
-	}
-
-	@Override
-	public void onProviderDisabled(String provider) {
-
-	}
 
 	@Override
 	public void onMapScreenShot(Bitmap bitmap) {
@@ -641,7 +641,7 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 
 	@Override
 	public void onRegeocodeSearched(RegeocodeResult result, int rCode) {
-		if (rCode == 0) {
+		if (rCode == 1000) {
 			if (result != null && result.getRegeocodeAddress() != null
 					&& result.getRegeocodeAddress().getFormatAddress() != null) {
 				PoiItem poiItem = new PoiItem("", mLatLonPoint, "", result
@@ -671,12 +671,5 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 	@Override
 	public void onGeocodeSearched(GeocodeResult geocodeResult, int i) {
 
-	}
-
-	@Override
-	public void run() {
-		if (aMapLocation == null) {
-			stopLocation();// 销毁掉定位
-		}
 	}
 }
