@@ -16,13 +16,11 @@ import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentTabHost;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.OSS;
@@ -30,6 +28,10 @@ import com.alibaba.sdk.android.oss.OSSClient;
 import com.alibaba.sdk.android.oss.common.OSSLog;
 import com.alibaba.sdk.android.oss.common.auth.OSSCredentialProvider;
 import com.alibaba.sdk.android.oss.common.auth.OSSStsTokenCredentialProvider;
+import com.amap.api.location.AMapLocation;
+import com.amap.api.location.AMapLocationClient;
+import com.amap.api.location.AMapLocationClientOption;
+import com.amap.api.location.AMapLocationListener;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.AppConstants;
@@ -48,7 +50,6 @@ import com.cyanbirds.tanlove.manager.NotificationManager;
 import com.cyanbirds.tanlove.net.request.GetOSSTokenRequest;
 import com.cyanbirds.tanlove.service.MyIntentService;
 import com.cyanbirds.tanlove.service.MyPushService;
-import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.PushMsgUtil;
 import com.cyanbirds.tanlove.utils.ToastUtil;
@@ -58,14 +59,13 @@ import com.umeng.analytics.MobclickAgent;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.yuntongxun.ecsdk.ECInitParams;
 
-import java.io.File;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
 import cn.jpush.android.api.JPushInterface;
 import cn.jpush.android.api.TagAliasCallback;
 
-public class MainActivity extends BaseActivity implements MessageUnReadListener.OnMessageUnReadListener {
+public class MainActivity extends BaseActivity implements MessageUnReadListener.OnMessageUnReadListener, AMapLocationListener {
 
 	private String TAG = this.getClass().getSimpleName();
 	private FragmentTabHost mTabHost;
@@ -74,11 +74,16 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 
 	private static final int REQUEST_PERMISSION = 0;
 	private final int REQUEST_LOCATION_PERMISSION = 1000;
+	private final int REQUEST_PERMISSION_SETTING = 10001;
 
 	private static final int MSG_SET_ALIAS = 1001;//极光推送设置别名
 	private static final int MSG_SET_TAGS = 1002;//极光推送设置tag
 
 	private long clickTime = 0; //记录第一次点击的时间
+
+	private AMapLocationClientOption mLocationOption;
+	private AMapLocationClient mlocationClient;
+	private boolean isSecondAccess = false;
 
 	private final Handler mHandler = new Handler() {
 		@Override
@@ -126,20 +131,26 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		SDKCoreHelper.init(this, ECInitParams.LoginMode.FORCE_LOGIN);
 		updateConversationUnRead();
 
-		/**
-		 * 注册小米推送
-		 */
-		MiPushClient.registerPush(this, AppConstants.MI_PUSH_APP_ID, AppConstants.MI_PUSH_APP_KEY);
-		/**
-		 * 注册信鸽推送
-		 */
-		XGPushManager.registerPush(getApplicationContext(), "userId=" + AppManager.getClientUser().userId);
-		//个推
-		initGeTuiPush();
 
-		initJPush();
+		AppManager.getExecutorService().execute(new Runnable() {
+			@Override
+			public void run() {
+				/**
+				 * 注册小米推送
+				 */
+				MiPushClient.registerPush(MainActivity.this, AppConstants.MI_PUSH_APP_ID, AppConstants.MI_PUSH_APP_KEY);
+				/**
+				 * 注册信鸽推送
+				 */
+				XGPushManager.registerPush(getApplicationContext(), "userId=" + AppManager.getClientUser().userId);
+				//个推
+				initGeTuiPush();
 
-		initMeizuPush();
+				initJPush();
+
+				initMeizuPush();
+			}
+		});
 
 		loadData();
 
@@ -147,6 +158,26 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 			AppManager.requestLocationPermission(this);
 		}
 
+		initLocationClient();
+	}
+
+	/**
+	 * 初始化定位
+	 */
+	private void initLocationClient() {
+		mlocationClient = new AMapLocationClient(this);
+		//初始化定位参数
+		mLocationOption = new AMapLocationClientOption();
+		//设置定位监听
+		mlocationClient.setLocationListener(this);
+		//设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
+		mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
+		//获取最近3s内精度最高的一次定位结果：
+		mLocationOption.setOnceLocationLatest(true);
+		//设置定位参数
+		mlocationClient.setLocationOption(mLocationOption);
+		//启动定位
+		mlocationClient.startLocation();
 	}
 
 	/**
@@ -220,21 +251,8 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	 * 个推注册
 	 */
 	private void initGeTuiPush() {
-		PackageManager pkgManager = getPackageManager();
-		// 读写 sd card 权限非常重要, android6.0默认禁止的, 建议初始化之前就弹窗让用户赋予该权限
-		boolean sdCardWritePermission =
-				pkgManager.checkPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, getPackageName()) == PackageManager.PERMISSION_GRANTED;
-		// read phone state用于获取 imei 设备信息
-		boolean phoneSatePermission =
-				pkgManager.checkPermission(Manifest.permission.READ_PHONE_STATE, getPackageName()) == PackageManager.PERMISSION_GRANTED;
-		if (Build.VERSION.SDK_INT >= 23 && !sdCardWritePermission || !phoneSatePermission) {
-			//请求权限
-			ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_PHONE_STATE},
-					REQUEST_PERMISSION);
-		} else {
-			// SDK初始化，第三方程序启动时，都要进行SDK初始化工作
-			PushManager.getInstance().initialize(this.getApplicationContext(), MyPushService.class);
-		}
+		// SDK初始化，第三方程序启动时，都要进行SDK初始化工作
+		PushManager.getInstance().initialize(this.getApplicationContext(), MyPushService.class);
 		PushManager.getInstance().registerPushIntentService(this.getApplicationContext(), MyIntentService.class);
 	}
 
@@ -268,6 +286,14 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		setIntent(intent);// 必须要调用这句(信鸽推送)
 		mCurrentTab = getIntent().getIntExtra(CURRENT_TAB, 0);
 		mTabHost.setCurrentTab(mCurrentTab);
+	}
+
+	@Override
+	public void onLocationChanged(AMapLocation aMapLocation) {
+		if (aMapLocation != null) {
+			AppManager.getClientUser().latitude = String.valueOf(aMapLocation.getLatitude());
+			AppManager.getClientUser().longitude = String.valueOf(aMapLocation.getLongitude());
+		}
 	}
 
 	/**
@@ -369,8 +395,11 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 				// 勾选了不再提示
 				if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION) &&
 						!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
+					showOpenLocationDialog();
 				} else {
-					showAccessLocationDialog();
+					if (!isSecondAccess) {
+						showAccessLocationDialog();
+					}
 				}
 			} else {
 				PreferencesUtils.setAccessLocationStatus(this, true);
@@ -379,6 +408,24 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 			super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 		}
 	}
+
+	private void showOpenLocationDialog(){
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(R.string.open_location);
+		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+				Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
+				Uri uri = Uri.fromParts("package", getPackageName(), null);
+				intent.setData(uri);
+				startActivityForResult(intent, REQUEST_PERMISSION_SETTING);
+
+			}
+		});
+		builder.show();
+	}
+
 
 	private void showAccessLocationDialog(){
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
@@ -452,4 +499,11 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		return super.onKeyDown(keyCode, event);
 	}
 
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == REQUEST_PERMISSION_SETTING) {
+			initLocationClient();
+		}
+	}
 }

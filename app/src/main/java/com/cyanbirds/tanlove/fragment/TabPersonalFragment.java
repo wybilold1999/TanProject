@@ -21,10 +21,6 @@ import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.amap.api.location.AMapLocation;
-import com.amap.api.location.AMapLocationClient;
-import com.amap.api.location.AMapLocationClientOption;
-import com.amap.api.location.AMapLocationListener;
 import com.amap.api.maps2d.AMap;
 import com.amap.api.maps2d.CameraUpdateFactory;
 import com.amap.api.maps2d.MapView;
@@ -46,7 +42,6 @@ import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.eventtype.UserEvent;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.UpdateGoldRequest;
-import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.StringUtil;
 import com.dl7.tag.TagLayout;
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -69,7 +64,7 @@ import butterknife.OnClick;
  * @email: 395044952@qq.com
  * @description:
  */
-public class TabPersonalFragment extends Fragment implements AMapLocationListener, GeocodeSearch.OnGeocodeSearchListener,
+public class TabPersonalFragment extends Fragment implements GeocodeSearch.OnGeocodeSearchListener,
 		AMap.OnMapScreenShotListener{
 	@BindView(R.id.occupation)
 	TextView mOccupation;
@@ -173,8 +168,6 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 	private AMap aMap;
 	private UiSettings mUiSettings;
 	private GeocodeSearch geocoderSearch;
-	private AMapLocationClientOption mLocationOption;
-	private AMapLocationClient mlocationClient;
 
 	private LatLonPoint mLatLonPoint;
 	private String mAddress;// 选中的地址
@@ -226,23 +219,11 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 			aMap.moveCamera(CameraUpdateFactory.zoomTo(16));// 设置缩放比例
 		}
 
-		mlocationClient = new AMapLocationClient(getActivity());
-		//初始化定位参数
-		mLocationOption = new AMapLocationClientOption();
-		//设置定位监听
-		mlocationClient.setLocationListener(this);
-		//设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
-		mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
-		//获取最近3s内精度最高的一次定位结果：
-		mLocationOption.setOnceLocationLatest(true);
-		//设置定位参数
-		mlocationClient.setLocationOption(mLocationOption);
-		//启动定位
-		mlocationClient.startLocation();
 
 		// 地理编码
 		geocoderSearch = new GeocodeSearch(getActivity());
 		geocoderSearch.setOnGeocodeSearchListener(this);
+
 	}
 
 	private void setupEvent() {
@@ -272,6 +253,7 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 				latitude = Double.parseDouble(lat);
 				longitude = Double.parseDouble(lon);
 			}
+			getLocation();
 			if (clientUser != null) {
 				setUserInfo(clientUser);
 				/**
@@ -307,6 +289,26 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 					mGiftCard.setVisibility(View.GONE);
 				}
 			}
+		}
+	}
+
+	/**
+	 * 展示用户地图
+	 */
+	private void getLocation() {
+		String myLatitude = AppManager.getClientUser().latitude;
+		String myLongitude = AppManager.getClientUser().longitude;
+		if (!TextUtils.isEmpty(myLatitude) &&
+				!TextUtils.isEmpty(myLongitude)) {
+			LatLonPoint latLonPoint = new LatLonPoint(Double.parseDouble(myLatitude) + latitude,
+					Double.parseDouble(myLongitude) + longitude);
+			mLatLonPoint = latLonPoint;
+			LatLng latLng = new LatLng(Double.parseDouble(myLatitude) + latitude,
+					Double.parseDouble(myLongitude) + longitude);
+			aMap.animateCamera(CameraUpdateFactory.changeLatLng(latLng));
+			RegeocodeQuery query = new RegeocodeQuery(latLonPoint, 1000,
+					GeocodeSearch.AMAP);// 第一个参数表示一个Latlng，第二参数表示范围多少米，第三个参数表示是火系坐标系还是GPS原生坐标系
+			geocoderSearch.getFromLocationAsyn(query);// 设置同步逆地理编码请求
 		}
 	}
 
@@ -568,73 +570,6 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 	}
 
 	@Override
-	public void onLocationChanged(final AMapLocation location) {
-		if (location != null) {
-			if (AppManager.getClientUser().isShowVip &&
-					!TextUtils.isEmpty(clientUser.distance) &&
-					!"0.0".equals(clientUser.distance)) {
-				mMyLocation.setVisibility(View.VISIBLE);
-				mMapCard.setVisibility(View.VISIBLE);
-			} else {
-				mMapCard.setVisibility(View.GONE);
-				mMyLocation.setVisibility(View.GONE);
-			}
-			if (clientUser.userId.equals(AppManager.getClientUser().userId)) {
-				mMyLocation.setVisibility(View.GONE);
-				mMapCard.setVisibility(View.GONE);
-			}
-			PreferencesUtils.setLatitude(getActivity(), String.valueOf(location.getLatitude()));
-			PreferencesUtils.setLongitude(getActivity(), String.valueOf(location.getLongitude()));
-			LatLonPoint latLonPoint = new LatLonPoint(location.getLatitude() + latitude,
-					location.getLongitude() + longitude);
-			mLatLonPoint = latLonPoint;
-			LatLng latLng = new LatLng(location.getLatitude() + latitude,
-					location.getLongitude() + longitude);
-			aMap.animateCamera(CameraUpdateFactory.changeLatLng(latLng));
-			RegeocodeQuery query = new RegeocodeQuery(latLonPoint, 1000,
-					GeocodeSearch.AMAP);// 第一个参数表示一个Latlng，第二参数表示范围多少米，第三个参数表示是火系坐标系还是GPS原生坐标系
-			geocoderSearch.getFromLocationAsyn(query);// 设置同步逆地理编码请求
-			/*AppManager.getExecutorService().execute(new Runnable() {
-				@Override
-				public void run() {
-					*//*getActivity().runOnUiThread(new Runnable() {
-						@Override
-						public void run() {
-							if (AppManager.getClientUser().isShowVip &&
-									!TextUtils.isEmpty(clientUser.distance) &&
-									!"0.0".equals(clientUser.distance)) {
-								mMyLocation.setVisibility(View.VISIBLE);
-								mMapCard.setVisibility(View.VISIBLE);
-							} else {
-								mMapCard.setVisibility(View.GONE);
-								mMyLocation.setVisibility(View.GONE);
-							}
-							if (clientUser.userId.equals(AppManager.getClientUser().userId)) {
-								mMyLocation.setVisibility(View.GONE);
-								mMapCard.setVisibility(View.GONE);
-							}
-						}
-					});*//*
-					PreferencesUtils.setLatitude(getActivity(), String.valueOf(location.getLatitude()));
-					PreferencesUtils.setLongitude(getActivity(), String.valueOf(location.getLongitude()));
-					LatLonPoint latLonPoint = new LatLonPoint(location.getLatitude() + latitude,
-							location.getLongitude() + longitude);
-					mLatLonPoint = latLonPoint;
-					LatLng latLng = new LatLng(location.getLatitude() + latitude,
-							location.getLongitude() + longitude);
-					aMap.animateCamera(CameraUpdateFactory.changeLatLng(latLng));
-					RegeocodeQuery query = new RegeocodeQuery(latLonPoint, 1000,
-							GeocodeSearch.AMAP);// 第一个参数表示一个Latlng，第二参数表示范围多少米，第三个参数表示是火系坐标系还是GPS原生坐标系
-					geocoderSearch.getFromLocationAsyn(query);// 设置同步逆地理编码请求
-				}
-			});*/
-		} else {
-			mMapCard.setVisibility(View.GONE);
-		}
-	}
-
-
-	@Override
 	public void onMapScreenShot(Bitmap bitmap) {
 
 	}
@@ -648,6 +583,20 @@ public class TabPersonalFragment extends Fragment implements AMapLocationListene
 						.getRegeocodeAddress().getFormatAddress());
 				mAddress = poiItem.getSnippet();
 				mAdress.setText(mAddress);
+				if (AppManager.getClientUser().isShowVip &&
+						!TextUtils.isEmpty(clientUser.distance) &&
+						!"0.0".equals(clientUser.distance) &&
+						!TextUtils.isEmpty(mAddress)) {
+					mMyLocation.setVisibility(View.VISIBLE);
+					mMapCard.setVisibility(View.VISIBLE);
+				} else {
+					mMapCard.setVisibility(View.GONE);
+					mMyLocation.setVisibility(View.GONE);
+				}
+				if (clientUser.userId.equals(AppManager.getClientUser().userId)) {
+					mMyLocation.setVisibility(View.GONE);
+					mMapCard.setVisibility(View.GONE);
+				}
 			} else {
 				mMyLocation.setVisibility(View.GONE);
 				mMapCard.setVisibility(View.GONE);
