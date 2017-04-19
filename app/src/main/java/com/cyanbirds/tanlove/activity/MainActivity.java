@@ -67,7 +67,6 @@ import cn.jpush.android.api.TagAliasCallback;
 
 public class MainActivity extends BaseActivity implements MessageUnReadListener.OnMessageUnReadListener, AMapLocationListener {
 
-	private String TAG = this.getClass().getSimpleName();
 	private FragmentTabHost mTabHost;
 	private int mCurrentTab;
 	private ClientConfiguration mOSSConf;
@@ -157,6 +156,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		if (!PreferencesUtils.getAccessLocationStatus(this)) {//还没获取到位置权限
 			AppManager.requestLocationPermission(this);
 		}
+		requestPermission();
 
 		initLocationClient();
 	}
@@ -178,6 +178,21 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		mlocationClient.setLocationOption(mLocationOption);
 		//启动定位
 		mlocationClient.startLocation();
+	}
+
+	/**
+	 * 请求读写文件夹的权限
+	 */
+	private void requestPermission() {
+		PackageManager pkgManager = getPackageManager();
+		// 读写 sd card 权限非常重要, android6.0默认禁止的, 建议初始化之前就弹窗让用户赋予该权限
+		boolean sdCardWritePermission =
+				pkgManager.checkPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, getPackageName()) == PackageManager.PERMISSION_GRANTED;
+		if (Build.VERSION.SDK_INT >= 23 && !sdCardWritePermission) {
+			//请求权限
+			ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
+					REQUEST_PERMISSION);
+		}
 	}
 
 	/**
@@ -384,11 +399,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	@Override
 	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 		if (requestCode == REQUEST_PERMISSION) {
-			if ((grantResults.length == 2 && grantResults[0] == PackageManager.PERMISSION_GRANTED && grantResults[1] == PackageManager.PERMISSION_GRANTED)) {
-				PushManager.getInstance().initialize(this.getApplicationContext(), MyPushService.class);
-			} else {
-				PushManager.getInstance().initialize(this.getApplicationContext(), MyPushService.class);
-			}
+
 		} else if (requestCode == REQUEST_LOCATION_PERMISSION) {
 			// 拒绝授权
 			if (grantResults[0] == PackageManager.PERMISSION_DENIED) {

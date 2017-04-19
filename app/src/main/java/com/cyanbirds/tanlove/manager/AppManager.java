@@ -471,6 +471,21 @@ public class AppManager {
 		}
 	}
 
+	public static boolean checkPermission(Activity activity, String permission, int flag) {
+		boolean isHasPermission = false;
+		if (Build.VERSION.SDK_INT >= 23) {
+			PackageManager pkgManager = CSApplication.getInstance().getPackageManager();
+			isHasPermission = pkgManager.checkPermission(permission, getPackageName()) == PackageManager.PERMISSION_GRANTED;
+			if (!isHasPermission) {
+				//请求权限
+				ActivityCompat.requestPermissions(activity, new String[] {permission}, flag);
+			}
+		} else {
+			isHasPermission = true;
+		}
+		return isHasPermission;
+	}
+
 	/**
 	 * 获取需要上传到oss路径
 	 *
