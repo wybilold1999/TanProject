@@ -80,8 +80,7 @@ public class GetYuanFenUserRequest extends ResultPostExecute<List<YuanFenModel>>
             List<YuanFenModel> models = gson.fromJson(dataString, listType);
             onPostExecute(models);
         } catch (Exception e) {
-            onErrorExecute(CSApplication.getInstance().getResources()
-                    .getString(R.string.data_parser_error));
+            onErrorExecute("推荐用户失败,请重新获取");
         }
     }
 }
