@@ -129,7 +129,7 @@ public class TabPersonalFragment extends Fragment implements GeocodeSearch.OnGeo
 	@BindView(R.id.social_card)
 	CardView mSocialCard;
 	@BindView(R.id.plable_icon)
-	SimpleDraweeView mPlableIcon;
+	ImageView mPlableIcon;
 	@BindView(R.id.plable_lay)
 	RelativeLayout mPlableLay;
 	@BindView(R.id.part_icon)
