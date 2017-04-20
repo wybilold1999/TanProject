@@ -3,7 +3,6 @@ package com.cyanbirds.tanlove.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -89,7 +88,6 @@ public class CardActivity extends BaseActivity implements CardSlidePanel.CardSwi
 
 	@Override
 	public void onShow(int index) {
-		Log.d("test", "正在显示-" + dataList.get(index).userName);
 		curUserId = dataList.get(index).userId;
 		if (index >= dataList.size() - 3) {
 			//请求数据
@@ -99,7 +97,6 @@ public class CardActivity extends BaseActivity implements CardSlidePanel.CardSwi
 
 	@Override
 	public void onCardVanish(int index, int type) {
-		Log.d("test", "正在消失-" + dataList.get(index).userName + " 消失type=" + type);
 		if (type == 1) {//向右滑
 			new SenderGreetTask().request(String.valueOf(curUserId));
 			new AddLoveRequest().request(String.valueOf(curUserId));
@@ -108,7 +105,6 @@ public class CardActivity extends BaseActivity implements CardSlidePanel.CardSwi
 
 	@Override
 	public void onItemClick(View cardImageView, int index) {
-		Log.d("test", "卡片点击-" + dataList.get(index).userName);
 		Intent intent = new Intent(this, PersonalInfoActivity.class);
 		intent.putExtra(ValueKey.USER_ID, String.valueOf(dataList.get(index).userId));
 		startActivity(intent);

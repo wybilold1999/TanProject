@@ -1,6 +1,7 @@
 package com.cyanbirds.tanlove.net.request;
 
 import android.support.v4.util.ArrayMap;
+import android.util.Log;
 
 import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;

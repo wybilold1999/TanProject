@@ -156,6 +156,11 @@
         android:orientation="horizontal"
         android:layout_gravity="bottom">
 
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="@color/gray_text"/>
+
         <TextView
             android:id="@+id/gift"
             android:layout_width="0dp"
