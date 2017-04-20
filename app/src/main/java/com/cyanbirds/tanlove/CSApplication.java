@@ -26,7 +26,6 @@ import com.facebook.imagepipeline.listener.RequestLoggingListener;
 import com.facebook.imagepipeline.memory.PoolConfig;
 import com.facebook.imagepipeline.memory.PoolFactory;
 import com.facebook.imagepipeline.memory.PoolParams;
-import com.facebook.stetho.Stetho;
 import com.liulishuo.filedownloader.FileDownloader;
 import com.liulishuo.filedownloader.util.FileDownloadHelper;
 import com.tencent.mm.sdk.openapi.IWXAPI;
@@ -83,11 +82,11 @@ public class CSApplication extends MultiDexApplication {
 
 		registerWeiXin();
 
-		Stetho.initialize(Stetho
+		/*Stetho.initialize(Stetho
 				.newInitializerBuilder(this)
 				.enableDumpapp(Stetho.defaultDumperPluginsProvider(this))
 				.enableWebKitInspector(
-						Stetho.defaultInspectorModulesProvider(this)).build());
+						Stetho.defaultInspectorModulesProvider(this)).build());*/
 	}
 
 	private void registerWeiXin() {
