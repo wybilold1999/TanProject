@@ -43,6 +43,7 @@
     <string name="party_img">【活动图片】</string>
     <string name="reward">抽奖活动</string>
     <string name="reward_info">抽奖活动说明：\n\n 1、购买套餐达200元，可以进行3次抽奖 \n 2、活动截止日期2017-03-31</string>
+    <string name="recommend">推荐用户失败,请重新获取</string>
 
     <string name="regist_params_error">注册参数错误，请检查</string>
     <string name="dynamic_content_hint">表达一下此刻的心情吧...</string>
