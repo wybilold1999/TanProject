@@ -196,7 +196,7 @@
     <string name="search">筛选</string>
     <string name="search_option">筛选条件</string>
     <string name="notification_tips">%1$d个联系人发来%2$d条消息</string>
-    <string name="init_official_message">欢迎使用探爱,探爱是真实高效的约会交友平台。如果在使用的过程中有任何问题或者建议,记得给我们反馈哦。</string>
+    <string name="init_official_message">在匆忙的城市里，每天都有无数人在擦肩而过，却又没有方法彼此相识，这是一种全新的相遇方式，简单、心动、惊喜,相遇本该如此美好。</string>
     <string name="weibosdk_demo_toast_auth_success">授权成功</string>
     <string name="weibosdk_demo_toast_auth_failed">授权失败</string>
     <string name="weibosdk_demo_toast_auth_canceled">取消授权</string>
