@@ -45,33 +45,43 @@
 			android:text="原价5金币"
 			android:textSize="12sp"/>
 
-		<TextView
+		<LinearLayout
+			android:id="@+id/vip_lay"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical"
-			android:layout_marginLeft="2dp"
-			android:gravity="center_vertical"
-			android:text="/"/>
+			android:orientation="horizontal"
+			android:visibility="gone">
 
-		<ImageView
-			android:layout_width="14dp"
-			android:layout_height="14dp"
-			android:layout_gravity="center_vertical"
-			android:layout_marginLeft="2dp"
-			android:gravity="center_vertical"
-			android:scaleType="fitCenter"
-			android:src="@mipmap/vip"/>
+			<TextView
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_vertical"
+				android:layout_marginLeft="2dp"
+				android:gravity="center_vertical"
+				android:text="/"/>
 
-		<TextView
-			android:id="@+id/vip_amount"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"
-			android:layout_gravity="center_vertical"
-			android:layout_marginLeft="2dp"
-			android:gravity="center_vertical"
-			android:text="3金币"
-			android:textColor="@android:color/holo_red_light"
-			android:textSize="12sp"/>
+			<ImageView
+				android:id="@+id/iv_vip"
+				android:layout_width="14dp"
+				android:layout_height="14dp"
+				android:layout_gravity="center_vertical"
+				android:layout_marginLeft="2dp"
+				android:gravity="center_vertical"
+				android:scaleType="fitCenter"
+				android:src="@mipmap/vip"/>
+
+			<TextView
+				android:id="@+id/vip_amount"
+				android:layout_width="wrap_content"
+				android:layout_height="wrap_content"
+				android:layout_gravity="center_vertical"
+				android:layout_marginLeft="2dp"
+				android:gravity="center_vertical"
+				android:text="3金币"
+				android:textColor="@android:color/holo_red_light"
+				android:textSize="12sp"/>
+
+		</LinearLayout>
 
 	</LinearLayout>
 

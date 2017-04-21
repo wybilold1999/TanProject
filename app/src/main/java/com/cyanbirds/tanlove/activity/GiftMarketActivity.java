@@ -11,6 +11,8 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.cyanbirds.tanlove.R;
@@ -47,6 +49,8 @@ public class GiftMarketActivity extends BaseActivity implements View.OnClickList
 	SimpleDraweeView mMyPortrait;
 	SimpleDraweeView mOtherPortrait;
 	TextView mSendGift;
+	ImageView mVip;
+	LinearLayout mVipLay;
 
 	private View mGiftDialogView;
 	private AlertDialog mGiftDialog;
@@ -120,31 +124,42 @@ public class GiftMarketActivity extends BaseActivity implements View.OnClickList
 		mGiftName = (TextView) mGiftDialogView.findViewById(R.id.gift_name);
 		mGiftUrl = (SimpleDraweeView) mGiftDialogView.findViewById(R.id.gift_url);
 		mAmount = (TextView) mGiftDialogView.findViewById(R.id.amount);
+		mVip = (ImageView) mGiftDialogView.findViewById(R.id.iv_vip);
+		mVipLay = (LinearLayout)  mGiftDialogView.findViewById(R.id.vip_lay);
 		mVipAmount = (TextView) mGiftDialogView.findViewById(R.id.vip_amount);
 		mMyPortrait = (SimpleDraweeView) mGiftDialogView.findViewById(R.id.my_portrait);
 		mOtherPortrait = (SimpleDraweeView) mGiftDialogView.findViewById(R.id.other_portrait);
 		mSendGift = (TextView) mGiftDialogView.findViewById(R.id.send_gift);
 		mSendGift.setOnClickListener(this);
+		if (AppManager.getClientUser().isShowVip) {
+			mVipLay.setVisibility(View.VISIBLE);
+		} else {
+			mVipLay.setVisibility(View.GONE);
+		}
 	}
 
 	@Override
 	public void onClick(View v) {
 		mGiftDialog.dismiss();
-		if (AppManager.getClientUser().gold_num == 0) {
-			showBuyGoldDialog();
-		} else {
-			String gold = "";
-			if (AppManager.getClientUser().is_vip) {
-				gold = String.valueOf(gift.vip_amount);
-			} else {
-				gold = String.valueOf(gift.amount);
-			}
-			if (AppManager.getClientUser().gold_num < Integer.parseInt(gold)) {
+		if (AppManager.getClientUser().isShowVip) {
+			if (AppManager.getClientUser().gold_num == 0) {
 				showBuyGoldDialog();
 			} else {
-				AppManager.getClientUser().gold_num -= Integer.parseInt(gold);
-				new SendGiftTask().request(giftUser.userId, gift.dynamic_image_url, gold);
+				String gold = "";
+				if (AppManager.getClientUser().is_vip) {
+					gold = String.valueOf(gift.vip_amount);
+				} else {
+					gold = String.valueOf(gift.amount);
+				}
+				if (AppManager.getClientUser().gold_num < Integer.parseInt(gold)) {
+					showBuyGoldDialog();
+				} else {
+					AppManager.getClientUser().gold_num -= Integer.parseInt(gold);
+					new SendGiftTask().request(giftUser.userId, gift.dynamic_image_url, gold);
+				}
 			}
+		} else {
+			new SendGiftTask().request(giftUser.userId, gift.dynamic_image_url, "0");
 		}
 	}
 
