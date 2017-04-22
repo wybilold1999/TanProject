@@ -40,7 +40,6 @@ public class LocationDetailActivity extends BaseActivity implements
 		OnInfoWindowClickListener, InfoWindowAdapter {
 
 	private MapView mMapView;
-	private AMapLocation aMapLocation;// 用于判断定位超时
 	private AMap aMap;
 	private UiSettings mUiSettings;
 	private AMapLocationClientOption mLocationOption;
@@ -49,8 +48,6 @@ public class LocationDetailActivity extends BaseActivity implements
 
 	private LatLng mMessageLatLng;
 	private String mAddress;
-
-	private Handler handler = new Handler();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -161,10 +158,6 @@ public class LocationDetailActivity extends BaseActivity implements
 			mListener.onLocationChanged(location);// 显示系统小蓝点
 			aMap.animateCamera(CameraUpdateFactory.changeLatLng(mMessageLatLng));
 		}
-		if (location != null) {
-			this.aMapLocation = location;// 判断超时机制
-		}
-
 	}
 
 	/**
