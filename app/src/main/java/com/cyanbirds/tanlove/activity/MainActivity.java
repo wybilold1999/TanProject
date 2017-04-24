@@ -148,17 +148,18 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 				initJPush();
 
 				initMeizuPush();
+
+				loadData();
+
+				initLocationClient();
 			}
 		});
-
-		loadData();
 
 		if (!PreferencesUtils.getAccessLocationStatus(this)) {//还没获取到位置权限
 			AppManager.requestLocationPermission(this);
 		}
 		requestPermission();
 
-		initLocationClient();
 	}
 
 	/**
