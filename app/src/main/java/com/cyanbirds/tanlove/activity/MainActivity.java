@@ -155,9 +155,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 			}
 		});
 
-		if (!PreferencesUtils.getAccessLocationStatus(this)) {//还没获取到位置权限
-			AppManager.requestLocationPermission(this);
-		}
+		AppManager.requestLocationPermission(this);
 		requestPermission();
 
 	}
@@ -415,7 +413,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 				}
 			} else {
 				initLocationClient();
-				PreferencesUtils.setAccessLocationStatus(this, true);
 			}
 		} else {
 			super.onRequestPermissionsResult(requestCode, permissions, grantResults);

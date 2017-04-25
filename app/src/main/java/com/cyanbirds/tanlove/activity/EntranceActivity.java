@@ -122,8 +122,6 @@ public class EntranceActivity extends BaseActivity {
                     showAccessLocationDialog();
                 }
             }
-        } else {
-            PreferencesUtils.setAccessLocationStatus(this, true);
         }
     }
 
