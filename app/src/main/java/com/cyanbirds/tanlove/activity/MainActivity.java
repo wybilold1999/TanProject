@@ -83,6 +83,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	private AMapLocationClientOption mLocationOption;
 	private AMapLocationClient mlocationClient;
 	private boolean isSecondAccess = false;
+	private boolean isSecondRead = false;
 
 	private final Handler mHandler = new Handler() {
 		@Override
@@ -192,6 +193,15 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 			ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
 					REQUEST_PERMISSION);
 		}
+
+		boolean readPhoneState =
+				pkgManager.checkPermission(Manifest.permission.READ_PHONE_STATE, getPackageName()) == PackageManager.PERMISSION_GRANTED;
+		if (Build.VERSION.SDK_INT >= 23 && !sdCardWritePermission) {
+			//请求权限
+			ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_PHONE_STATE},
+					REQUEST_PERMISSION);
+		}
+
 	}
 
 	/**
@@ -398,7 +408,17 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	@Override
 	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
 		if (requestCode == REQUEST_PERMISSION) {
-
+			// 拒绝授权
+			if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
+				// 勾选了不再提示
+				if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE)) {
+//					showOpenLocationDialog();
+				} else {
+					if (!isSecondRead) {
+						showReadPhoneStateDialog();
+					}
+				}
+			}
 		} else if (requestCode == REQUEST_LOCATION_PERMISSION) {
 			// 拒绝授权
 			if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
@@ -445,6 +465,24 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();
 				isSecondAccess = true;
+				if (Build.VERSION.SDK_INT >= 23) {
+					ActivityCompat.requestPermissions(MainActivity.this, new String[] {android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION},
+							REQUEST_LOCATION_PERMISSION);
+				}
+
+			}
+		});
+		builder.show();
+	}
+
+	private void showReadPhoneStateDialog(){
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(R.string.get_read_phone_state);
+		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+				isSecondRead = true;
 				if (Build.VERSION.SDK_INT >= 23) {
 					ActivityCompat.requestPermissions(MainActivity.this, new String[] {android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION},
 							REQUEST_LOCATION_PERMISSION);

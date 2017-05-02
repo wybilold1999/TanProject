@@ -220,6 +220,7 @@
     <string name="get_banlance">提现申请最少100元，必须为100的整数倍</string>
     <string name="account_banlance">账户余额:%1$d元</string>
     <string name="today_money">今日已赚:%1$d元</string>
+    <string name="get_read_phone_state">禁止后将无法使用聊天功能，是否重新获取？</string>
     <string name="access_location">获取您的位置后才能更精确的查看附近用户，是否获取？</string>
     <string name="open_location">获取您的位置后才能才能更精确的查看附近用户,请在权限选项中打开位置权限</string>
     <string name="open_camera_permission">打开相机权限才能拍照,请在权限选项中打开相机权限</string>
