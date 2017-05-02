@@ -9,18 +9,14 @@ import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
-import android.util.Log;
 import android.view.View;
-import android.widget.Toast;
 
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.ValueKey;
-import com.cyanbirds.tanlove.helper.SDKCoreHelper;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.umeng.analytics.MobclickAgent;
-import com.yuntongxun.ecsdk.ECInitParams;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -125,7 +121,7 @@ public class EntranceActivity extends BaseActivity {
         }
     }
 
-    private void showAccessLocationDialog(){
+    private void showAccessLocationDialog() {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.access_location);
         builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
@@ -134,7 +130,7 @@ public class EntranceActivity extends BaseActivity {
                 dialog.dismiss();
                 isSecondAccess = true;
                 if (Build.VERSION.SDK_INT >= 23) {
-                    ActivityCompat.requestPermissions(EntranceActivity.this, new String[] {android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION},
+                    ActivityCompat.requestPermissions(EntranceActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                             REQUEST_LOCATION_PERMISSION);
                 }
             }
