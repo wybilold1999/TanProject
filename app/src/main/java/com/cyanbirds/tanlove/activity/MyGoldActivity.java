@@ -13,7 +13,9 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.CheckBox;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.alipay.sdk.app.PayTask;
@@ -47,6 +49,8 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
+import mehdi.sakout.fancybuttons.FancyButton;
 
 /**
  * @author Cloudsoar(wangyb)
@@ -62,11 +66,26 @@ public class MyGoldActivity extends BaseActivity {
 	@BindView(R.id.gold_info_3)
 	TextView mGoldInfo3;
 
+	@BindView(R.id.btn_pay)
+	FancyButton mBtnPay;
+	@BindView(R.id.select_alipay)
+	CheckBox mSelectAlipay;
+	@BindView(R.id.alipay_lay)
+	RelativeLayout mAlipayLay;
+	@BindView(R.id.select_wechatpay)
+	CheckBox mSelectWechatpay;
+	@BindView(R.id.wechat_lay)
+	RelativeLayout mWechatLay;
+	@BindView(R.id.pay_lay)
+	LinearLayout mPayLay;
+
 
 	private static final int SDK_PAY_FLAG = 1;
 
 	private int BUY_GOLD = 2;
 	private MyGoldAdapter mAdapter;
+	private MemberBuy mMemberBuy;//选中的商品
+	private String mPayType;//支付方式
 
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
@@ -136,6 +155,48 @@ public class MyGoldActivity extends BaseActivity {
 		}
 		mMyGoldNum.setText(String.format(getResources().getString(R.string.my_gold_num), AppManager.getClientUser().gold_num));
 		new GetGoldListTask().request(BUY_GOLD);
+
+		/**
+		 * 默认支付宝支付
+		 */
+		mPayType = AppConstants.ALI_PAY_PLATFORM;
+		mSelectAlipay.setChecked(true);
+		mSelectWechatpay.setChecked(false);
+	}
+
+	@OnClick({R.id.btn_pay, R.id.select_alipay, R.id.alipay_lay, R.id.select_wechatpay, R.id.wechat_lay})
+	public void onClick(View view) {
+		switch (view.getId()) {
+			case R.id.select_alipay:
+				mPayType = AppConstants.ALI_PAY_PLATFORM;
+				mSelectAlipay.setChecked(true);
+				mSelectWechatpay.setChecked(false);
+				break;
+			case R.id.alipay_lay:
+				mPayType = AppConstants.ALI_PAY_PLATFORM;
+				mSelectAlipay.setChecked(true);
+				mSelectWechatpay.setChecked(false);
+				break;
+			case R.id.select_wechatpay:
+				mPayType = AppConstants.WX_PAY_PLATFORM;
+				mSelectAlipay.setChecked(false);
+				mSelectWechatpay.setChecked(true);
+				break;
+			case R.id.wechat_lay:
+				mPayType = AppConstants.WX_PAY_PLATFORM;
+				mSelectAlipay.setChecked(false);
+				mSelectWechatpay.setChecked(true);
+				break;
+			case R.id.btn_pay:
+				if (null != mMemberBuy) {
+					if (mPayType.equals(AppConstants.ALI_PAY_PLATFORM)) {
+						new GetAliPayOrderInfoTask().request(mMemberBuy.id, AppConstants.ALI_PAY_PLATFORM);
+					} else {
+						new CreateOrderTask().request(mMemberBuy.id, AppConstants.WX_PAY_PLATFORM);
+					}
+				}
+				break;
+		}
 	}
 
 	/**
@@ -144,6 +205,8 @@ public class MyGoldActivity extends BaseActivity {
 	class GetGoldListTask extends GetMemberBuyListRequest {
 		@Override
 		public void onPostExecute(List<MemberBuy> memberBuys) {
+			mMemberBuy = memberBuys.get(0);
+			memberBuys.get(0).isSelected = true;
 			mAdapter = new MyGoldAdapter(memberBuys, MyGoldActivity.this);
 			mAdapter.setOnItemClickListener(mOnItemClickListener);
 			mRecyclerView.setAdapter(mAdapter);
@@ -159,36 +222,9 @@ public class MyGoldActivity extends BaseActivity {
 	private MyGoldAdapter.OnItemClickListener mOnItemClickListener = new MyGoldAdapter.OnItemClickListener() {
 		@Override
 		public void onItemClick(View view, int position) {
-			MemberBuy memberBuy = mAdapter.getItem(position);
-			showPayDialog(memberBuy);
+			mMemberBuy = mAdapter.getItem(position);
 		}
 	};
-
-	private void showPayDialog(final MemberBuy memberBuy) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(getResources().getString(R.string.pay_type));
-		builder.setNegativeButton(getResources().getString(R.string.cancel),
-				null);
-		builder.setItems(
-				new String[]{getResources().getString(R.string.ali_pay),
-						getResources().getString(R.string.weixin_pay)},
-				new DialogInterface.OnClickListener() {
-
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						switch (which) {
-							case 0:
-								new GetAliPayOrderInfoTask().request(memberBuy.id, AppConstants.ALI_PAY_PLATFORM);
-								break;
-							case 1:
-								new CreateOrderTask().request(memberBuy.id, AppConstants.WX_PAY_PLATFORM);
-								break;
-						}
-						dialog.dismiss();
-					}
-				});
-		builder.show();
-	}
 
 	class CreateOrderTask extends CreateOrderRequest {
 		@Override
@@ -274,18 +310,6 @@ public class MyGoldActivity extends BaseActivity {
 		}
 	}
 
-    /*class UpdateGoldTask extends UpdateGoldRequest {
-		@Override
-        public void onPostExecute(Integer s) {
-            mMyGoldNum.setText(String.format(getResources().getString(R.string.my_gold_num), s));
-            AppManager.getClientUser().gold_num = s;
-        }
-
-        @Override
-        public void onErrorExecute(String error) {
-            ToastUtil.showMessage(error);
-        }
-    }*/
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {

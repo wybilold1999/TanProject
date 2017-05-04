@@ -7,6 +7,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.cyanbirds.tanlove.R;
@@ -50,10 +52,14 @@ public class MyGoldAdapter extends
         }
         holder.mGoldNum.setText(String.format(mContext.getResources().getString(R.string.gold_num),
                 Integer.parseInt(memberBuy.months)));
-        holder.mBuy.setText("￥" + memberBuy.price);
+        holder.mPrice.setText("￥" + memberBuy.price);
         if (!TextUtils.isEmpty(memberBuy.preferential)) {
             holder.mPreferential.setText(String.format(mContext.getResources().getString(R.string.send_gold_num),
                     Integer.parseInt(memberBuy.preferential)));
+        }
+        holder.mSelect.setChecked(memberBuy.isSelected);
+        if (position == 2) {
+            holder.mHot.setVisibility(View.VISIBLE);
         }
     }
 
@@ -67,13 +73,17 @@ public class MyGoldAdapter extends
 
         TextView mGoldNum;
         TextView mPreferential;
-        Button mBuy;
+        TextView mPrice;
+        CheckBox mSelect;
+        ImageView mHot;
         public ViewHolder(View itemView) {
             super(itemView);
             mGoldNum = (TextView) itemView.findViewById(R.id.gold_num);
             mPreferential = (TextView) itemView.findViewById(R.id.preferential);
-            mBuy = (Button) itemView.findViewById(R.id.buy);
-            mBuy.setOnClickListener(this);
+            mPrice = (TextView) itemView.findViewById(R.id.price);
+            mSelect = (CheckBox) itemView.findViewById(R.id.select);
+            mHot = (ImageView) itemView.findViewById(R.id.iv_hot);
+            mSelect.setOnClickListener(this);
         }
 
         @Override
@@ -82,6 +92,11 @@ public class MyGoldAdapter extends
             if (mOnItemClickListener != null) {
                 mOnItemClickListener.onItemClick(v, position);
             }
+            for (MemberBuy memberBuy : mMemberBuys) {
+                memberBuy.isSelected = false;
+            }
+            mMemberBuys.get(position).isSelected = true;
+            notifyDataSetChanged();
         }
     }
 

@@ -13,4 +13,6 @@ public class MemberBuy implements java.io.Serializable {
 	public String preferential;//优惠
 	public String descreption;  //描述 低至1元/天
 
+	public boolean isSelected = false;
+
 }
