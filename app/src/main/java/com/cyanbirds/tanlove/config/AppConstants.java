@@ -57,12 +57,6 @@ public class AppConstants {
 	public static final int[] MI_SCOPE = new int[]{XiaomiOAuthConstants.SCOPE_PROFILE, XiaomiOAuthConstants.SCOPE_OPEN_ID};
 
 	/**
-	 * 个推appid和appkey
-	 */
-	public static final String GETUI_PUSH_APP_ID = "fn4zeTabxU6Z7jbRgm0d19";
-	public static final String GETUI_PUSH_APP_KEY = "lhFmeD04jY7NEqOm6xW7E2";
-
-	/**
 	 * 阿里图片节点
 	 */
 	public static final String OSS_IMG_ENDPOINT = "http://real-love-server.img-cn-shenzhen.aliyuncs.com/";
