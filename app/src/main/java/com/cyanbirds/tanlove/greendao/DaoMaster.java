@@ -25,7 +25,6 @@ public class DaoMaster extends AbstractDaoMaster {
         DynamicDao.createTable(db, ifNotExists);
         GoldDao.createTable(db, ifNotExists);
         IMessageDao.createTable(db, ifNotExists);
-        LocationModelDao.createTable(db, ifNotExists);
         NameListDao.createTable(db, ifNotExists);
     }
 
@@ -35,7 +34,6 @@ public class DaoMaster extends AbstractDaoMaster {
         DynamicDao.dropTable(db, ifExists);
         GoldDao.dropTable(db, ifExists);
         IMessageDao.dropTable(db, ifExists);
-        LocationModelDao.dropTable(db, ifExists);
         NameListDao.dropTable(db, ifExists);
     }
 
@@ -59,7 +57,6 @@ public class DaoMaster extends AbstractDaoMaster {
         registerDaoClass(DynamicDao.class);
         registerDaoClass(GoldDao.class);
         registerDaoClass(IMessageDao.class);
-        registerDaoClass(LocationModelDao.class);
         registerDaoClass(NameListDao.class);
     }
 
