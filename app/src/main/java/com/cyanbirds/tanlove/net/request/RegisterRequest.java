@@ -40,6 +40,8 @@ public class RegisterRequest extends ResultPostExecute<ClientUser> {
         params.put("deviceId", AppManager.getDeviceId());
         if (!TextUtils.isEmpty(clientUser.city)) {
             params.put("currentCity", clientUser.city);
+        } else {
+            params.put("currentCity", "");
         }
         Call<ResponseBody> call = AppManager.getUserService().userRegister(params);
         call.enqueue(new Callback<ResponseBody>() {

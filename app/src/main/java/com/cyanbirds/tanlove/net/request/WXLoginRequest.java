@@ -40,6 +40,8 @@ public class WXLoginRequest extends ResultPostExecute<ClientUser> {
 		params.put("device_id", AppManager.getDeviceId());
 		if (!TextUtils.isEmpty(city)) {
 			params.put("currentCity", city);
+		} else {
+			params.put("currentCity", "");
 		}
 		Call<ResponseBody> call = AppManager.getUserService().wxLogin(AppManager.getClientUser().sessionId, params);
 		call.enqueue(new Callback<ResponseBody>() {

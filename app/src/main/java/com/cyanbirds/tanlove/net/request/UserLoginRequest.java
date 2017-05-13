@@ -42,6 +42,8 @@ public class UserLoginRequest extends ResultPostExecute<ClientUser> {
 		params.put("channel", CheckUtil.getAppMetaData(CSApplication.getInstance(), "UMENG_CHANNEL"));
 		if (!TextUtils.isEmpty(city)) {
 			params.put("currentCity", city);
+		} else {
+			params.put("currentCity", "");
 		}
 		Call<ResponseBody> call = AppManager.getUserService().userLogin(AppManager.getClientUser().sessionId, params);
 		call.enqueue(new Callback<ResponseBody>() {
