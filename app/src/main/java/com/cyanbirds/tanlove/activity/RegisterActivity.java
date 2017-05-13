@@ -16,6 +16,7 @@ import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.ClientUser;
+import com.cyanbirds.tanlove.eventtype.LocationEvent;
 import com.cyanbirds.tanlove.eventtype.WeinXinEvent;
 import com.cyanbirds.tanlove.eventtype.XMEvent;
 import com.cyanbirds.tanlove.helper.IMChattingHelper;
@@ -89,6 +90,8 @@ public class RegisterActivity extends BaseActivity {
     private ClientUser mClientUser;
     private String channelId;
     private boolean activityIsRunning;
+    private String mCurrrentCity;//定位到的城市
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,6 +108,7 @@ public class RegisterActivity extends BaseActivity {
         }
 
         channelId = CheckUtil.getAppMetaData(this, "UMENG_CHANNEL");
+        mCurrrentCity = getIntent().getStringExtra(ValueKey.LOCATION);
     }
 
 
@@ -122,6 +126,7 @@ public class RegisterActivity extends BaseActivity {
                 openAlbums();
                 break;
             case R.id.qq_login:
+                ProgressDialogUtils.getInstance(this).show(R.string.wait);
                 if (!mTencent.isSessionValid() &&
                         mTencent.getQQToken().getOpenId() == null) {
                     mTencent.login(this, "all", loginListener);
@@ -134,6 +139,7 @@ public class RegisterActivity extends BaseActivity {
                 showSelectSexDialog(R.id.select_lady);
                 break;
             case R.id.weixin_login:
+                ProgressDialogUtils.getInstance(this).show(R.string.wait);
                 SendAuth.Req req = new SendAuth.Req();
                 req.scope = "snsapi_userinfo";
                 req.state = "wechat_sdk_demo_test";
@@ -150,10 +156,11 @@ public class RegisterActivity extends BaseActivity {
         }
     }
 
+
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void xmLogin(XMEvent event) {
         ProgressDialogUtils.getInstance(RegisterActivity.this).show(R.string.dialog_request_login);
-        new XMLoginTask().request(event.xmOAuthResults, channelId);
+        new XMLoginTask().request(event.xmOAuthResults, channelId, mCurrrentCity);
     }
 
     public class XMLoginTask extends XMLoginRequest {
@@ -169,6 +176,7 @@ public class RegisterActivity extends BaseActivity {
                         FileAccessorUtils.FACE_IMAGE,
                         Md5Util.md5(clientUser.face_url) + ".jpg");
             }
+            clientUser.currentCity = mCurrrentCity;
             AppManager.setClientUser(clientUser);
             AppManager.saveUserInfo();
             IMChattingHelper.getInstance().sendInitLoginMsg();
@@ -188,7 +196,12 @@ public class RegisterActivity extends BaseActivity {
     @Subscribe(threadMode = ThreadMode.MAIN)
     public void weiXinLogin(WeinXinEvent event) {
         ProgressDialogUtils.getInstance(RegisterActivity.this).show(R.string.dialog_request_login);
-        new WXLoginTask().request(event.code, channelId);
+        new WXLoginTask().request(event.code, channelId, mCurrrentCity);
+    }
+
+    @Subscribe(threadMode = ThreadMode.MAIN)
+    public void getCity(LocationEvent event) {
+        mCurrrentCity = event.city;
     }
     
     class WXLoginTask extends WXLoginRequest {
@@ -204,6 +217,7 @@ public class RegisterActivity extends BaseActivity {
                         FileAccessorUtils.FACE_IMAGE,
                         Md5Util.md5(clientUser.face_url) + ".jpg");
             }
+            clientUser.currentCity = mCurrrentCity;
             AppManager.setClientUser(clientUser);
             AppManager.saveUserInfo();
             Intent intent = new Intent();
@@ -232,6 +246,7 @@ public class RegisterActivity extends BaseActivity {
                 Intent intent = new Intent(RegisterActivity.this, RegisterCaptchaActivity.class);
                 intent.putExtra(ValueKey.PHONE_NUMBER, phone_num);
                 intent.putExtra(ValueKey.INPUT_PHONE_TYPE, 0);
+                mClientUser.currentCity = mCurrrentCity;
                 intent.putExtra(ValueKey.USER, mClientUser);
                 startActivity(intent);
             }
@@ -316,7 +331,7 @@ public class RegisterActivity extends BaseActivity {
                     if (activityIsRunning) {
                         ProgressDialogUtils.getInstance(RegisterActivity.this).show(R.string.dialog_request_login);
                     }
-                    new QqLoginTask().request(token, openId, channelId);
+                    new QqLoginTask().request(token, openId, channelId, mCurrrentCity);
                 }
 
                 @Override
@@ -341,6 +356,7 @@ public class RegisterActivity extends BaseActivity {
                         FileAccessorUtils.FACE_IMAGE,
                         Md5Util.md5(clientUser.face_url) + ".jpg");
             }
+            clientUser.currentCity = mCurrrentCity;
             AppManager.setClientUser(clientUser);
             AppManager.saveUserInfo();
             IMChattingHelper.getInstance().sendInitLoginMsg();
@@ -393,27 +409,12 @@ public class RegisterActivity extends BaseActivity {
                             mSelectLady.setImageResource(R.mipmap.radio_women_focused_bg);
                         }
                         dialog.dismiss();
-                        showSelectAgeDialog();
+                        mClientUser.age = 20;
                     }
                 });
         builder.show();
     }
 
-    private void showSelectAgeDialog(){
-        final String[] array = getResources().getStringArray(R.array.age);
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("年龄");
-        builder.setSingleChoiceItems(array, 7, null);
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                int selectedPosition = ((AlertDialog)dialog).getListView().getCheckedItemPosition();
-                mClientUser.age = Integer.parseInt(array[selectedPosition]);
-            }
-        });
-        builder.show();
-    }
 
 
     class DownloadPortraitTask extends DownloadFileRequest {
@@ -454,6 +455,7 @@ public class RegisterActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
         activityIsRunning = true;
+        ProgressDialogUtils.getInstance(this).dismiss();
         MobclickAgent.onPageStart(this.getClass().getName());
         MobclickAgent.onResume(this);
     }
@@ -465,6 +467,7 @@ public class RegisterActivity extends BaseActivity {
         MobclickAgent.onPageEnd(this.getClass().getName());
         MobclickAgent.onPause(this);
     }
+
 
     @Override
     protected void onDestroy() {

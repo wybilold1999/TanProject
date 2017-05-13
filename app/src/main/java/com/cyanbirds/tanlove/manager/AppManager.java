@@ -546,6 +546,7 @@ public class AppManager {
 			clientUser.isShowGold = clientUser.isShowVip;
 			clientUser.isShowLovers = clientUser.isShowVip;
 			clientUser.isShowVideo  = clientUser.isShowVip;
+			clientUser.currentCity = PreferencesUtils.getCurrentCity(mContext);
 			setClientUser(clientUser);
 		} catch (Exception e) {
 			e.printStackTrace();

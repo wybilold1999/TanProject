@@ -1,6 +1,7 @@
 package com.cyanbirds.tanlove.net.request;
 
 import android.support.v4.util.ArrayMap;
+import android.text.TextUtils;
 
 import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;
@@ -28,7 +29,7 @@ import retrofit2.Callback;
  */
 public class WXLoginRequest extends ResultPostExecute<ClientUser> {
 
-	public void request(String code, final String channelId) {
+	public void request(String code, final String channelId, final String city) {
 		ArrayMap<String, String> params = new ArrayMap<>();
 		params.put("code", code);
 		params.put("device_name", AppManager.getDeviceName());
@@ -37,6 +38,9 @@ public class WXLoginRequest extends ResultPostExecute<ClientUser> {
 		params.put("version", String.valueOf(AppManager.getVersionCode()));
 		params.put("os_version", AppManager.getDeviceSystemVersion());
 		params.put("device_id", AppManager.getDeviceId());
+		if (!TextUtils.isEmpty(city)) {
+			params.put("currentCity", city);
+		}
 		Call<ResponseBody> call = AppManager.getUserService().wxLogin(AppManager.getClientUser().sessionId, params);
 		call.enqueue(new Callback<ResponseBody>() {
 			@Override

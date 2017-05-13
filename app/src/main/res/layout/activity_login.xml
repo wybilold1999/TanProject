@@ -137,7 +137,8 @@
                 android:layout_marginRight="30dp"
                 android:clickable="true"
                 android:layout_gravity="right"
-                android:src="@mipmap/milogo" />
+                android:src="@mipmap/milogo"
+                android:visibility="gone"/>
 
             <ImageView
                 android:id="@+id/weixin_login"
