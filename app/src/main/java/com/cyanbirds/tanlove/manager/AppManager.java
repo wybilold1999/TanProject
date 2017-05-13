@@ -587,6 +587,7 @@ public class AppManager {
 			PreferencesUtils.setSessionId(mContext, getClientUser().sessionId);
 			PreferencesUtils.setIsShow(mContext, getClientUser().isShowVip);
 			PreferencesUtils.setIsLogin(mContext, true);
+			PreferencesUtils.setCurrentCity(mContext, getClientUser().currentCity);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
