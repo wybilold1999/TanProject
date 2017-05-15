@@ -1,5 +1,6 @@
 package com.cyanbirds.tanlove.activity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -12,6 +13,7 @@ import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.ClientUser;
+import com.cyanbirds.tanlove.helper.IMChattingHelper;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.RegisterRequest;
 import com.cyanbirds.tanlove.utils.AESEncryptorUtil;
@@ -102,14 +104,14 @@ public class RegisterSubmitActivity extends BaseActivity implements
 			hideSoftKeyboard();
 			MobclickAgent.onProfileSignIn(String.valueOf(AppManager
 					.getClientUser().userId));
-			/*clientUser.userPwd = mClientUser.userPwd;
+			clientUser.userPwd = mClientUser.userPwd;
 			clientUser.currentCity = mClientUser.currentCity;
 			AppManager.setClientUser(clientUser);
 			AppManager.saveUserInfo();
 			IMChattingHelper.getInstance().sendInitLoginMsg();
 			Intent intent = new Intent(RegisterSubmitActivity.this, MainActivity.class);
 			startActivity(intent);
-			finishAll();*/
+			finishAll();
 		}
 
 		@Override
