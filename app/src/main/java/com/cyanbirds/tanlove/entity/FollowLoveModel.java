@@ -13,12 +13,8 @@ public class FollowLoveModel implements Serializable{
 	 */
 	public int loveCount;
 	/**
-	 * 关注我前三个人的头像
+	 * 我的礼物
 	 */
-	public List<FollowModel> followModels;
-	/**
-	 * 喜欢我前三个人的头像
-	 */
-	public List<LoveModel> loveModels;
+	public int giftsCount;
 
 }

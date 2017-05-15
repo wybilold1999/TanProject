@@ -242,11 +242,11 @@ public class RegisterActivity extends BaseActivity {
                 //获取验证码
                 String phone_num = phoneNum.getText().toString().trim();
                 mClientUser.mobile = phone_num;
+                mClientUser.currentCity = mCurrrentCity;
                 SMSSDK.getVerificationCode("86", phone_num);
                 Intent intent = new Intent(RegisterActivity.this, RegisterCaptchaActivity.class);
                 intent.putExtra(ValueKey.PHONE_NUMBER, phone_num);
                 intent.putExtra(ValueKey.INPUT_PHONE_TYPE, 0);
-                mClientUser.currentCity = mCurrrentCity;
                 intent.putExtra(ValueKey.USER, mClientUser);
                 startActivity(intent);
             }

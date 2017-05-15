@@ -419,6 +419,13 @@
             android:screenOrientation="portrait">
         </activity>
 
+        <activity
+            android:name=".activity.MyGiftsActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation"
+            android:label="@string/my_gifts"
+            android:screenOrientation="portrait">
+        </activity>
+
 
         <provider
             android:name="android.support.v4.content.FileProvider"

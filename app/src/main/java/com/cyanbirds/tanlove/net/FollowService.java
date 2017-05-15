@@ -30,4 +30,8 @@ public interface FollowService {
     @FormUrlEncoded
     @POST("follow/getFollowAndLoveInfo")
     Call<ResponseBody> getFollowAndLoveInfo(@Header("token") String token, @Field("uid") String uid);
+
+    @FormUrlEncoded
+    @POST("follow/giftsList")
+    Call<ResponseBody> getGiftsList(@Header("token") String token, @FieldMap ArrayMap<String, String> params);
 }

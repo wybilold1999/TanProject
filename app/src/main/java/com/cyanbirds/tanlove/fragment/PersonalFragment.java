@@ -23,6 +23,7 @@ import com.cyanbirds.tanlove.activity.IdentifyActivity;
 import com.cyanbirds.tanlove.activity.LoveFormeActivity;
 import com.cyanbirds.tanlove.activity.MakeMoneyActivity;
 import com.cyanbirds.tanlove.activity.MyAttentionActivity;
+import com.cyanbirds.tanlove.activity.MyGiftsActivity;
 import com.cyanbirds.tanlove.activity.MyGoldActivity;
 import com.cyanbirds.tanlove.activity.NearPartyActivity;
 import com.cyanbirds.tanlove.activity.PersonalInfoActivity;
@@ -114,6 +115,10 @@ public class PersonalFragment extends Fragment {
 	CardView mIdentifyCard;
 	@BindView(R.id.identify_lay)
 	RelativeLayout mIdentifyLay;
+	@BindView(R.id.my_gifts)
+	RelativeLayout mMyGifts;
+	@BindView(R.id.gifts_count)
+	TextView giftsCount;
 
 	private View rootView;
 
@@ -164,6 +169,10 @@ public class PersonalFragment extends Fragment {
 				if (followLoveModel.loveCount > 0) {
 					loveCount.setVisibility(View.VISIBLE);
 					loveCount.setText(String.valueOf(followLoveModel.loveCount));
+				}
+				if (followLoveModel.giftsCount > 0) {
+					giftsCount.setVisibility(View.VISIBLE);
+					giftsCount.setText(String.valueOf(followLoveModel.giftsCount));
 				}
 			}
 		}
@@ -244,7 +253,7 @@ public class PersonalFragment extends Fragment {
 			R.id.head_portrait_lay, R.id.vip_lay, R.id.my_attention,
 			R.id.attentioned_user, R.id.good_user, R.id.setting, R.id.about, R.id.my_gold,
 			R.id.download_layout, R.id.lovers_lay, R.id.success_case,
-			R.id.near_party, R.id.identify_lay})
+			R.id.near_party, R.id.identify_lay, R.id.my_gifts})
 	public void onClick(View view) {
 		Intent intent = new Intent();
 		switch (view.getId()) {
@@ -259,6 +268,10 @@ public class PersonalFragment extends Fragment {
 				break;
 			case R.id.my_attention:
 				intent.setClass(getActivity(), MyAttentionActivity.class);
+				startActivity(intent);
+				break;
+			case R.id.my_gifts:
+				intent.setClass(getActivity(), MyGiftsActivity.class);
 				startActivity(intent);
 				break;
 			case R.id.attentioned_user:

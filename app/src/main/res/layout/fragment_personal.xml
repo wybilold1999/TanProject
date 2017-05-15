@@ -20,7 +20,7 @@
                 android:layout_marginTop="15dp"
                 app:cardBackgroundColor="#fff"
                 app:cardCornerRadius="0dp"
-                app:cardElevation="2dp"
+                app:cardElevation="1dp"
                 app:cardPreventCornerOverlap="true">
 
                 <RelativeLayout
@@ -114,7 +114,7 @@
                 android:layout_marginTop="15dp"
                 app:cardBackgroundColor="#fff"
                 app:cardCornerRadius="0dp"
-                app:cardElevation="2dp"
+                app:cardElevation="1dp"
                 app:cardPreventCornerOverlap="true"
                 android:visibility="gone">
 
@@ -181,7 +181,260 @@
                 android:layout_marginTop="15dp"
                 app:cardBackgroundColor="#fff"
                 app:cardCornerRadius="0dp"
-                app:cardElevation="2dp"
+                app:cardElevation="1dp"
+                app:cardPreventCornerOverlap="true">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical">
+
+                    <RelativeLayout
+                        android:id="@+id/my_attention"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:background="?android:selectableItemBackground"
+                        android:clickable="true"
+                        android:descendantFocusability="blocksDescendants">
+
+                        <ImageView
+                            android:id="@+id/my_attention_img"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:layout_alignParentLeft="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="20dp"
+                            android:contentDescription="@null"
+                            android:src="@mipmap/icon_attentioned"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_toRightOf="@id/my_attention_img"
+                            android:text="@string/my_attention"
+                            android:textSize="16sp"/>
+
+                        <ImageView
+                            android:id="@id/personal_enter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="20dp"
+                            android:layout_marginRight="20dp"
+                            android:contentDescription="@null"
+                            android:src="@mipmap/personal_enter"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/divider_height"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginLeft="@dimen/divider_margin_left"
+                            android:background="@color/divider_color"
+                            android:contentDescription="@null"/>
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/my_gifts"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:background="?android:selectableItemBackground"
+                        android:clickable="true"
+                        android:descendantFocusability="blocksDescendants">
+
+                        <ImageView
+                            android:id="@+id/my_gifts_img"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:layout_alignParentLeft="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="20dp"
+                            android:contentDescription="@null"
+                            android:src="@mipmap/icon_square_letter"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_toRightOf="@id/my_gifts_img"
+                            android:text="@string/my_gifts"
+                            android:textSize="16sp"/>
+
+                        <ImageView
+                            android:id="@id/personal_enter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="20dp"
+                            android:layout_marginRight="20dp"
+                            android:contentDescription="@null"
+                            android:src="@mipmap/personal_enter"/>
+
+                        <TextView
+                            android:id="@+id/gifts_count"
+                            android:layout_width="20dp"
+                            android:layout_height="20dp"
+                            android:layout_toLeftOf="@id/personal_enter"
+                            android:layout_centerVertical="true"
+                            android:textColor="@android:color/holo_red_light"
+                            android:layout_marginEnd="10dp"
+                            android:layout_marginRight="10dp"
+                            android:contentDescription="@null"
+                            android:visibility="gone"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/divider_height"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginLeft="@dimen/divider_margin_left"
+                            android:background="@color/divider_color"
+                            android:contentDescription="@null"/>
+                    </RelativeLayout>
+
+
+                    <RelativeLayout
+                        android:id="@+id/attentioned_user"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:background="?android:selectableItemBackground"
+                        android:clickable="true"
+                        android:descendantFocusability="blocksDescendants">
+
+                        <ImageView
+                            android:id="@+id/attentioned_user_img"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:layout_alignParentLeft="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="20dp"
+                            android:contentDescription="@null"
+                            android:src="@mipmap/icon_lookme"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_toRightOf="@id/attentioned_user_img"
+                            android:text="谁关注我"
+                            android:textSize="16sp"/>
+
+                        <ImageView
+                            android:id="@id/personal_enter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="20dp"
+                            android:layout_marginRight="20dp"
+                            android:contentDescription="@null"
+                            android:src="@mipmap/personal_enter"/>
+
+                        <TextView
+                            android:id="@+id/attention_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_toLeftOf="@id/personal_enter"
+                            android:layout_centerInParent="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="25dp"
+                            android:layout_marginRight="25dp"
+                            android:contentDescription="@null"
+                            android:textColor="@android:color/holo_red_light"
+                            android:gravity="center"
+                            android:visibility="gone"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/divider_height"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginLeft="@dimen/divider_margin_left"
+                            android:background="@color/divider_color"
+                            android:contentDescription="@null"/>
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/good_user"
+                        android:layout_width="match_parent"
+                        android:layout_height="50dp"
+                        android:background="?android:selectableItemBackground"
+                        android:clickable="true"
+                        android:descendantFocusability="blocksDescendants">
+
+                        <ImageView
+                            android:id="@+id/good_user_img"
+                            android:layout_width="25dp"
+                            android:layout_height="25dp"
+                            android:layout_alignParentLeft="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="20dp"
+                            android:contentDescription="@null"
+                            android:src="@mipmap/good_focused"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginStart="10dp"
+                            android:layout_toRightOf="@id/good_user_img"
+                            android:text="@string/who_good_for_me"
+                            android:textSize="16sp"/>
+
+                        <ImageView
+                            android:id="@id/personal_enter"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_alignParentEnd="true"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="20dp"
+                            android:layout_marginRight="20dp"
+                            android:contentDescription="@null"
+                            android:src="@mipmap/personal_enter"/>
+
+                        <TextView
+                            android:id="@+id/love_count"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_toLeftOf="@id/personal_enter"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="25dp"
+                            android:layout_marginRight="25dp"
+                            android:contentDescription="@null"
+                            android:textColor="@android:color/holo_red_light"
+                            android:gravity="center"
+                            android:visibility="gone"/>
+
+                        <View
+                            android:layout_width="match_parent"
+                            android:layout_height="@dimen/divider_height"
+                            android:layout_alignParentBottom="true"
+                            android:layout_marginLeft="@dimen/divider_margin_left"
+                            android:background="@color/divider_color"
+                            android:contentDescription="@null"/>
+                    </RelativeLayout>
+
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="15dp"
+                app:cardBackgroundColor="#fff"
+                app:cardCornerRadius="0dp"
+                app:cardElevation="1dp"
                 app:cardPreventCornerOverlap="true">
 
                 <LinearLayout
@@ -346,7 +599,7 @@
                 android:layout_marginTop="15dp"
                 app:cardBackgroundColor="#fff"
                 app:cardCornerRadius="0dp"
-                app:cardElevation="2dp"
+                app:cardElevation="1dp"
                 app:cardPreventCornerOverlap="true"
                 android:visibility="gone">
 
@@ -514,199 +767,7 @@
                 android:layout_marginTop="15dp"
                 app:cardBackgroundColor="#fff"
                 app:cardCornerRadius="0dp"
-                app:cardElevation="2dp"
-                app:cardPreventCornerOverlap="true">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
-
-                    <RelativeLayout
-                        android:id="@+id/my_attention"
-                        android:layout_width="match_parent"
-                        android:layout_height="50dp"
-                        android:background="?android:selectableItemBackground"
-                        android:clickable="true"
-                        android:descendantFocusability="blocksDescendants">
-
-                        <ImageView
-                            android:id="@+id/my_attention_img"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
-                            android:layout_alignParentLeft="true"
-                            android:layout_centerVertical="true"
-                            android:layout_marginLeft="20dp"
-                            android:contentDescription="@null"
-                            android:src="@mipmap/icon_attentioned"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
-                            android:layout_marginLeft="10dp"
-                            android:layout_marginStart="10dp"
-                            android:layout_toRightOf="@id/my_attention_img"
-                            android:text="@string/my_attention"
-                            android:textSize="16sp"/>
-
-                        <ImageView
-                            android:id="@id/personal_enter"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_centerVertical="true"
-                            android:layout_marginEnd="20dp"
-                            android:layout_marginRight="20dp"
-                            android:contentDescription="@null"
-                            android:src="@mipmap/personal_enter"/>
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="@dimen/divider_height"
-                            android:layout_alignParentBottom="true"
-                            android:layout_marginLeft="@dimen/divider_margin_left"
-                            android:background="@color/divider_color"
-                            android:contentDescription="@null"/>
-                    </RelativeLayout>
-
-
-                    <RelativeLayout
-                        android:id="@+id/attentioned_user"
-                        android:layout_width="match_parent"
-                        android:layout_height="50dp"
-                        android:background="?android:selectableItemBackground"
-                        android:clickable="true"
-                        android:descendantFocusability="blocksDescendants">
-
-                        <ImageView
-                            android:id="@+id/attentioned_user_img"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
-                            android:layout_alignParentLeft="true"
-                            android:layout_centerVertical="true"
-                            android:layout_marginLeft="20dp"
-                            android:contentDescription="@null"
-                            android:src="@mipmap/icon_lookme"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
-                            android:layout_marginLeft="10dp"
-                            android:layout_marginStart="10dp"
-                            android:layout_toRightOf="@id/attentioned_user_img"
-                            android:text="谁关注我"
-                            android:textSize="16sp"/>
-
-                        <ImageView
-                            android:id="@id/personal_enter"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_centerVertical="true"
-                            android:layout_marginEnd="20dp"
-                            android:layout_marginRight="20dp"
-                            android:contentDescription="@null"
-                            android:src="@mipmap/personal_enter"/>
-
-                        <TextView
-                            android:id="@+id/attention_count"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_toLeftOf="@id/personal_enter"
-                            android:layout_centerInParent="true"
-                            android:layout_centerVertical="true"
-                            android:layout_marginEnd="25dp"
-                            android:layout_marginRight="25dp"
-                            android:contentDescription="@null"
-                            android:textColor="@android:color/holo_red_light"
-                            android:gravity="center"
-                            android:visibility="gone"/>
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="@dimen/divider_height"
-                            android:layout_alignParentBottom="true"
-                            android:layout_marginLeft="@dimen/divider_margin_left"
-                            android:background="@color/divider_color"
-                            android:contentDescription="@null"/>
-                    </RelativeLayout>
-
-                    <RelativeLayout
-                        android:id="@+id/good_user"
-                        android:layout_width="match_parent"
-                        android:layout_height="50dp"
-                        android:background="?android:selectableItemBackground"
-                        android:clickable="true"
-                        android:descendantFocusability="blocksDescendants">
-
-                        <ImageView
-                            android:id="@+id/good_user_img"
-                            android:layout_width="25dp"
-                            android:layout_height="25dp"
-                            android:layout_alignParentLeft="true"
-                            android:layout_centerVertical="true"
-                            android:layout_marginLeft="20dp"
-                            android:contentDescription="@null"
-                            android:src="@mipmap/good_focused"/>
-
-                        <TextView
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_centerVertical="true"
-                            android:layout_marginLeft="10dp"
-                            android:layout_marginStart="10dp"
-                            android:layout_toRightOf="@id/good_user_img"
-                            android:text="@string/who_good_for_me"
-                            android:textSize="16sp"/>
-
-                        <ImageView
-                            android:id="@id/personal_enter"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_alignParentEnd="true"
-                            android:layout_alignParentRight="true"
-                            android:layout_centerVertical="true"
-                            android:layout_marginEnd="20dp"
-                            android:layout_marginRight="20dp"
-                            android:contentDescription="@null"
-                            android:src="@mipmap/personal_enter"/>
-
-                        <TextView
-                            android:id="@+id/love_count"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_toLeftOf="@id/personal_enter"
-                            android:layout_centerVertical="true"
-                            android:layout_marginEnd="25dp"
-                            android:layout_marginRight="25dp"
-                            android:contentDescription="@null"
-                            android:textColor="@android:color/holo_red_light"
-                            android:gravity="center"
-                            android:visibility="gone"/>
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="@dimen/divider_height"
-                            android:layout_alignParentBottom="true"
-                            android:layout_marginLeft="@dimen/divider_margin_left"
-                            android:background="@color/divider_color"
-                            android:contentDescription="@null"/>
-                    </RelativeLayout>
-
-                </LinearLayout>
-            </android.support.v7.widget.CardView>
-
-            <android.support.v7.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="15dp"
-                app:cardBackgroundColor="#fff"
-                app:cardCornerRadius="0dp"
-                app:cardElevation="2dp"
+                app:cardElevation="1dp"
                 app:cardPreventCornerOverlap="true">
 
                 <LinearLayout
