@@ -30,7 +30,6 @@ public class AppConstants {
 	 * QQ登录的appid和appkey
 	 */
 	public static final String mAppid = "1105589350";
-	public static final String mAppkey = "fMXJYPkhXW9N7QEY";
 
 	/**
 	 * 微信登录
