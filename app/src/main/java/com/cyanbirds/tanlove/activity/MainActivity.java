@@ -37,6 +37,7 @@ import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.db.ConversationSqlManager;
+import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.entity.FederationToken;
 import com.cyanbirds.tanlove.fragment.FoundFragment;
 import com.cyanbirds.tanlove.fragment.HomeLoveFragment;

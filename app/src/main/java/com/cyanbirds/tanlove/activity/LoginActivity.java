@@ -209,7 +209,6 @@ public class LoginActivity extends BaseActivity {
     class WXLoginTask extends WXLoginRequest {
         @Override
         public void onPostExecute(ClientUser clientUser) {
-            ProgressDialogUtils.getInstance(LoginActivity.this).dismiss();
             MobclickAgent.onProfileSignIn(String.valueOf(AppManager
                     .getClientUser().userId));
             if(!new File(FileAccessorUtils.FACE_IMAGE,
@@ -240,7 +239,6 @@ public class LoginActivity extends BaseActivity {
         @Override
         public void onPostExecute(ClientUser clientUser) {
             hideSoftKeyboard();
-            ProgressDialogUtils.getInstance(LoginActivity.this).dismiss();
             MobclickAgent.onProfileSignIn(String.valueOf(AppManager
                     .getClientUser().userId));
             if(!new File(FileAccessorUtils.FACE_IMAGE,
@@ -349,7 +347,6 @@ public class LoginActivity extends BaseActivity {
     class QqLoginTask extends QqLoginRequest {
         @Override
         public void onPostExecute(ClientUser clientUser) {
-            ProgressDialogUtils.getInstance(LoginActivity.this).dismiss();
             MobclickAgent.onProfileSignIn(String.valueOf(AppManager
                     .getClientUser().userId));
             if(!new File(FileAccessorUtils.FACE_IMAGE,
@@ -420,6 +417,12 @@ public class LoginActivity extends BaseActivity {
         ProgressDialogUtils.getInstance(this).dismiss();
         MobclickAgent.onPageStart(this.getClass().getName());
         MobclickAgent.onResume(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        ProgressDialogUtils.getInstance(this).dismiss();
     }
 
     @Override
