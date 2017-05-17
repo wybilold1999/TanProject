@@ -20,6 +20,8 @@ import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.eventtype.LocationEvent;
 import com.cyanbirds.tanlove.manager.AppManager;
+import com.cyanbirds.tanlove.net.request.IPRquest;
+import com.cyanbirds.tanlove.net.request.UploadIPRequest;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.umeng.analytics.MobclickAgent;
 
@@ -57,6 +59,7 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
         ButterKnife.bind(this);
         saveFirstLauncher();
         setupViews();
+        new GetIPTask().request();
         initLocationClient();
         AppManager.requestLocationPermission(this);
     }
@@ -77,6 +80,23 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
             PreferencesUtils.setIsFirstLauncher(this, false);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    /**
+     * 获取ip
+     */
+    class GetIPTask extends IPRquest {
+
+        @Override
+        public void onPostExecute(String s) {
+            //获取到ip之后再上传ip至服务器
+            new UploadIPRequest().request(s);
+        }
+
+        @Override
+        public void onErrorExecute(String error) {
+            super.onErrorExecute(error);
         }
     }
 

@@ -2,8 +2,6 @@ package com.cyanbirds.tanlove.net;
 
 import android.support.v4.util.ArrayMap;
 
-import java.util.Map;
-
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Field;
@@ -220,5 +218,17 @@ public interface UserService {
     @FormUrlEncoded
     @POST("user/uploadCityInfo")
     Call<ResponseBody> uploadCityInfo(@FieldMap ArrayMap<String, String> params, @Header("token") String token);
+
+    @GET("http://1212.ip138.com/ic.asp")
+    Call<ResponseBody> getIp();
+
+    /**
+     * 上传用户ip
+     * @param token
+     * @return
+     */
+    @FormUrlEncoded
+    @POST("user/uploadIP")
+    Call<ResponseBody> uploadIP( @Field("ip") String ip, @Header("token") String token);
 
 }
