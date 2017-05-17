@@ -1,11 +1,11 @@
 package com.cyanbirds.tanlove.net.request;
 
-import android.text.TextUtils;
-
 import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.base.ResultPostExecute;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 
 import java.io.IOException;
 
@@ -15,13 +15,13 @@ import retrofit2.Callback;
 
 /**
  * Created by wangyb on 2017/5/17.
- * 描述：获取ip
+ * 描述：获取用户所在城市
  */
 
-public class IPRquest extends ResultPostExecute<String> {
+public class GetCityInfoRequest extends ResultPostExecute<String> {
 
     public void request() {
-        Call<ResponseBody> call = AppManager.getUserService().getIp();
+        Call<ResponseBody> call = AppManager.getUserService().getCityInfo();
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
@@ -51,15 +51,16 @@ public class IPRquest extends ResultPostExecute<String> {
 
     private void parseJson(String json){
         try {
-            if (!TextUtils.isEmpty(json)) {
-                int start = json.indexOf("[");
-                int end = json.indexOf("]");
-                String ip = json.substring(start + 1, end);
-                onPostExecute(ip);
+            JsonObject obj = new JsonParser().parse(json).getAsJsonObject();
+            int status = obj.get("status").getAsInt();
+            int infocode = obj.get("infocode").getAsInt();
+            if (status == 1 && infocode == 10000) {
+                onPostExecute(obj.get("city").getAsString());
             } else {
                 onErrorExecute("");
             }
         } catch (Exception e) {
+            onErrorExecute("");
         }
     }
 

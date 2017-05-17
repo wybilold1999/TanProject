@@ -20,9 +20,9 @@ import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.eventtype.LocationEvent;
 import com.cyanbirds.tanlove.manager.AppManager;
-import com.cyanbirds.tanlove.net.request.IPRquest;
-import com.cyanbirds.tanlove.net.request.UploadIPRequest;
+import com.cyanbirds.tanlove.net.request.GetCityInfoRequest;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
+import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.umeng.analytics.MobclickAgent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -59,7 +59,7 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
         ButterKnife.bind(this);
         saveFirstLauncher();
         setupViews();
-        new GetIPTask().request();
+        new GetCityInfoTask().request();
         initLocationClient();
         AppManager.requestLocationPermission(this);
     }
@@ -84,19 +84,19 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
     }
 
     /**
-     * 获取ip
+     * 获取用户所在城市
      */
-    class GetIPTask extends IPRquest {
+    class GetCityInfoTask extends GetCityInfoRequest {
 
         @Override
         public void onPostExecute(String s) {
-            //获取到ip之后再上传ip至服务器
-            new UploadIPRequest().request(s);
+            mCurrrentCity = s;
+            PreferencesUtils.setCurrentCity(EntranceActivity.this, s);
+            EventBus.getDefault().post(new LocationEvent(s));
         }
 
         @Override
         public void onErrorExecute(String error) {
-            super.onErrorExecute(error);
         }
     }
 
@@ -125,8 +125,10 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
             mCurrrentCity = aMapLocation.getCity();
             AppManager.getClientUser().latitude = String.valueOf(aMapLocation.getLatitude());
             AppManager.getClientUser().longitude = String.valueOf(aMapLocation.getLongitude());
-            PreferencesUtils.setCurrentCity(this, mCurrrentCity);
-            EventBus.getDefault().post(new LocationEvent(mCurrrentCity));
+            if (!TextUtils.isEmpty(mCurrrentCity)) {
+                PreferencesUtils.setCurrentCity(this, mCurrrentCity);
+                EventBus.getDefault().post(new LocationEvent(mCurrrentCity));
+            }
         }
     }
 

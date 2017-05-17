@@ -2,6 +2,8 @@ package com.cyanbirds.tanlove.net;
 
 import android.support.v4.util.ArrayMap;
 
+import com.cyanbirds.tanlove.config.AppConstants;
+
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Field;
@@ -219,16 +221,10 @@ public interface UserService {
     @POST("user/uploadCityInfo")
     Call<ResponseBody> uploadCityInfo(@FieldMap ArrayMap<String, String> params, @Header("token") String token);
 
-    @GET("http://1212.ip138.com/ic.asp")
-    Call<ResponseBody> getIp();
-
     /**
-     * 上传用户ip
-     * @param token
+     * 获取用户所在城市
      * @return
      */
-    @FormUrlEncoded
-    @POST("user/uploadIP")
-    Call<ResponseBody> uploadIP( @Field("ip") String ip, @Header("token") String token);
-
+    @GET("http://restapi.amap.com/v3/ip?key=" + AppConstants.WEB_KEY)
+    Call<ResponseBody> getCityInfo();
 }
