@@ -9,8 +9,8 @@ android {
         applicationId "com.cyanbirds.tanlove"
         minSdkVersion 14
         targetSdkVersion 22
-        versionCode 18
-        versionName "1.2.8"
+        versionCode 19
+        versionName "1.2.9"
         multiDexEnabled true
 
     }
