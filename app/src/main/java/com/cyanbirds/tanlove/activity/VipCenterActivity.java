@@ -44,6 +44,7 @@ import com.cyanbirds.tanlove.net.request.GetPayResultRequest;
 import com.cyanbirds.tanlove.net.request.GetUserNameRequest;
 import com.cyanbirds.tanlove.ui.widget.CustomURLSpan;
 import com.cyanbirds.tanlove.ui.widget.DividerItemDecoration;
+import com.cyanbirds.tanlove.ui.widget.WrapperLinearLayoutManager;
 import com.cyanbirds.tanlove.utils.DensityUtil;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.ToastUtil;
@@ -151,7 +152,7 @@ public class VipCenterActivity extends BaseActivity {
 	}
 
 	private void setupView() {
-		LinearLayoutManager layoutManager = new LinearLayoutManager(
+		LinearLayoutManager layoutManager = new WrapperLinearLayoutManager(
 				this, LinearLayoutManager.VERTICAL, false);
 		layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
 		mRecyclerView.setLayoutManager(layoutManager);

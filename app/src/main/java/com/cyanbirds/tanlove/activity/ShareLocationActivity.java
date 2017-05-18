@@ -41,6 +41,7 @@ import com.cyanbirds.tanlove.adapter.PlaceListAdapter;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.ui.widget.CircularProgress;
+import com.cyanbirds.tanlove.ui.widget.WrapperLinearLayoutManager;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.cyanbirds.tanlove.utils.Md5Util;
 import com.cyanbirds.tanlove.utils.ToastUtil;
@@ -131,7 +132,7 @@ public class ShareLocationActivity extends BaseActivity implements
 		mCurrentLocation = (ImageButton) findViewById(R.id.current_location);
 		mRecyclerView = (RecyclerView) findViewById(R.id.place_list);
 		mProgressBar = (CircularProgress) findViewById(R.id.progress_bar);
-		mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
+		mRecyclerView.setLayoutManager(new WrapperLinearLayoutManager(this));
 		mRecyclerView.setItemAnimator(new DefaultItemAnimator());
 	}
 
