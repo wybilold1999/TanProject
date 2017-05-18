@@ -85,6 +85,8 @@ public class LoginActivity extends BaseActivity {
     private String channelId;
     private boolean activityIsRunning;
     private String mCurrrentCity;//定位到的城市
+    private String curLat;
+    private String curLon;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -111,6 +113,8 @@ public class LoginActivity extends BaseActivity {
             loginAccount.setSelection(mPhoneNum.length());
         }
         mCurrrentCity = getIntent().getStringExtra(ValueKey.LOCATION);
+        curLat = getIntent().getStringExtra(ValueKey.LATITUDE);
+        curLon = getIntent().getStringExtra(ValueKey.LONGITUDE);
     }
 
     @OnClick({R.id.btn_login, R.id.forget_pwd, R.id.qq_login, R.id.weixin_login, R.id.xm_login})
@@ -184,6 +188,8 @@ public class LoginActivity extends BaseActivity {
                         Md5Util.md5(clientUser.face_url) + ".jpg");
             }
             clientUser.currentCity = mCurrrentCity;
+            clientUser.latitude = curLat;
+            clientUser.longitude = curLon;
             AppManager.setClientUser(clientUser);
             AppManager.saveUserInfo();
             IMChattingHelper.getInstance().sendInitLoginMsg();
@@ -219,6 +225,8 @@ public class LoginActivity extends BaseActivity {
                         Md5Util.md5(clientUser.face_url) + ".jpg");
             }
             clientUser.currentCity = mCurrrentCity;
+            clientUser.latitude = curLat;
+            clientUser.longitude = curLon;
             AppManager.setClientUser(clientUser);
             AppManager.saveUserInfo();
             IMChattingHelper.getInstance().sendInitLoginMsg();
@@ -249,6 +257,8 @@ public class LoginActivity extends BaseActivity {
                         Md5Util.md5(clientUser.face_url) + ".jpg");
             }
             clientUser.currentCity = mCurrrentCity;
+            clientUser.latitude = curLat;
+            clientUser.longitude = curLon;
             AppManager.setClientUser(clientUser);
             AppManager.saveUserInfo();
             IMChattingHelper.getInstance().sendInitLoginMsg();
@@ -357,6 +367,8 @@ public class LoginActivity extends BaseActivity {
                         Md5Util.md5(clientUser.face_url) + ".jpg");
             }
             clientUser.currentCity = mCurrrentCity;
+            clientUser.latitude = curLat;
+            clientUser.longitude = curLon;
             AppManager.setClientUser(clientUser);
             AppManager.saveUserInfo();
             IMChattingHelper.getInstance().sendInitLoginMsg();

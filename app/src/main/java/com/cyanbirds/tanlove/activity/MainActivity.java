@@ -161,6 +161,10 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		AppManager.requestLocationPermission(this);
 		requestPermission();
 
+		if (!TextUtils.isEmpty(AppManager.getClientUser().currentCity)) {
+			new UploadCityInfoTask().request(AppManager.getClientUser().currentCity);
+		}
+
 	}
 
 	/**
@@ -319,10 +323,12 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		if (aMapLocation != null && !TextUtils.isEmpty(aMapLocation.getCity())) {
 			AppManager.getClientUser().latitude = String.valueOf(aMapLocation.getLatitude());
 			AppManager.getClientUser().longitude = String.valueOf(aMapLocation.getLongitude());
-			new UploadCityInfoTask().request(aMapLocation.getCity());
 		}
 	}
 
+	/**
+	 * 上传城市信息，用于控制区域显示
+	 */
 	class UploadCityInfoTask extends UploadCityInfoRequest {
 
 		@Override
