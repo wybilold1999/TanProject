@@ -2,10 +2,10 @@ package com.cyanbirds.tanlove.net.request;
 
 import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;
+import com.cyanbirds.tanlove.entity.CityInfo;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.base.ResultPostExecute;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
+import com.google.gson.Gson;
 
 import java.io.IOException;
 
@@ -18,7 +18,7 @@ import retrofit2.Callback;
  * 描述：获取用户所在城市
  */
 
-public class GetCityInfoRequest extends ResultPostExecute<String> {
+public class GetCityInfoRequest extends ResultPostExecute<CityInfo> {
 
     public void request() {
         Call<ResponseBody> call = AppManager.getUserService().getCityInfo();
@@ -51,11 +51,10 @@ public class GetCityInfoRequest extends ResultPostExecute<String> {
 
     private void parseJson(String json){
         try {
-            JsonObject obj = new JsonParser().parse(json).getAsJsonObject();
-            int status = obj.get("status").getAsInt();
-            int infocode = obj.get("infocode").getAsInt();
-            if (status == 1 && infocode == 10000) {
-                onPostExecute(obj.get("city").getAsString());
+            Gson gson = new Gson();
+            CityInfo cityInfo = gson.fromJson(json, CityInfo.class);
+            if ("1".equals(cityInfo.status) && "10000".equals(cityInfo.infocode)) {
+                onPostExecute(cityInfo);
             } else {
                 onErrorExecute("");
             }
