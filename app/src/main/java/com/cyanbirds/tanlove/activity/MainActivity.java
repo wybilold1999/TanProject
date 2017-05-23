@@ -37,6 +37,7 @@ import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.db.ConversationSqlManager;
+import com.cyanbirds.tanlove.entity.CityInfo;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.entity.FederationToken;
 import com.cyanbirds.tanlove.fragment.FoundFragment;
@@ -48,6 +49,7 @@ import com.cyanbirds.tanlove.helper.SDKCoreHelper;
 import com.cyanbirds.tanlove.listener.MessageUnReadListener;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.manager.NotificationManager;
+import com.cyanbirds.tanlove.net.request.GetCityInfoRequest;
 import com.cyanbirds.tanlove.net.request.GetOSSTokenRequest;
 import com.cyanbirds.tanlove.net.request.UploadCityInfoRequest;
 import com.cyanbirds.tanlove.service.MyIntentService;
@@ -86,6 +88,9 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	private AMapLocationClient mlocationClient;
 	private boolean isSecondAccess = false;
 	private boolean isSecondRead = false;
+
+	private String curLat;
+	private String curLon;
 
 	private final Handler mHandler = new Handler() {
 		@Override
@@ -127,6 +132,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(false);
+		new GetCityInfoTask().request();
 		setupViews();
 		setupEvent();
 		initOSS();
@@ -322,7 +328,36 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 			new UploadCityInfoTask().request(aMapLocation.getCity(),
 					AppManager.getClientUser().latitude, AppManager.getClientUser().longitude);
 		} else {
-			new UploadCityInfoTask().request(AppManager.getClientUser().currentCity, null, null);
+			new UploadCityInfoTask().request(AppManager.getClientUser().currentCity, curLat, curLon);
+		}
+	}
+
+	/**
+	 * 获取用户所在城市
+	 */
+	class GetCityInfoTask extends GetCityInfoRequest {
+
+		@Override
+		public void onPostExecute(CityInfo cityInfo) {
+			if (cityInfo != null) {
+				try {
+					String[] rectangle = cityInfo.rectangle.split(";");
+					String[] leftBottom = rectangle[0].split(",");
+					String[] rightTop = rectangle[1].split(",");
+
+					double lat = Double.parseDouble(leftBottom[1]) + (Double.parseDouble(rightTop[1]) - Double.parseDouble(leftBottom[1])) / 5;
+					curLat = String.valueOf(lat);
+
+					double lon = Double.parseDouble(leftBottom[0]) + (Double.parseDouble(rightTop[0]) - Double.parseDouble(leftBottom[0])) / 5;
+					curLon = String.valueOf(lon);
+				} catch (Exception e) {
+
+				}
+			}
+		}
+
+		@Override
+		public void onErrorExecute(String error) {
 		}
 	}
 
