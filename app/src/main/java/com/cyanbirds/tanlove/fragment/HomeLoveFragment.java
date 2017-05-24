@@ -81,9 +81,9 @@ public class HomeLoveFragment extends Fragment {
 	}
 
 	private void setupData() {
-		if (AppManager.getClientUser().versionCode > AppManager.getVersionCode()) {
+		/*if (AppManager.getClientUser().versionCode > AppManager.getVersionCode()) {
 			showVersionInfo();
-		}
+		}*/
 	}
 
 	private void showVersionInfo() {
