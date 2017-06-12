@@ -1,9 +1,12 @@
 package com.cyanbirds.tanlove.utils;
 
+import android.content.Intent;
 import android.text.TextUtils;
 
 import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;
+import com.cyanbirds.tanlove.activity.VoipCallActivity;
+import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.db.ConversationSqlManager;
 import com.cyanbirds.tanlove.db.IMessageDaoManager;
 import com.cyanbirds.tanlove.entity.Conversation;
@@ -51,6 +54,15 @@ public class PushMsgUtil {
 		isPassThrough = isPassThroughMsg;
 		PushMsgModel pushMsgModel = gson.fromJson(pushMsgJson, PushMsgModel.class);
 		if (pushMsgModel != null && !TextUtils.isEmpty(pushMsgModel.sender)) {
+			if (pushMsgModel.msgType == PushMsgModel.MessageType.VOIP) {
+				if (!AppManager.getTopActivity(CSApplication.getInstance()).equals("com.cyanbirds.tanlove.activity.VoipCallActivity")) {
+					Intent intent = new Intent(CSApplication.getInstance(), VoipCallActivity.class);
+					intent.putExtra(ValueKey.IMAGE_URL, pushMsgModel.faceUrl);
+					intent.putExtra(ValueKey.USER_NAME, pushMsgModel.senderName);
+					CSApplication.getInstance().startActivity(intent);
+				}
+			}
+
 			Conversation conversation = ConversationSqlManager.getInstance(CSApplication.getInstance())
 					.queryConversationForByTalkerId(pushMsgModel.sender);
 			if (conversation == null) {
