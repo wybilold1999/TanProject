@@ -134,7 +134,7 @@ public class ConversationSqlManager extends DBManager {
 	 * @return
 	 */
 	public long deleteAllConversation() {
-		return 0;
+		conversationDao.deleteAll();
 	}
 
 	public void deleteConversationById(Conversation conversation) {

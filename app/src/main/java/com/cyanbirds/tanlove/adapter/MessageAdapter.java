@@ -24,6 +24,7 @@ import com.cyanbirds.tanlove.db.IMessageDaoManager;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.entity.Conversation;
 import com.cyanbirds.tanlove.listener.MessageUnReadListener;
+import com.cyanbirds.tanlove.manager.NotificationManager;
 import com.cyanbirds.tanlove.utils.DateUtil;
 import com.cyanbirds.tanlove.utils.EmoticonUtil;
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -139,7 +140,9 @@ public class MessageAdapter extends
                     .setItems(
                             new String[] {
                                     mContext.getResources().getString(
-                                            R.string.delete_conversation) },
+                                            R.string.delete_conversation),
+                                    mContext.getResources().getString(
+                                            R.string.delete_all_conversation)},
                             new DialogInterface.OnClickListener() {
                                 @Override
                                 public void onClick(DialogInterface dialog, int which) {
@@ -151,11 +154,19 @@ public class MessageAdapter extends
                                             notifyDataSetChanged();
                                             MessageUnReadListener.getInstance().notifyDataSetChanged(0);
                                             break;
+                                        case 1:
+                                            ConversationSqlManager.getInstance(mContext).deleteAllConversation();
+                                            IMessageDaoManager.getInstance(mContext).deleteAllIMessage();
+                                            mConversations.clear();
+                                            notifyDataSetChanged();
+                                            MessageUnReadListener.getInstance().notifyDataSetChanged(0);
+                                            NotificationManager.getInstance().cancelNotification();
+                                            break;
                                     }
                                     dialog.dismiss();
 
                                 }
-                            }).setTitle("操作").show();
+                            }).show();
             return true;
         }
     }

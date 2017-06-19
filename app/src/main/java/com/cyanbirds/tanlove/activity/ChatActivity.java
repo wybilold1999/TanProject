@@ -69,6 +69,7 @@ import com.cyanbirds.tanlove.utils.EmoticonUtil;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.cyanbirds.tanlove.utils.FileUtils;
 import com.cyanbirds.tanlove.utils.ImageUtil;
+import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
@@ -92,6 +93,7 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 	private ImageView openAlbums;
 	private ImageView openEmotion;
 	private ImageView openLocation;
+	private ImageView redPacket;
 	private ImageButton mInputVoiceAndText;
 	private View mKeyboardHeightView;
 	private EditText mContentInput;
@@ -141,9 +143,9 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 	 */
 	public final static int SHARE_LOCATION_RESULT = 106;
 	/**
-	 * 图片创建成功
+	 * 发红包
 	 */
-	public static final int CREATE_IMAGE_SUCCESS_FLAG = 203;
+	public static final int  SEND_RED_PACKET = 107;
 
 	/**
 	 * 跳转设置界面
@@ -203,6 +205,7 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 		openAlbums = (ImageView) findViewById(R.id.openAlbums);
 		openEmotion = (ImageView) findViewById(R.id.openEmotion);
 		openLocation = (ImageView) findViewById(R.id.openLocation);
+		redPacket = (ImageView) findViewById(R.id.red_packet);
 		mInputVoiceAndText = (ImageButton) findViewById(R.id.tool_view_input_text);
 		mKeyboardHeightView = findViewById(R.id.keyboard_height);
 		mContentInput = (EditText) findViewById(R.id.content_input);
@@ -438,6 +441,9 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 			case R.id.openLocation:
 				toShareLocation();
 				break;
+			case R.id.red_packet:
+				toRedPakcet();
+				break;
 			case R.id.tool_view_input_text:
 				if (AppManager.getClientUser().isShowVip) {
 					if (AppManager.getClientUser().is_vip) {
@@ -615,12 +621,8 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 					mPhotoOnSDCardUri);
 			sendBroadcast(intent);
 			if (mPhotoOnSDCardUri != null && new File(mPhotoPath).exists()) {
-//				int size = FileUtils.decodeFileLength(mPhotoPath);
-//				String str = Formatter.formatFileSize(this, size);
 				//压缩图片
 				String imgUrl = ImageUtil.compressImage(mPhotoPath, FileAccessorUtils.IMESSAGE_IMAGE);
-//				int size2 = FileUtils.decodeFileLength(imgUrl);
-//				String str2 = Formatter.formatFileSize(this, size2);
 				Uri uri = Uri.parse("file://" + imgUrl);
 				toImagePreview(uri);
 			}
@@ -679,8 +681,12 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 				IMChattingHelper.getInstance().sendLocationMsg(mClientUser, latitude, longitude,
 						address, imagePath);
 			}
-		} else if (requestCode == REQUEST_PERMISSION_SETTING) {
-
+		} else if (resultCode == RESULT_OK && requestCode == SEND_RED_PACKET) {
+			ToastUtil.showMessage("已发送");
+			if (null != IMChattingHelper.getInstance().getChatManager()) {
+				IMChattingHelper.getInstance().sendRedPacketMsg(
+						mClientUser, data.getStringExtra(ValueKey.DATA));
+			}
 		}
 	}
 
@@ -768,6 +774,14 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 	private void toShareLocation() {
 		Intent intent = new Intent(this, ShareLocationActivity.class);
 		startActivityForResult(intent, SHARE_LOCATION_RESULT);
+	}
+
+	/**
+	 * 跳到发红包界面
+	 */
+	private void toRedPakcet() {
+		Intent intent = new Intent(this, RedPacketActivity.class);
+		startActivityForResult(intent, SEND_RED_PACKET);
 	}
 
 	@Override
