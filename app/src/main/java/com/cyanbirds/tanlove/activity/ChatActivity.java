@@ -226,6 +226,7 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 		openAlbums.setOnClickListener(this);
 		openEmotion.setOnClickListener(this);
 		openLocation.setOnClickListener(this);
+		redPacket.setOnClickListener(this);
 		mSwipeRefresh.setOnRefreshListener(this);
 		mInputVoiceAndText.setOnClickListener(this);
 		MessageStatusReportListener.getInstance().setOnMessageReportCallback(this);
