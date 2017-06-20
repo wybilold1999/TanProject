@@ -285,6 +285,11 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 	}
 
 	private void setupData() {
+		if (AppManager.getClientUser().isShowRpt) {
+			redPacket.setVisibility(View.VISIBLE);
+		} else {
+			redPacket.setVisibility(View.GONE);
+		}
 		mClientUser = (ClientUser) getIntent().getSerializableExtra(ValueKey.USER);
 		if (mClientUser != null) {
 			mConversation = ConversationSqlManager.getInstance(this)
