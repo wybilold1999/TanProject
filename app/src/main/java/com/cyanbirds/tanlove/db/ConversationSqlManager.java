@@ -133,7 +133,7 @@ public class ConversationSqlManager extends DBManager {
 	 * 
 	 * @return
 	 */
-	public long deleteAllConversation() {
+	public void deleteAllConversation() {
 		conversationDao.deleteAll();
 	}
 

@@ -654,7 +654,7 @@
         <!-- 【必须】 信鸽receiver广播接收 -->
         <receiver
             android:name="com.tencent.android.tpush.XGPushReceiver"
-            android:process=":xg_service_v2" >
+            android:process=":xg_service_v3" >
             <intent-filter android:priority="0x7fffffff" >
 
                 <!-- 【必须】 信鸽SDK的内部广播 -->
@@ -683,27 +683,17 @@
         </receiver>
         <!-- 【必须】 信鸽service -->
         <service
-            android:name="com.tencent.android.tpush.service.XGPushService"
+            android:name="com.tencent.android.tpush.service.XGPushServiceV3"
             android:exported="true"
             android:persistent="true"
-            android:process=":xg_service_v2" />
+            android:process=":xg_service_v3" />
 
-        <!-- 【必须】 通知service，其中android:name部分要改为当前包名 -->
+        <!-- 【必须】 增强xg_service存活率  -->
         <service
-            android:name="com.tencent.android.tpush.rpc.XGRemoteService"
-            android:exported="true" >
-            <intent-filter>
-                <!-- 【必须】 请修改为当前APP名包.PUSH_ACTION，如demo的包名为：com.qq.xgdemo -->
-                <action android:name="com.cyanbirds.tanlove.PUSH_ACTION" />
-            </intent-filter>
-        </service>
-        <!-- 【可选】信鸽拉起其他APP应用，若应用在本地找不到可以自动下载 -->
-        <!--
-              <service
-            android:name="com.tencent.android.tpush.XGDownloadService"
-            android:enabled="true"
-            android:exported="false" />
-        -->
+            android:name="com.tencent.android.tpush.service.XGDaemonService"
+            android:process=":xg_service_v3" />
+
+
         <!-- 【可选】APP实现的Receiver，用于接收消息透传和操作结果的回调，请根据需要添加 -->
         <receiver android:name="com.cyanbirds.tanlove.receiver.XinGeMessageReceiver"
                   android:exported="true" >
@@ -714,6 +704,36 @@
                 <action android:name="com.tencent.android.tpush.action.FEEDBACK" />
             </intent-filter>
         </receiver>
+
+        <!-- 【必须】 通知service，其中android:name部分要改为当前包名 -->
+        <service
+            android:name="com.tencent.android.tpush.rpc.XGRemoteService"
+            android:exported="true" >
+            <intent-filter>
+                <!-- 【必须】 请修改为当前APP名包.PUSH_ACTION，如demo的包名为：com.qq.xgdemo -->
+                <action android:name="com.cyanbirds.tanlove.PUSH_ACTION" />
+            </intent-filter>
+        </service>
+
+        <!-- 【必须】 【注意】authorities修改为 包名.AUTH_XGPUSH, 如demo的包名为：com.qq.xgdemo-->
+        <provider
+            android:name="com.tencent.android.tpush.XGPushProvider"
+            android:authorities="com.cyanbirds.tanlove.AUTH_XGPUSH"
+            android:exported="true"
+            />
+
+        <!-- 【必须】 【注意】authorities修改为 包名.TPUSH_PROVIDER, 如demo的包名为：com.qq.xgdemo-->
+        <provider
+            android:name="com.tencent.android.tpush.SettingsContentProvider"
+            android:authorities="com.cyanbirds.tanlove.TPUSH_PROVIDER"
+            android:exported="false" />
+
+        <!-- 【必须】 【注意】authorities修改为 包名.TENCENT.MID.V3, 如demo的包名为：com.qq.xgdemo-->
+        <provider
+            android:name="com.tencent.mid.api.MidProvider"
+            android:authorities="com.cyanbirds.tanlove.TENCENT.MID.V3"
+            android:exported="true" >
+        </provider>
 
         <!-- 【必须】 请修改为APP的AccessId，“21”开头的10位数字，中间没空格 -->
         <meta-data
@@ -728,8 +748,6 @@
 
         //====================极光推送开始=================================
 
-        <meta-data android:name="JPUSH_CHANNEL" android:value="developer-default"/>
-        <meta-data android:name="JPUSH_APPKEY" android:value="0717c67de0e1382a75d51989" />
         <!-- Rich push 核心功能 since 2.0.6-->
         <activity
             android:name="cn.jpush.android.ui.PopWinActivity"
@@ -749,19 +767,12 @@
                 <category android:name="com.cyanbirds.tanlove" />
             </intent-filter>
         </activity>
-        <!-- Required  SDK核心功能-->
-        <service
-            android:name="cn.jpush.android.service.DownloadService"
-            android:enabled="true"
-            android:exported="false" >
-        </service>
-
 
         <!-- Required SDK 核心功能-->
         <!-- 可配置android:process参数将PushService放在其他进程中 -->
         <service
             android:name="cn.jpush.android.service.PushService"
-            android:enabled="true"
+            android:process=":mult"
             android:exported="false">
             <intent-filter>
                 <action android:name="cn.jpush.android.intent.REGISTER" />
@@ -801,9 +812,9 @@
             <intent-filter>
                 <action android:name="android.intent.action.PACKAGE_ADDED" />
                 <action android:name="android.intent.action.PACKAGE_REMOVED" />
+
                 <data android:scheme="package" />
             </intent-filter>
-
         </receiver>
 
         <!-- Required SDK核心功能-->
@@ -819,11 +830,14 @@
                 <action android:name="cn.jpush.android.intent.MESSAGE_RECEIVED" /> <!--Required  用户接收SDK消息的intent-->
                 <action android:name="cn.jpush.android.intent.NOTIFICATION_RECEIVED" /> <!--Required  用户接收SDK通知栏信息的intent-->
                 <action android:name="cn.jpush.android.intent.NOTIFICATION_OPENED" /> <!--Required  用户打开自定义通知栏的intent-->
-                <action android:name="cn.jpush.android.intent.ACTION_RICHPUSH_CALLBACK" /> <!--Optional 用户接受Rich Push Javascript 回调函数的intent-->
                 <action android:name="cn.jpush.android.intent.CONNECTION" /><!-- 接收网络变化 连接/断开 since 1.6.3 -->
                 <category android:name="com.cyanbirds.tanlove" />
             </intent-filter>
         </receiver>
+
+        <!-- Required  . Enable it you can get statistics data with channel -->
+        <meta-data android:name="JPUSH_CHANNEL" android:value="developer-default"/>
+        <meta-data android:name="JPUSH_APPKEY" android:value="0717c67de0e1382a75d51989" /> <!--  </>值来自开发者平台取得的AppKey-->
 
         //====================极光推送结束=================================
 

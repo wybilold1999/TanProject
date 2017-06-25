@@ -3,6 +3,7 @@ package com.cyanbirds.tanlove.receiver;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
+import android.os.Looper;
 import android.text.TextUtils;
 
 import com.cyanbirds.tanlove.activity.LauncherActivity;
@@ -17,7 +18,7 @@ import com.tencent.android.tpush.XGPushShowedResult;
 import com.tencent.android.tpush.XGPushTextMessage;
 
 public class XinGeMessageReceiver extends XGPushBaseReceiver {
-	private Handler mHandler = new Handler();
+	private Handler mHandler = new Handler(Looper.getMainLooper());
 
 	// 通知展示
 	@Override
@@ -90,12 +91,14 @@ public class XinGeMessageReceiver extends XGPushBaseReceiver {
 		// 获取自定义key-value
 		final String content = message.getContent();
 		if (!TextUtils.isEmpty(content)) {
-			mHandler.post(new Runnable() {
-				@Override
-				public void run() {
-					PushMsgUtil.getInstance().handlePushMsg(true, content);
-				}
-			});
+			if (AppManager.getClientUser().isShowVip) {
+				mHandler.post(new Runnable() {
+					@Override
+					public void run() {
+						PushMsgUtil.getInstance().handlePushMsg(true, content);
+					}
+				});
+			}
 		}
 	}
 

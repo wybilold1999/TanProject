@@ -38,7 +38,6 @@ import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.db.ConversationSqlManager;
 import com.cyanbirds.tanlove.entity.CityInfo;
-import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.entity.FederationToken;
 import com.cyanbirds.tanlove.fragment.FoundFragment;
 import com.cyanbirds.tanlove.fragment.HomeLoveFragment;
@@ -56,7 +55,6 @@ import com.cyanbirds.tanlove.service.MyIntentService;
 import com.cyanbirds.tanlove.service.MyPushService;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.PushMsgUtil;
-import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.igexin.sdk.PushManager;
 import com.tencent.android.tpush.XGPushManager;
 import com.umeng.analytics.MobclickAgent;
@@ -148,10 +146,13 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 				 * 注册小米推送
 				 */
 				MiPushClient.registerPush(MainActivity.this, AppConstants.MI_PUSH_APP_ID, AppConstants.MI_PUSH_APP_KEY);
+
 				/**
 				 * 注册信鸽推送
 				 */
-				XGPushManager.registerPush(getApplicationContext(), "userId=" + AppManager.getClientUser().userId);
+				XGPushManager.registerPush(getApplicationContext(),
+						"userId=" + AppManager.getClientUser().userId);
+
 				//个推
 				initGeTuiPush();
 
@@ -162,6 +163,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 				loadData();
 
 				initLocationClient();
+
 			}
 		});
 
@@ -605,7 +607,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		if (keyCode == KeyEvent.KEYCODE_BACK) {
+		/*if (keyCode == KeyEvent.KEYCODE_BACK) {
 			if ((System.currentTimeMillis() - clickTime) > 2000) {
 				ToastUtil.showMessage(R.string.exit_tips);
 				clickTime = System.currentTimeMillis();
@@ -613,6 +615,11 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 				exitApp();
 			}
 			return true;
+		}*/
+		if (keyCode == KeyEvent.KEYCODE_BACK
+				&& event.getAction() == KeyEvent.ACTION_DOWN) {
+			moveTaskToBack(false);
+			mTabHost.setCurrentTab(0);
 		}
 		return super.onKeyDown(keyCode, event);
 	}

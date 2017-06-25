@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -78,6 +79,8 @@ public class MyGoldActivity extends BaseActivity {
 	RelativeLayout mWechatLay;
 	@BindView(R.id.pay_lay)
 	LinearLayout mPayLay;
+	@BindView(R.id.scrollView)
+	NestedScrollView mScrollView;
 
 
 
@@ -142,6 +145,7 @@ public class MyGoldActivity extends BaseActivity {
 		mRecyclerView.addItemDecoration(new DividerItemDecoration(
 				this, LinearLayoutManager.VERTICAL, DensityUtil
 				.dip2px(this, 12), DensityUtil.dip2px(this, 12)));
+		mScrollView.setNestedScrollingEnabled(false);
 	}
 
 	private void setupEvent() {

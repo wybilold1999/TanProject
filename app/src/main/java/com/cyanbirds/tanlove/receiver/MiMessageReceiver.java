@@ -58,12 +58,14 @@ public class MiMessageReceiver extends PushMessageReceiver {
 
     @Override
     public void onReceivePassThroughMessage(Context context, final MiPushMessage message) {
-        mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-                PushMsgUtil.getInstance().handlePushMsg(true, message.getContent());
-            }
-        });
+        if (AppManager.getClientUser().isShowVip) {
+            mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                    PushMsgUtil.getInstance().handlePushMsg(true, message.getContent());
+                }
+            });
+        }
     }
 
     @Override

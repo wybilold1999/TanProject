@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.Snackbar;
+import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -85,6 +86,8 @@ public class VipCenterActivity extends BaseActivity {
 	RelativeLayout mVip7Lay;
 	@BindView(R.id.vip_8_lay)
 	RelativeLayout mVip8Lay;
+	@BindView(R.id.scrollView)
+	NestedScrollView mScrollView;
 
 	private MemberBuyAdapter mAdapter;
 
@@ -166,6 +169,7 @@ public class VipCenterActivity extends BaseActivity {
 				this, LinearLayoutManager.VERTICAL, DensityUtil
 				.dip2px(this, 12), DensityUtil.dip2px(
 				this, 12)));
+		mScrollView.setNestedScrollingEnabled(false);
 	}
 
 	private void setupEvent() {
