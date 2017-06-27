@@ -714,7 +714,7 @@ public class ChatMessageAdapter extends
                 case R.id.message_send_fail:
                     break;
                 case R.id.portrait:
-                    if(!"-1".equals(mConversation.talker)){
+                    if(mConversation != null && !"-1".equals(mConversation.talker)){
                         Intent intent = new Intent(mContext, PersonalInfoActivity.class);
                         intent.putExtra(ValueKey.USER_ID, mConversation.talker);
                         mContext.startActivity(intent);
@@ -775,7 +775,7 @@ public class ChatMessageAdapter extends
                     itemView.getContext().startActivity(intent);
                     break;
                 case R.id.portrait :
-                    if(!"-1".equals(mConversation.talker)){
+                    if(null != mConversation && !"-1".equals(mConversation.talker)){
                         intent.setClass(itemView.getContext(), PersonalInfoActivity.class);
                         intent.putExtra(ValueKey.USER_ID, mConversation.talker);
                         mContext.startActivity(intent);
@@ -822,7 +822,7 @@ public class ChatMessageAdapter extends
             Intent intent = new Intent();
             switch (v.getId()) {
                 case R.id.portrait:
-                    if(!"-1".equals(mConversation.talker)){
+                    if(null != mConversation && !"-1".equals(mConversation.talker)){
                         intent.setClass(itemView.getContext(), PersonalInfoActivity.class);
                         intent.putExtra(ValueKey.USER_ID, mConversation.talker);
                         mContext.startActivity(intent);
@@ -875,7 +875,7 @@ public class ChatMessageAdapter extends
                 case R.id.message_send_fail:
                     break;
                 case R.id.portrait:
-                    if(!"-1".equals(mConversation.talker)){
+                    if(null != mConversation && !"-1".equals(mConversation.talker)){
                         Intent intent = new Intent(mContext, PersonalInfoActivity.class);
                         intent.putExtra(ValueKey.USER_ID, mConversation.talker);
                         mContext.startActivity(intent);
@@ -922,7 +922,7 @@ public class ChatMessageAdapter extends
                 case R.id.message_send_fail:
                     break;
                 case R.id.portrait:
-                    if(!"-1".equals(mConversation.talker)){
+                    if(null != mConversation && !"-1".equals(mConversation.talker)){
                         Intent intent = new Intent(mContext, PersonalInfoActivity.class);
                         intent.putExtra(ValueKey.USER_ID, mConversation.talker);
                         mContext.startActivity(intent);

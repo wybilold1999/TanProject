@@ -151,8 +151,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 
 				initJPush();
 
-				initMeizuPush();
-
 				loadData();
 
 				initLocationClient();
@@ -301,11 +299,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 			}
 			mHandler.sendMessage(mHandler.obtainMessage(MSG_SET_TAGS, tag));
 		}
-	}
-
-	private void initMeizuPush() {
-		com.meizu.cloud.pushsdk.PushManager.register(this,
-				AppConstants.MZ_APP_ID, AppConstants.MZ_APP_KEY);
 	}
 
 	@Override
