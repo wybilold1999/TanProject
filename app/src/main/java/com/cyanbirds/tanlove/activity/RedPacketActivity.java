@@ -181,7 +181,6 @@ public class RedPacketActivity extends BaseActivity {
 										new CreateOrderTask().request(mMemberBuy.id, AppConstants.WX_PAY_PLATFORM, mReadPacketAmount.getText().toString());
 									}
 								}
-//								finishActivity();
 							}
 						});
 					} else {
