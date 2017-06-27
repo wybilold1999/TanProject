@@ -142,7 +142,8 @@
     <string name="qq">QQ号</string>
     <string name="weixin">微信号</string>
     <string name="ali_pay">支付宝支付(推荐)</string>
-    <string name="ali_pay_info">使用支付宝支付,额外赠送200金币</string>
+    <string name="ali_pay_info">使用支付宝支付,额外赠送500金币</string>
+    <string name="pay_info">额外赠送500金币</string>
     <string name="weixin_pay">微信支付</string>
     <string name="send_telephone_fare">(送%1$d元话费)</string>
     <string name="pay_type">请选择支付方式</string>
@@ -154,6 +155,7 @@
     <string name="rpt_symbol">[红包]</string>
     <string name="reward_count_over">您的抽奖次数已经用完，继续购买套餐又可获得3次抽奖机会</string>
     <string name="no_reward_count">您的抽奖次数为0，购买套餐可获得3次抽奖机会</string>
+    <string name="see_more_send_gift_data">您还不是会员,暂时只能查看前10位给您送礼物的用户,查看更多，立即开通会员？</string>
     <string name="see_more_data">您还不是会员,，暂时只能查看前10位关注了您的用户，查看更多，立即开通会员？</string>
     <string name="un_send_msg">您还不是会员,不能发送消息,立即开通会员？</string>
     <string name="un_select_distance">您还不是会员,不能选择距离自己的范围,立即开通会员？</string>
