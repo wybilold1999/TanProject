@@ -257,6 +257,7 @@
                             android:src="@mipmap/icon_square_letter"/>
 
                         <TextView
+                            android:id="@+id/tv_my_gift"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
@@ -265,6 +266,21 @@
                             android:layout_toRightOf="@id/my_gifts_img"
                             android:text="@string/my_gifts"
                             android:textSize="16sp"/>
+
+                        <ImageView
+                            android:id="@+id/gift_red_point"
+                            android:layout_width="8dp"
+                            android:layout_height="8dp"
+                            android:layout_toRightOf="@id/tv_my_gift"
+                            android:layout_centerInParent="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginStart="10dp"
+                            android:contentDescription="@null"
+                            android:gravity="center"
+                            android:src="@mipmap/personal_alert_bg"
+                            android:scaleType="fitCenter"
+                            android:visibility="gone"/>
 
                         <ImageView
                             android:id="@id/personal_enter"
@@ -280,14 +296,16 @@
 
                         <TextView
                             android:id="@+id/gifts_count"
-                            android:layout_width="20dp"
-                            android:layout_height="20dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
                             android:layout_toLeftOf="@id/personal_enter"
+                            android:layout_centerInParent="true"
                             android:layout_centerVertical="true"
                             android:textColor="@android:color/holo_red_light"
-                            android:layout_marginEnd="10dp"
-                            android:layout_marginRight="10dp"
+                            android:layout_marginEnd="25dp"
+                            android:layout_marginRight="25dp"
                             android:contentDescription="@null"
+                            android:gravity="center"
                             android:visibility="gone"/>
 
                         <View
@@ -319,6 +337,7 @@
                             android:src="@mipmap/icon_lookme"/>
 
                         <TextView
+                            android:id="@+id/tv_attention_me"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
@@ -327,6 +346,21 @@
                             android:layout_toRightOf="@id/attentioned_user_img"
                             android:text="谁关注我"
                             android:textSize="16sp"/>
+
+                        <ImageView
+                            android:id="@+id/attention_red_point"
+                            android:layout_width="8dp"
+                            android:layout_height="8dp"
+                            android:layout_toRightOf="@id/tv_attention_me"
+                            android:layout_centerInParent="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginStart="10dp"
+                            android:contentDescription="@null"
+                            android:gravity="center"
+                            android:src="@mipmap/personal_alert_bg"
+                            android:scaleType="fitCenter"
+                            android:visibility="gone"/>
 
                         <ImageView
                             android:id="@id/personal_enter"
@@ -382,6 +416,7 @@
                             android:src="@mipmap/good_focused"/>
 
                         <TextView
+                            android:id="@+id/tv_love_me"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_centerVertical="true"
@@ -390,6 +425,21 @@
                             android:layout_toRightOf="@id/good_user_img"
                             android:text="@string/who_good_for_me"
                             android:textSize="16sp"/>
+
+                        <ImageView
+                            android:id="@+id/love_red_point"
+                            android:layout_width="8dp"
+                            android:layout_height="8dp"
+                            android:layout_toRightOf="@id/tv_love_me"
+                            android:layout_centerInParent="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginStart="10dp"
+                            android:contentDescription="@null"
+                            android:gravity="center"
+                            android:src="@mipmap/personal_alert_bg"
+                            android:scaleType="fitCenter"
+                            android:visibility="gone"/>
 
                         <ImageView
                             android:id="@id/personal_enter"

@@ -13,6 +13,7 @@ import android.view.animation.AnimationSet;
 import android.view.animation.LinearInterpolator;
 import android.view.animation.ScaleAnimation;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
@@ -37,6 +38,7 @@ public class RadarActivity extends BaseActivity {
 	private int pageNo = 0;
 	private int pageSize = 200;
 
+	private RelativeLayout mLoadingLay;
 	private ImageView radarbttom;
 	private ImageView radartop;
 	private ImageView mAnnularImg;
@@ -54,6 +56,7 @@ public class RadarActivity extends BaseActivity {
 	}
 
 	private void setupView() {
+		mLoadingLay = (RelativeLayout) findViewById(R.id.loading_lay);
 		mAnnularImg = (ImageView) findViewById(R.id.radar_img);
 		radartop = (ImageView) findViewById(R.id.radar_top_img);
 		radarbttom = (ImageView) findViewById(R.id.radar_bttom_img);
@@ -80,13 +83,13 @@ public class RadarActivity extends BaseActivity {
 			public void run() {
 				startwhiteAnimal();
 			}
-		}, 400);
+		}, 500);
 		new Handler().postDelayed(new Runnable() {
 			@Override
 			public void run() {
 				startannularAnimat();
 			}
-		}, 600);
+		}, 700);
 	}
 
 	private AnimationSet playHeartbeatAnimation() {
@@ -94,7 +97,7 @@ public class RadarActivity extends BaseActivity {
 		ScaleAnimation sa = new ScaleAnimation(0.3f, 1.0f, 0.3f, 1.0f,
 				ScaleAnimation.RELATIVE_TO_SELF, 0.5f,
 				ScaleAnimation.RELATIVE_TO_SELF, 0.5f);
-		sa.setDuration(900);
+		sa.setDuration(800);
 		sa.setFillAfter(true);
 		sa.setRepeatCount(0);
 		sa.setInterpolator(new LinearInterpolator());
@@ -129,7 +132,7 @@ public class RadarActivity extends BaseActivity {
 	private void startwhiteAnimal() {
 		AnimationSet whiteAnimal = playHeartbeatAnimation();
 		whiteAnimal.setRepeatCount(0);
-		whiteAnimal.setDuration(700);
+		whiteAnimal.setDuration(600);
 		radartop.setVisibility(View.VISIBLE);
 		radartop.startAnimation(whiteAnimal);
 		whiteAnimal.setAnimationListener(new Animation.AnimationListener() {
@@ -169,6 +172,7 @@ public class RadarActivity extends BaseActivity {
 	class GetYuanFenUserTask extends GetYuanFenUserRequest {
 		@Override
 		public void onPostExecute(List<YuanFenModel> yuanFenModels) {
+			mLoadingLay.setVisibility(View.GONE);
 			Intent intent = new Intent(RadarActivity.this, CardActivity.class);
 			intent.putExtra(ValueKey.USER, (Serializable) yuanFenModels);
 			startActivity(intent);

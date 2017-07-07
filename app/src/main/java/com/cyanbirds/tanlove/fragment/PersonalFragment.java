@@ -4,7 +4,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.CardView;
 import android.text.TextUtils;
 import android.view.LayoutInflater;
@@ -52,6 +51,7 @@ import java.io.File;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import butterknife.Unbinder;
 
 /**
  * @author: wangyb
@@ -121,6 +121,13 @@ public class PersonalFragment extends Fragment {
 	TextView giftsCount;
 	@BindView(R.id.vip_card)
 	CardView mVipCard;
+	@BindView(R.id.gift_red_point)
+	ImageView mGiftRedPoint;
+	@BindView(R.id.attention_red_point)
+	ImageView mAttentionRedPoint;
+	@BindView(R.id.love_red_point)
+	ImageView mLoveRedPoint;
+	Unbinder unbinder;
 
 	private View rootView;
 
@@ -131,7 +138,7 @@ public class PersonalFragment extends Fragment {
 							 Bundle savedInstanceState) {
 		if (rootView == null) {
 			rootView = inflater.inflate(R.layout.fragment_personal, null);
-			ButterKnife.bind(this, rootView);
+			unbinder = ButterKnife.bind(this, rootView);
 			EventBus.getDefault().register(this);
 			setupViews();
 			setupEvent();
@@ -142,10 +149,6 @@ public class PersonalFragment extends Fragment {
 		if (parent != null) {
 			parent.removeView(rootView);
 		}
-		((AppCompatActivity) getActivity()).getSupportActionBar().show();
-		((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(
-				R.string.tab_personal);
-		ButterKnife.bind(this, rootView);
 		return rootView;
 	}
 
@@ -156,6 +159,9 @@ public class PersonalFragment extends Fragment {
 	}
 
 	private void setupData() {
+		mLoveRedPoint.setVisibility(View.VISIBLE);
+		mAttentionRedPoint.setVisibility(View.VISIBLE);
+		mGiftRedPoint.setVisibility(View.VISIBLE);
 		setUserInfo();
 		new GetFollowLoveTask().request(AppManager.getClientUser().userId);
 	}
@@ -275,14 +281,17 @@ public class PersonalFragment extends Fragment {
 				startActivity(intent);
 				break;
 			case R.id.my_gifts:
+				mGiftRedPoint.setVisibility(View.GONE);
 				intent.setClass(getActivity(), MyGiftsActivity.class);
 				startActivity(intent);
 				break;
 			case R.id.attentioned_user:
+				mAttentionRedPoint.setVisibility(View.GONE);
 				intent.setClass(getActivity(), AttentionMeActivity.class);
 				startActivity(intent);
 				break;
 			case R.id.good_user:
+				mLoveRedPoint.setVisibility(View.GONE);
 				intent.setClass(getActivity(), LoveFormeActivity.class);
 				startActivity(intent);
 				break;
@@ -368,6 +377,9 @@ public class PersonalFragment extends Fragment {
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
+		if (unbinder != null) {
+			unbinder.unbind();
+		}
 		EventBus.getDefault().unregister(this);
 	}
 

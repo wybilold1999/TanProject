@@ -1,5 +1,6 @@
 <resources>
     <string name="app_name">探爱约会聊天交友</string>
+    <string name="app_name_short">探爱</string>
     <string name="setting">设置</string>
     <string name="about">关于</string>
 
@@ -318,5 +319,9 @@
 
     <string name="reward_ing">抽奖活动火热进行中:</string>
     <string name="reward_need">1.每次购买任意套餐达%1$d元，可以进行%2$d次抽奖</string>
+
+    <string name="love_name"><Data><![CDATA[<b>%1$s</b> 刚喜欢了您哦！]]></Data></string>
+    <string name="send_msg">发送消息</string>
+    <string name="going_find">继续寻觅</string>
 
 </resources>
