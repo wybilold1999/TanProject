@@ -71,7 +71,7 @@ public class CardActivity extends BaseActivity implements SwipeFlingAdapterView.
 	private Unbinder unbinder;
 	private CardModel curModel;
 	private int pageNo = 1;
-	private int pageSize = 10;
+	private int pageSize = 200;
 	private Handler mHandler = new Handler();
 	private AnimationSet grayAnimal;
 	private List<CardModel> dataList = new ArrayList<CardModel>();
