@@ -176,6 +176,10 @@ public class TabPersonalFragment extends Fragment implements GeocodeSearch.OnGeo
 	TextView mCity;
 	@BindView(R.id.is_vip)
 	ImageView mIsVip;
+	@BindView(R.id.tv_friend)
+	TextView mTvFriend;
+	@BindView(R.id.card_friend)
+	CardView mCardFriend;
 
 	private AMap aMap;
 	private UiSettings mUiSettings;
@@ -300,6 +304,13 @@ public class TabPersonalFragment extends Fragment implements GeocodeSearch.OnGeo
 				} else {
 					mGiftText.setVisibility(View.GONE);
 					mGiftCard.setVisibility(View.GONE);
+				}
+				if (AppManager.getClientUser().isShowVip) {
+					mCardFriend.setVisibility(View.VISIBLE);
+					mTvFriend.setVisibility(View.VISIBLE);
+				} else {
+					mCardFriend.setVisibility(View.GONE);
+					mTvFriend.setVisibility(View.GONE);
 				}
 			}
 		}
