@@ -139,6 +139,12 @@ public class PersonalInfoActivity extends BaseActivity {
 				new GetUserInfoTask().request(curUserId);
 			}
 		}
+
+		if (AppManager.getClientUser().isShowLovers) {
+			mGift.setVisibility(View.VISIBLE);
+		} else {
+			mGift.setVisibility(View.GONE);
+		}
 	}
 
 	@Override
