@@ -297,7 +297,7 @@ public class TabPersonalFragment extends Fragment implements GeocodeSearch.OnGeo
 				/**
 				 * 用户收到的礼物
 				 */
-				if (AppManager.getClientUser().isShowLovers && !TextUtils.isEmpty(clientUser.gifts)) {
+				if (!TextUtils.isEmpty(clientUser.gifts)) {
 					mGiftText.setVisibility(View.VISIBLE);
 					mGiftCard.setVisibility(View.VISIBLE);
 					mAdapter = new TabPersonalPhotosAdapter(getActivity(),

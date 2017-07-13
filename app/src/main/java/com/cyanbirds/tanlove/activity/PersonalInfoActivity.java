@@ -39,7 +39,6 @@ import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
-import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -138,12 +137,6 @@ public class PersonalInfoActivity extends BaseActivity {
 				ProgressDialogUtils.getInstance(PersonalInfoActivity.this).show(R.string.dialog_request_data);
 				new GetUserInfoTask().request(curUserId);
 			}
-		}
-
-		if (AppManager.getClientUser().isShowLovers) {
-			mGift.setVisibility(View.VISIBLE);
-		} else {
-			mGift.setVisibility(View.GONE);
 		}
 	}
 
