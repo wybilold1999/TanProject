@@ -221,7 +221,6 @@ public class TabPersonalFragment extends Fragment implements GeocodeSearch.OnGeo
 		if (parent != null) {
 			parent.removeView(rootView);
 		}
-		ButterKnife.bind(this, rootView);
 		return rootView;
 	}
 
