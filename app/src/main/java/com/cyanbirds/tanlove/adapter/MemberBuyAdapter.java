@@ -53,12 +53,9 @@ public class MemberBuyAdapter extends
 		}
 		holder.mDateLimit.setText(memberBuy.months);
 		holder.mPrice.setText(memberBuy.price + "元");
-		if (memberBuy.price != 99) {//不是99元的，显示赠送话费的优惠
+		if (!TextUtils.isEmpty(memberBuy.preferential.trim())) {//不是99元的，显示赠送话费的优惠
 			holder.mPreferential.setText(String.format(mContext.getResources().getString(R.string.send_telephone_fare),
 					Integer.parseInt(memberBuy.preferential)));
-			if (memberBuy.price == 169) {
-				holder.mDesciption.setTextColor(mContext.getResources().getColor(R.color.red));
-			}
 		}
 		holder.mDesciption.setText(memberBuy.descreption);
 	}

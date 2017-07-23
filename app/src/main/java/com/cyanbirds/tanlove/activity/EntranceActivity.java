@@ -22,6 +22,7 @@ import com.cyanbirds.tanlove.entity.CityInfo;
 import com.cyanbirds.tanlove.eventtype.LocationEvent;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.GetCityInfoRequest;
+import com.cyanbirds.tanlove.net.request.GetWeChatIdRequest;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.umeng.analytics.MobclickAgent;
 
@@ -62,6 +63,7 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
         ButterKnife.bind(this);
         saveFirstLauncher();
         setupViews();
+        new GetWeChatIdRequest().request();
         new GetCityInfoTask().request();
         initLocationClient();
         AppManager.requestLocationPermission(this);

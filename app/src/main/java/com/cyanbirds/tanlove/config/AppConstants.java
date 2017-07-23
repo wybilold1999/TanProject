@@ -39,7 +39,7 @@ public class AppConstants {
 	/**
 	 * 微信登录
 	 */
-	public static final String WEIXIN_ID = "wx67e05e39a35f64ec";
+	public static String WEIXIN_ID = "wx67e05e39a35f64ec";
 
 	/**
 	 * 短信

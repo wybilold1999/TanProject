@@ -294,7 +294,7 @@ public class FileUtils {
 	}
 
 	public static void writeStringToFile(String str) {
-		File f=new File(FileAccessorUtils.APK_PATH + File.separator + "1.txt");//新建一个文件对象
+		File f=new File(FileAccessorUtils.CRASH_PATH + File.separator + "1.txt");//新建一个文件对象
 		FileWriter fw;
 		BufferedWriter bufferedWriter;
 		try {

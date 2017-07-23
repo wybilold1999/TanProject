@@ -81,6 +81,8 @@ public class MyGoldActivity extends BaseActivity {
 	LinearLayout mPayLay;
 	@BindView(R.id.scrollView)
 	NestedScrollView mScrollView;
+	@BindView(R.id.alipay_lay_info)
+	TextView mAliPayInfo;
 
 
 
@@ -215,6 +217,14 @@ public class MyGoldActivity extends BaseActivity {
 			mAdapter = new MyGoldAdapter(memberBuys, MyGoldActivity.this);
 			mAdapter.setOnItemClickListener(mOnItemClickListener);
 			mRecyclerView.setAdapter(mAdapter);
+			if (mMemberBuy.isShowAli) {
+				mAliPayInfo.setText(String.format(
+						getResources().getString(R.string.pay_info_ali),
+						mMemberBuy.descreption));
+				mAliPayInfo.setVisibility(View.VISIBLE);
+			} else {
+				mAliPayInfo.setVisibility(View.GONE);
+			}
 		}
 
 		@Override
