@@ -18,6 +18,7 @@ import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.RegisterRequest;
 import com.cyanbirds.tanlove.utils.AESEncryptorUtil;
 import com.cyanbirds.tanlove.utils.CheckUtil;
+import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.umeng.analytics.MobclickAgent;
@@ -109,6 +110,7 @@ public class RegisterSubmitActivity extends BaseActivity implements
 			AppManager.setClientUser(clientUser);
 			AppManager.saveUserInfo();
 			AppManager.getClientUser().loginTime = System.currentTimeMillis();
+			PreferencesUtils.setLoginTime(RegisterSubmitActivity.this, System.currentTimeMillis());
 			IMChattingHelper.getInstance().sendInitLoginMsg();
 			Intent intent = new Intent(RegisterSubmitActivity.this, MainActivity.class);
 			startActivity(intent);
