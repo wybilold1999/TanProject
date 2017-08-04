@@ -174,7 +174,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 				public void run() {
 					new GetLoveFormeListTask().request(1, 1);
 				}
-			}, 4500 * 10);
+			}, 9000 * 10);
 
 			mHandler.postDelayed(new Runnable() {
 				@Override
@@ -188,7 +188,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 				public void run() {
 					new FollowListTask().request("followFormeList", 1, 1);
 				}
-			}, 3000 * 10);
+			}, 5000 * 10);
 		}
 
 	}
