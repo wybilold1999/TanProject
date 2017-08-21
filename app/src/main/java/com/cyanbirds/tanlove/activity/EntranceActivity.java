@@ -63,7 +63,6 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
         ButterKnife.bind(this);
         saveFirstLauncher();
         setupViews();
-        new GetWeChatIdRequest().request();
         new GetCityInfoTask().request();
         initLocationClient();
         AppManager.requestLocationPermission(this);

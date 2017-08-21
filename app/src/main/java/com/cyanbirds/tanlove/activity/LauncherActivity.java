@@ -12,6 +12,7 @@ import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.helper.IMChattingHelper;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.DownloadFileRequest;
+import com.cyanbirds.tanlove.net.request.GetWeChatIdRequest;
 import com.cyanbirds.tanlove.net.request.UserLoginRequest;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.cyanbirds.tanlove.utils.Md5Util;
@@ -75,6 +76,7 @@ public class LauncherActivity extends Activity {
     };
 
     private void init() {
+        new GetWeChatIdRequest().request();
         if (AppManager.isLogin()) {//是否已经登录
             login();
         } else {
