@@ -102,6 +102,8 @@ public class PreferencesUtils {
 	public static final String SETTINGS_GIFT_ME_USER_ID = "com.cyanbird.tanlove_gift_me_user_id";
 	/** 登录时间*/
 	public static final String SETTINGS_LOGIN_TIME = "com.cyanbird.tanlove_login_time";
+	/** 支付宝支付次数*/
+	public static final String SETTINGS_ALI_PAY_COUNT = "com.cyanbird.tanlove_ali_pay_count";
 
 	/**
 	 * 获取RL账号
@@ -1104,6 +1106,26 @@ public class PreferencesUtils {
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(context);
 		sp.edit().putLong(SETTINGS_LOGIN_TIME, loginTime).commit();
+	}
+
+	/**
+	 *
+	 * @param context
+	 * @return
+	 */
+	public static int getAliPayCount(final Context context) {
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sp.getInt(SETTINGS_ALI_PAY_COUNT, 0);
+	}
+
+	/**
+	 * @param context
+	 */
+	public static void setAliPayCount(final Context context, final int count) {
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		sp.edit().putInt(SETTINGS_ALI_PAY_COUNT, count).commit();
 	}
 
 }

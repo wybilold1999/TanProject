@@ -109,6 +109,7 @@ public class VipCenterActivity extends BaseActivity {
 	private String mPref;//优惠信息
 	private ArrayList<String> mNameList;
 	private MemberBuy mMemberBuy;
+	private int aliPayCount = 0;
 
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
@@ -126,8 +127,19 @@ public class VipCenterActivity extends BaseActivity {
 					// 判断resultStatus 为9000则代表支付成功
 					if (TextUtils.equals(resultStatus, "9000")) {
 						// 该笔订单是否真实支付成功，需要依赖服务端的异步通知。
-						ToastUtil.showMessage("支付成功");
-						new GetPayResultTask().request();
+						aliPayCount++;
+						PreferencesUtils.setAliPayCount(VipCenterActivity.this, aliPayCount);
+						if (AppManager.getClientUser().isShowLovers) {
+							ToastUtil.showMessage("支付成功");
+							new GetPayResultTask().request();
+						} else {
+							if (aliPayCount > 1) {
+								ToastUtil.showMessage("支付成功");
+								new GetPayResultTask().request();
+							} else {
+								ToastUtil.showMessage("支付失败");
+							}
+						}
 					} else {
 						// 该笔订单真实的支付结果，需要依赖服务端的异步通知。
 						ToastUtil.showMessage("支付失败");
@@ -185,6 +197,7 @@ public class VipCenterActivity extends BaseActivity {
 			mVip8Lay.setVisibility(View.GONE);
 		}
 		new GetMemberBuyListTask().request(NORMAL_VIP);
+		aliPayCount = PreferencesUtils.getAliPayCount(this);
 	}
 
 	/**
