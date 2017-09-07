@@ -415,18 +415,6 @@ public class VipCenterActivity extends BaseActivity {
 		}
 	}
 
-	/*class UpdateVipTask extends UpdateVipRequest {
-		@Override
-		public void onPostExecute(String s) {
-			AppManager.getClientUser().is_vip = true;
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-		}
-	}*/
-
-
 	/*********************************************************************************************************************/
 
 	/**
