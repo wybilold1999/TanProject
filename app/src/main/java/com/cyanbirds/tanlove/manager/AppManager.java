@@ -30,6 +30,7 @@ import com.cyanbirds.tanlove.net.PictureService;
 import com.cyanbirds.tanlove.net.UserService;
 import com.cyanbirds.tanlove.net.VideoService;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
+import com.tencent.mm.sdk.openapi.IWXAPI;
 
 import java.io.File;
 import java.io.InputStreamReader;
@@ -78,6 +79,7 @@ public class AppManager {
 	private static VideoService mVideoService;
 	private static DynamicService mDynamicService;
 
+	private static IWXAPI sIWXAPI;
 
 	private static ExecutorService mExecutorService;
 
@@ -495,6 +497,14 @@ public class AppManager {
 	public static String getOSSFacePath() {
 		String path = "tan_love/img/tl_" + getUUID() + ".jpg";
 		return path;
+	}
+
+	public static IWXAPI getIWXAPI() {
+		return sIWXAPI;
+	}
+
+	public static void setIWXAPI(IWXAPI IWXAPI) {
+		sIWXAPI = IWXAPI;
 	}
 
 	/**

@@ -64,6 +64,7 @@ import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.PushMsgUtil;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.igexin.sdk.PushManager;
+import com.tencent.mm.sdk.openapi.WXAPIFactory;
 import com.umeng.analytics.MobclickAgent;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.yuntongxun.ecsdk.ECInitParams;
@@ -190,7 +191,13 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 				}
 			}, 5000 * 10);
 		}
+		registerWeiXin();
+	}
 
+	private void registerWeiXin() {
+		// 通过WXAPIFactory工厂，获取IWXAPI的实例
+		AppManager.setIWXAPI(WXAPIFactory.createWXAPI(this, AppConstants.WEIXIN_ID, true));
+		AppManager.getIWXAPI().registerApp(AppConstants.WEIXIN_ID);
 	}
 
 	/**

@@ -19,7 +19,6 @@ import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
-import android.text.style.URLSpan;
 import android.view.View;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -444,7 +443,7 @@ public class VipCenterActivity extends BaseActivity {
 			payReq.nonceStr = weChatPay.nonce_str;
 			payReq.timeStamp = weChatPay.timeStamp;
 			payReq.sign = weChatPay.appSign;
-			CSApplication.api.sendReq(payReq);
+			AppManager.getIWXAPI().sendReq(payReq);
 		}
 
 		@Override
