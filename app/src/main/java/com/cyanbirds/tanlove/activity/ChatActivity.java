@@ -4,6 +4,7 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -14,6 +15,7 @@ import android.os.Message;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewPager;
@@ -55,6 +57,7 @@ import com.cyanbirds.tanlove.entity.Conversation;
 import com.cyanbirds.tanlove.entity.Emoticon;
 import com.cyanbirds.tanlove.entity.ExpressionGroup;
 import com.cyanbirds.tanlove.entity.IMessage;
+import com.cyanbirds.tanlove.eventtype.SnackBarEvent;
 import com.cyanbirds.tanlove.helper.IMChattingHelper;
 import com.cyanbirds.tanlove.listener.FileProgressListener;
 import com.cyanbirds.tanlove.listener.FileProgressListener.OnFileProgressChangedListener;
@@ -71,6 +74,10 @@ import com.cyanbirds.tanlove.utils.FileUtils;
 import com.cyanbirds.tanlove.utils.ImageUtil;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.umeng.analytics.MobclickAgent;
+
+import org.greenrobot.eventbus.EventBus;
+import org.greenrobot.eventbus.Subscribe;
+import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.io.IOException;
@@ -222,6 +229,7 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 	}
 
 	private void setupEvent() {
+		EventBus.getDefault().register(this);
 		openCamera.setOnClickListener(this);
 		openAlbums.setOnClickListener(this);
 		openEmotion.setOnClickListener(this);
@@ -557,6 +565,7 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
+		EventBus.getDefault().unregister(this);
 		AppManager.currentChatTalker = null;
 		MessageStatusReportListener.getInstance().setOnMessageReportCallback(null);
 		MessageCallbackListener.getInstance().setOnMessageReportCallback(null);
@@ -960,6 +969,19 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 			}
 		});
 		builder.show();
+	}
+
+	@Subscribe(threadMode = ThreadMode.MAIN)
+	public void showSnackBar(SnackBarEvent event) {
+		Snackbar.make(findViewById(R.id.message_recycler_view), "红包已存入您的钱包", Snackbar.LENGTH_LONG)
+				.setActionTextColor(Color.RED)
+				.setAction("点击查看", new View.OnClickListener() {
+					@Override
+					public void onClick(View v) {
+						Intent intent = new Intent(ChatActivity.this, MoneyPacketActivity.class);
+						startActivity(intent);
+					}
+				}).show();
 	}
 }
 

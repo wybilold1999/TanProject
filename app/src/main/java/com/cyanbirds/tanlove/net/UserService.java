@@ -234,4 +234,8 @@ public interface UserService {
      */
     @GET("user/getWeChatId")
     Call<ResponseBody> getWeChatId();
+
+    @FormUrlEncoded
+    @POST("memberOrders/outputMoney")
+    Call<ResponseBody> outputMoney(@Header("token") String token, @FieldMap ArrayMap<String, String> params);
 }
