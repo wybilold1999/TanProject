@@ -7,6 +7,7 @@ import android.os.Handler;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 
+import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.helper.IMChattingHelper;
@@ -76,7 +77,7 @@ public class LauncherActivity extends Activity {
     };
 
     private void init() {
-        new GetWeChatIdRequest().request();
+        new GetWeChatIdTask().request("pay");
         if (AppManager.isLogin()) {//是否已经登录
             login();
         } else {
@@ -87,6 +88,17 @@ public class LauncherActivity extends Activity {
 				mHandler.postDelayed(firstLauncher, SHOW_TIME_MIN);
 			}
 
+        }
+    }
+
+    class GetWeChatIdTask extends GetWeChatIdRequest {
+        @Override
+        public void onPostExecute(String s) {
+            AppConstants.WEIXIN_PAY_ID = s;
+        }
+
+        @Override
+        public void onErrorExecute(String error) {
         }
     }
 

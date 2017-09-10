@@ -196,8 +196,8 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 
 	private void registerWeiXin() {
 		// 通过WXAPIFactory工厂，获取IWXAPI的实例
-		AppManager.setIWXAPI(WXAPIFactory.createWXAPI(this, AppConstants.WEIXIN_ID, true));
-		AppManager.getIWXAPI().registerApp(AppConstants.WEIXIN_ID);
+		AppManager.setIWX_PAY_API(WXAPIFactory.createWXAPI(this, AppConstants.WEIXIN_PAY_ID, true));
+		AppManager.getIWX_PAY_API().registerApp(AppConstants.WEIXIN_PAY_ID);
 	}
 
 	/**
