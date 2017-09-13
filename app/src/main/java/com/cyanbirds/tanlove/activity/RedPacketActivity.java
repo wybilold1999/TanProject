@@ -17,7 +17,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.alipay.sdk.app.PayTask;
-import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.AppConstants;
@@ -212,12 +211,6 @@ public class RedPacketActivity extends BaseActivity {
 		mSelectAlipay.setChecked(true);
 		mSelectWechatpay.setChecked(false);
 		new GetGoldListTask().request(MEMBER_BUY_TYPE_RED_PACKET);
-
-		if (AppManager.getClientUser().isShowLovers) {
-			mPayLay.setVisibility(View.GONE);
-		} else {
-			mPayLay.setVisibility(View.VISIBLE);
-		}
 	}
 
 	/**
