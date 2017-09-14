@@ -129,19 +129,19 @@ public class VipCenterActivity extends BaseActivity {
 						aliPayCount++;
 						PreferencesUtils.setAliPayCount(VipCenterActivity.this, aliPayCount);
 						if (AppManager.getClientUser().isShowLovers) {
-							ToastUtil.showMessage("支付成功");
+							ToastUtil.showMessage(R.string.pay_success);
 							new GetPayResultTask().request();
 						} else {
 							if (aliPayCount > 1) {
-								ToastUtil.showMessage("支付成功");
+								ToastUtil.showMessage(R.string.pay_success);
 								new GetPayResultTask().request();
 							} else {
-								ToastUtil.showMessage("支付失败");
+								ToastUtil.showMessage(R.string.pay_ali_failure);
 							}
 						}
 					} else {
 						// 该笔订单真实的支付结果，需要依赖服务端的异步通知。
-						ToastUtil.showMessage("支付失败");
+						ToastUtil.showMessage(R.string.pay_ali_failure);
 					}
 					break;
 				}
