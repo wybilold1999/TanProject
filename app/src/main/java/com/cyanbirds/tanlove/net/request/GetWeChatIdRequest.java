@@ -31,15 +31,18 @@ public class GetWeChatIdRequest extends ResultPostExecute<String> {
                         parseJson(response.body().string());
                     } catch (IOException e) {
                         e.printStackTrace();
+                        onErrorExecute("");
                     } finally {
                         response.body().close();
                     }
                 } else {
+                    onErrorExecute("");
                 }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
+                onErrorExecute("");
             }
         });
     }
@@ -49,8 +52,11 @@ public class GetWeChatIdRequest extends ResultPostExecute<String> {
             String decryptData = AESOperator.getInstance().decrypt(json);
             if (!TextUtils.isEmpty(decryptData)) {
                 onPostExecute(decryptData);
+            } else {
+                onErrorExecute("");
             }
         } catch (Exception e) {
+            onErrorExecute("");
         }
     }
 
