@@ -13,7 +13,7 @@ import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.helper.IMChattingHelper;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.DownloadFileRequest;
-import com.cyanbirds.tanlove.net.request.GetWeChatIdRequest;
+import com.cyanbirds.tanlove.net.request.GetIdKeysRequest;
 import com.cyanbirds.tanlove.net.request.UserLoginRequest;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.cyanbirds.tanlove.utils.Md5Util;
@@ -78,8 +78,7 @@ public class LauncherActivity extends Activity {
     };
 
     private void init() {
-        new GetWeChatIdTask().request("");
-        new GetWeChatPayIdTask().request("pay");
+        new GetIdKeysTask().request();
         if (AppManager.isLogin()) {//是否已经登录
             login();
         } else {
@@ -93,10 +92,14 @@ public class LauncherActivity extends Activity {
         }
     }
 
-    class GetWeChatIdTask extends GetWeChatIdRequest {
+    class GetIdKeysTask extends GetIdKeysRequest {
         @Override
         public void onPostExecute(String s) {
-            AppConstants.WEIXIN_ID = s;
+            String[] ids = s.split(";");
+            if (ids != null && ids.length == 2) {
+                AppConstants.WEIXIN_ID = ids[0];
+                AppConstants.WEIXIN_PAY_ID = ids[1];
+            }
             registerWeiXin();
         }
 
@@ -110,17 +113,6 @@ public class LauncherActivity extends Activity {
         // 通过WXAPIFactory工厂，获取IWXAPI的实例
         AppManager.setIWXAPI(WXAPIFactory.createWXAPI(this, AppConstants.WEIXIN_ID, true));
         AppManager.getIWXAPI().registerApp(AppConstants.WEIXIN_ID);
-    }
-
-    class GetWeChatPayIdTask extends GetWeChatIdRequest {
-        @Override
-        public void onPostExecute(String s) {
-            AppConstants.WEIXIN_PAY_ID = s;
-        }
-
-        @Override
-        public void onErrorExecute(String error) {
-        }
     }
 
 	/**

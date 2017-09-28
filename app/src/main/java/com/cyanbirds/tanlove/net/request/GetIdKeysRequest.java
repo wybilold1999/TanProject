@@ -2,8 +2,6 @@ package com.cyanbirds.tanlove.net.request;
 
 import android.text.TextUtils;
 
-import com.cyanbirds.tanlove.config.AppConstants;
-import com.cyanbirds.tanlove.entity.CityInfo;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.base.ResultPostExecute;
 import com.cyanbirds.tanlove.utils.AESOperator;
@@ -16,13 +14,13 @@ import retrofit2.Callback;
 
 /**
  * Created by wangyb on 2017/5/17.
- * 描述：获取微信id
+ * 描述：获取微信登录和支付id
  */
 
-public class GetWeChatIdRequest extends ResultPostExecute<String> {
+public class GetIdKeysRequest extends ResultPostExecute<String> {
 
-    public void request(String pay) {
-        Call<ResponseBody> call = AppManager.getUserService().getWeChatId(pay);
+    public void request() {
+        Call<ResponseBody> call = AppManager.getUserService().getIdKeys();
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {

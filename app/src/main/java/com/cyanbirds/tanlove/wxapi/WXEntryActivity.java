@@ -13,9 +13,6 @@ import com.tencent.mm.sdk.constants.ConstantsAPI;
 import com.tencent.mm.sdk.modelbase.BaseReq;
 import com.tencent.mm.sdk.modelbase.BaseResp;
 import com.tencent.mm.sdk.modelmsg.SendAuth;
-import com.tencent.mm.sdk.modelmsg.ShowMessageFromWX;
-import com.tencent.mm.sdk.modelmsg.WXAppExtendObject;
-import com.tencent.mm.sdk.modelmsg.WXMediaMessage;
 import com.tencent.mm.sdk.openapi.IWXAPIEventHandler;
 
 import org.greenrobot.eventbus.EventBus;
@@ -34,7 +31,11 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler{
 	}
 
 	private void handleIntent(Intent paramIntent) {
-		AppManager.getIWXAPI().handleIntent(paramIntent, this);
+		if (null != AppManager.getIWXAPI()) {
+			AppManager.getIWXAPI().handleIntent(paramIntent, this);
+		} else {
+			CSApplication.api.handleIntent(paramIntent, this);
+		}
 	}
 
 	@Override
