@@ -126,8 +126,8 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
     @Override
     public void onLocationChanged(AMapLocation aMapLocation) {
         if (aMapLocation != null && !TextUtils.isEmpty(aMapLocation.getCity())) {
-            AppManager.getClientUser().latitude = String.valueOf(aMapLocation.getLatitude());
-            AppManager.getClientUser().longitude = String.valueOf(aMapLocation.getLongitude());
+            curLat = String.valueOf(aMapLocation.getLatitude());
+            curLon = String.valueOf(aMapLocation.getLongitude());
             mCurrrentCity = aMapLocation.getCity();
             PreferencesUtils.setCurrentCity(this, mCurrrentCity);
             EventBus.getDefault().post(new LocationEvent(mCurrrentCity));
