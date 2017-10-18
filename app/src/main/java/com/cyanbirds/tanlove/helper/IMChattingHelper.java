@@ -75,12 +75,24 @@ public class IMChattingHelper implements OnChatReceiveListener{
 		ECMessage ecMessagee = ECMessage.createECMessage(ECMessage.Type.TXT);
 		ecMessagee.setDirection(ECMessage.Direction.SEND);
 		ecMessagee.setMsgId(AppManager.getUUID());
+
 		ecMessagee.setFrom(AppManager.getClientUser().userId);
 		ecMessagee.setNickName(AppManager.getClientUser().user_name);
-		ecMessagee.setTo(clientUser.userId);
+		ecMessagee.setTo("-2");
+		StringBuilder userData = new StringBuilder();
+		userData.append(AppManager.getClientUser().user_name)
+				.append(";")
+				.append(AppManager.getClientUser().face_url)
+				.append(";")//真实用户信息
+				.append(clientUser.userId)
+				.append(";")
+				.append(clientUser.user_name)
+				.append(";")
+				.append(clientUser.face_url);//假用户信息
+		ecMessagee.setUserData(userData.toString());
+
 		ecMessagee.setMsgTime(System.currentTimeMillis());
 		ecMessagee.setType(ECMessage.Type.TXT);
-		ecMessagee.setUserData(AppManager.getClientUser().user_name + ";" + AppManager.getClientUser().face_url);
 		ECTextMessageBody msgBody = new ECTextMessageBody(msgContent);
 		ecMessagee.setBody(msgBody);
 
@@ -140,12 +152,12 @@ public class IMChattingHelper implements OnChatReceiveListener{
 	 * @param clientUser 假用户
 	 * @param msgContent
      */
-	public void sendTextMsg(ClientUser realUser, final ClientUser clientUser, final String msgContent) {
+	/*public void sendTextMsg(ClientUser realUser, final ClientUser clientUser, final String msgContent) {
 		// 组建一个待发送的ECMessage
 		ECMessage ecMessagee = ECMessage.createECMessage(ECMessage.Type.TXT);
 		ecMessagee.setDirection(ECMessage.Direction.SEND);
 		ecMessagee.setMsgId(AppManager.getUUID());
-		if (AppManager.getClientUser().userId.equals("-2")) {
+		if (AppManager.getClientUser().userId.equals("-2")) {//给真实用户发送消息
 			ecMessagee.setFrom(clientUser.userId);
 			ecMessagee.setNickName(clientUser.user_name);
 			ecMessagee.setTo(realUser.userId);
@@ -162,9 +174,9 @@ public class IMChattingHelper implements OnChatReceiveListener{
 		ECTextMessageBody msgBody = new ECTextMessageBody(msgContent);
 		ecMessagee.setBody(msgBody);
 
-		/**
+		*//**
 		 * 本地消息
-		 */
+		 *//*
 		final IMessage message = new IMessage();
 		message.msgId = ecMessagee.getMsgId();
 		message.talker = ecMessagee.getTo();
@@ -191,9 +203,9 @@ public class IMChattingHelper implements OnChatReceiveListener{
 				if (ecMessage == null || error.errorCode != 200) {
 					message.status = IMessage.MessageStatus.FAILED;
 				}
-				/**
+				*//**
 				 * 通知消息发送的状态，发送成功，目的是让环形进度条消失
-				 */
+				 *//*
 				message.status = IMessage.MessageStatus.SENT;
 				IMessageDaoManager.getInstance(mContext).insertIMessage(message);
 				//通知消息发送的状态
@@ -210,7 +222,7 @@ public class IMChattingHelper implements OnChatReceiveListener{
 				CSApplication.getInstance(),
 				Uri.parse("android.resource://" + AppManager.getPackageName()
 						+ "/" + R.raw.sound_send)).play();
-	}
+	}*/
 
 	/**
 	 * 发送图片消息
