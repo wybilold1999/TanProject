@@ -80,7 +80,9 @@ public class IMChattingHelper implements OnChatReceiveListener{
 		ecMessagee.setNickName(AppManager.getClientUser().user_name);
 		ecMessagee.setTo("-2");
 		StringBuilder userData = new StringBuilder();
-		userData.append(AppManager.getClientUser().user_name)
+		userData.append(AppManager.getClientUser().userId)
+				.append(";")
+				.append(AppManager.getClientUser().user_name)
 				.append(";")
 				.append(AppManager.getClientUser().face_url)
 				.append(";")//真实用户信息
@@ -113,7 +115,7 @@ public class IMChattingHelper implements OnChatReceiveListener{
 		message.create_time = ecMessagee.getMsgTime();
 		message.send_time = message.create_time;
 
-		long convsId = ConversationSqlManager.getInstance(mContext).insertConversation(clientUser, ecMessagee);
+		long convsId = ConversationSqlManager.getInstance(mContext).insertConversation(ecMessagee);
 		message.conversationId = convsId;
 		MessageCallbackListener.getInstance().notifyPushMessage(message);//刷新UI
 
@@ -145,84 +147,6 @@ public class IMChattingHelper implements OnChatReceiveListener{
 				Uri.parse("android.resource://" + AppManager.getPackageName()
 						+ "/" + R.raw.sound_send)).play();
 	}
-
-	/**
-	 *
-	 * @param realUser 真实用户
-	 * @param clientUser 假用户
-	 * @param msgContent
-     */
-	/*public void sendTextMsg(ClientUser realUser, final ClientUser clientUser, final String msgContent) {
-		// 组建一个待发送的ECMessage
-		ECMessage ecMessagee = ECMessage.createECMessage(ECMessage.Type.TXT);
-		ecMessagee.setDirection(ECMessage.Direction.SEND);
-		ecMessagee.setMsgId(AppManager.getUUID());
-		if (AppManager.getClientUser().userId.equals("-2")) {//给真实用户发送消息
-			ecMessagee.setFrom(clientUser.userId);
-			ecMessagee.setNickName(clientUser.user_name);
-			ecMessagee.setTo(realUser.userId);
-			ecMessagee.setUserData(clientUser.user_name + ";" + clientUser.face_url);
-		} else {
-			ecMessagee.setFrom(AppManager.getClientUser().userId);
-			ecMessagee.setNickName(AppManager.getClientUser().user_name);
-			ecMessagee.setTo("-2");
-			ecMessagee.setUserData(AppManager.getClientUser().user_name + ";" + AppManager.getClientUser().face_url);
-		}
-
-		ecMessagee.setMsgTime(System.currentTimeMillis());
-		ecMessagee.setType(ECMessage.Type.TXT);
-		ECTextMessageBody msgBody = new ECTextMessageBody(msgContent);
-		ecMessagee.setBody(msgBody);
-
-		*//**
-		 * 本地消息
-		 *//*
-		final IMessage message = new IMessage();
-		message.msgId = ecMessagee.getMsgId();
-		message.talker = ecMessagee.getTo();
-		message.sender = ecMessagee.getForm();
-		message.sender_name = ecMessagee.getNickName();
-		ECTextMessageBody body = (ECTextMessageBody) ecMessagee.getBody();
-		message.content = body.getMessage();
-		message.msgType = IMessage.MessageType.TEXT;
-		message.isRead = true;
-		message.isSend = IMessage.MessageIsSend.SEND;
-		message.status = IMessage.MessageStatus.SENDING;
-		message.create_time = ecMessagee.getMsgTime();
-		message.send_time = message.create_time;
-
-		long convsId = ConversationSqlManager.getInstance(mContext).insertConversation(clientUser, ecMessagee);
-		message.conversationId = convsId;
-		MessageCallbackListener.getInstance().notifyPushMessage(message);//刷新UI
-
-		// 调用SDK发送接口发送消息到服务器
-		mChatManager.sendMessage(ecMessagee, new ECChatManager.OnSendMessageListener() {
-			@Override
-			public void onSendMessageComplete(ECError error, ECMessage ecMessage) {
-				// 处理消息发送结果
-				if (ecMessage == null || error.errorCode != 200) {
-					message.status = IMessage.MessageStatus.FAILED;
-				}
-				*//**
-				 * 通知消息发送的状态，发送成功，目的是让环形进度条消失
-				 *//*
-				message.status = IMessage.MessageStatus.SENT;
-				IMessageDaoManager.getInstance(mContext).insertIMessage(message);
-				//通知消息发送的状态
-				MessageStatusReportListener.getInstance().notifyMessageStatus(message);
-			}
-
-			@Override
-			public void onProgress(String msgId, int totalByte, int progressByte) {
-				// 处理文件发送上传进度（尽上传文件、图片时候SDK回调该方法）
-			}
-		});
-
-		RingtoneManager.getRingtone(
-				CSApplication.getInstance(),
-				Uri.parse("android.resource://" + AppManager.getPackageName()
-						+ "/" + R.raw.sound_send)).play();
-	}*/
 
 	/**
 	 * 发送图片消息
@@ -264,7 +188,7 @@ public class IMChattingHelper implements OnChatReceiveListener{
 			message.content = message.imgWidth + ";" + message.imgHigh;
 
 			long convsId = ConversationSqlManager.getInstance(mContext)
-					.insertConversation(clientUser, ecMessagee);
+					.insertConversation(ecMessagee);
 			message.conversationId = convsId;
 			MessageCallbackListener.getInstance().notifyPushMessage(message);//刷新UI
 
@@ -340,7 +264,7 @@ public class IMChattingHelper implements OnChatReceiveListener{
 			message.imgHigh = options.outHeight;
 
 			long convsId = ConversationSqlManager.getInstance(mContext)
-					.insertConversation(clientUser, ecMessagee);
+					.insertConversation(ecMessagee);
 			message.conversationId = convsId;
 			MessageCallbackListener.getInstance().notifyPushMessage(message);//刷新UI
 
@@ -399,7 +323,7 @@ public class IMChattingHelper implements OnChatReceiveListener{
 		message.create_time = ecMessagee.getMsgTime();
 		message.send_time = message.create_time;
 
-		long convsId = ConversationSqlManager.getInstance(mContext).insertConversation(clientUser, ecMessagee);
+		long convsId = ConversationSqlManager.getInstance(mContext).insertConversation(ecMessagee);
 		message.conversationId = convsId;
 		MessageCallbackListener.getInstance().notifyPushMessage(message);//刷新UI
 
@@ -495,18 +419,20 @@ public class IMChattingHelper implements OnChatReceiveListener{
 	 * @param msg
 	 */
 	private synchronized void postReceiveMessage(ECMessage msg) {
+		if (!msg.getTo().equals(AppManager.getClientUser().userId)) {
+			return;
+		}
 		long conversationId = ConversationSqlManager.getInstance(mContext)
-				.insertConversation(null, msg);
+				.insertConversation(msg);
 		IMessage message = new IMessage();
 		message.msgId = msg.getMsgId();
-		message.talker = msg.getForm();
-//		message.sender = msg.getTo();
-		message.sender = msg.getForm();
-//		message.sender_name = msg.getNickName(); 获取不到名字
 		String userData = msg.getUserData();
 		if (!TextUtils.isEmpty(userData)) {
-			if (userData.split(";").length > 0) {
-				message.sender_name = userData.split(";")[0];
+			String[] data = userData.split(";");
+			if (data.length > 0) {
+				message.talker = data[0];
+				message.sender = data[0];
+				message.sender_name = data[1];
 			}
 		}
 		message.isRead = true;
