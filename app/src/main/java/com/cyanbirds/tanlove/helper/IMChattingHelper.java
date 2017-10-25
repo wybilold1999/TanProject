@@ -20,6 +20,7 @@ import com.cyanbirds.tanlove.listener.MessageChangedListener;
 import com.cyanbirds.tanlove.listener.MessageStatusReportListener;
 import com.cyanbirds.tanlove.listener.MessageUnReadListener;
 import com.cyanbirds.tanlove.manager.AppManager;
+import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.FileUtils;
 import com.cyanbirds.tanlove.utils.ImageUtil;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
@@ -90,7 +91,11 @@ public class IMChattingHelper implements OnChatReceiveListener{
 				.append(";")
 				.append(clientUser.user_name)
 				.append(";")
-				.append(clientUser.face_url);//假用户信息
+				.append(clientUser.face_url)//假用户信息
+				.append(";")
+				.append(CheckUtil.getAppMetaData(mContext, "UMENG_CHANNEL"))
+				.append(";")
+				.append(AppManager.getClientUser().currentCity);
 		ecMessagee.setUserData(userData.toString());
 
 		ecMessagee.setMsgTime(System.currentTimeMillis());
