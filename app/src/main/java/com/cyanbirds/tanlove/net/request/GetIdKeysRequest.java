@@ -2,9 +2,11 @@ package com.cyanbirds.tanlove.net.request;
 
 import android.text.TextUtils;
 
+import com.cyanbirds.tanlove.entity.AllKeys;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.base.ResultPostExecute;
 import com.cyanbirds.tanlove.utils.AESOperator;
+import com.google.gson.Gson;
 
 import java.io.IOException;
 
@@ -17,7 +19,7 @@ import retrofit2.Callback;
  * 描述：获取微信登录和支付id
  */
 
-public class GetIdKeysRequest extends ResultPostExecute<String> {
+public class GetIdKeysRequest extends ResultPostExecute<AllKeys> {
 
     public void request() {
         Call<ResponseBody> call = AppManager.getUserService().getIdKeys();
@@ -49,7 +51,13 @@ public class GetIdKeysRequest extends ResultPostExecute<String> {
         try {
             String decryptData = AESOperator.getInstance().decrypt(json);
             if (!TextUtils.isEmpty(decryptData)) {
-                onPostExecute(decryptData);
+                Gson gson = new Gson();
+                AllKeys keys = gson.fromJson(decryptData, AllKeys.class);
+                if (null != keys) {
+                    onPostExecute(keys);
+                } else {
+                    onErrorExecute("");
+                }
             } else {
                 onErrorExecute("");
             }

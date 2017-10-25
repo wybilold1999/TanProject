@@ -9,6 +9,7 @@ import android.view.KeyEvent;
 
 import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
+import com.cyanbirds.tanlove.entity.AllKeys;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.helper.IMChattingHelper;
 import com.cyanbirds.tanlove.manager.AppManager;
@@ -94,12 +95,11 @@ public class LauncherActivity extends Activity {
 
     class GetIdKeysTask extends GetIdKeysRequest {
         @Override
-        public void onPostExecute(String s) {
-            String[] ids = s.split(";");
-            if (ids != null && ids.length == 2) {
-                AppConstants.WEIXIN_ID = ids[0];
-                AppConstants.WEIXIN_PAY_ID = ids[1];
-            }
+        public void onPostExecute(AllKeys allKeys) {
+            AppConstants.WEIXIN_ID = allKeys.weChatId;
+            AppConstants.WEIXIN_PAY_ID = allKeys.weChatPayId;
+            AppConstants.YUNTONGXUN_ID = allKeys.ytxId;
+            AppConstants.YUNTONGXUN_TOKEN = allKeys.ytxKey;
             registerWeiXin();
         }
 

@@ -78,7 +78,7 @@ public class IMChattingHelper implements OnChatReceiveListener{
 
 		ecMessagee.setFrom(AppManager.getClientUser().userId);
 		ecMessagee.setNickName(AppManager.getClientUser().user_name);
-		ecMessagee.setTo("-2");
+		ecMessagee.setTo("-1".equals(clientUser.userId) ? "-1" : "-2");
 		StringBuilder userData = new StringBuilder();
 		userData.append(AppManager.getClientUser().userId)
 				.append(";")
@@ -156,10 +156,25 @@ public class IMChattingHelper implements OnChatReceiveListener{
 			ECMessage ecMessagee = ECMessage.createECMessage(ECMessage.Type.IMAGE);
 			ecMessagee.setDirection(ECMessage.Direction.SEND);
 			ecMessagee.setMsgId(AppManager.getUUID());
+
 			ecMessagee.setFrom(AppManager.getClientUser().userId);
 			ecMessagee.setNickName(AppManager.getClientUser().user_name);
-			ecMessagee.setTo(clientUser.userId);
-			ecMessagee.setUserData(clientUser.user_name + ";" + clientUser.face_url);
+			ecMessagee.setTo("-1".equals(clientUser.userId) ? "-1" : "-2");
+
+			StringBuilder userData = new StringBuilder();
+			userData.append(AppManager.getClientUser().userId)
+					.append(";")
+					.append(AppManager.getClientUser().user_name)
+					.append(";")
+					.append(AppManager.getClientUser().face_url)
+					.append(";")//真实用户信息
+					.append(clientUser.userId)
+					.append(";")
+					.append(clientUser.user_name)
+					.append(";")
+					.append(clientUser.face_url);//假用户信息
+			ecMessagee.setUserData(userData.toString());
+
 			ecMessagee.setMsgTime(System.currentTimeMillis());
 			ECImageMessageBody msgBody = new ECImageMessageBody();
 			msgBody.setFileName(new File(imgUrl).getName());
@@ -229,10 +244,25 @@ public class IMChattingHelper implements OnChatReceiveListener{
 			ECMessage ecMessagee = ECMessage.createECMessage(ECMessage.Type.LOCATION);
 			ecMessagee.setDirection(ECMessage.Direction.SEND);
 			ecMessagee.setMsgId(AppManager.getUUID());
+
 			ecMessagee.setFrom(AppManager.getClientUser().userId);
 			ecMessagee.setNickName(AppManager.getClientUser().user_name);
-			ecMessagee.setTo(clientUser.userId);
-			ecMessagee.setUserData(clientUser.user_name + ";" + clientUser.face_url);
+			ecMessagee.setTo("-1".equals(clientUser.userId) ? "-1" : "-2");
+
+			StringBuilder userData = new StringBuilder();
+			userData.append(AppManager.getClientUser().userId)
+					.append(";")
+					.append(AppManager.getClientUser().user_name)
+					.append(";")
+					.append(AppManager.getClientUser().face_url)
+					.append(";")//真实用户信息
+					.append(clientUser.userId)
+					.append(";")
+					.append(clientUser.user_name)
+					.append(";")
+					.append(clientUser.face_url);//假用户信息
+			ecMessagee.setUserData(userData.toString());
+
 			ecMessagee.setMsgTime(System.currentTimeMillis());
 			ECLocationMessageBody msgBody = new ECLocationMessageBody(latitude, longitude);
 			msgBody.setTitle(address);
@@ -297,12 +327,27 @@ public class IMChattingHelper implements OnChatReceiveListener{
 		ECMessage ecMessagee = ECMessage.createECMessage(ECMessage.Type.TXT);
 		ecMessagee.setDirection(ECMessage.Direction.SEND);
 		ecMessagee.setMsgId(AppManager.getUUID());
+
 		ecMessagee.setFrom(AppManager.getClientUser().userId);
 		ecMessagee.setNickName(AppManager.getClientUser().user_name);
-		ecMessagee.setTo(clientUser.userId);
+		ecMessagee.setTo("-1".equals(clientUser.userId) ? "-1" : "-2");
+
+		StringBuilder userData = new StringBuilder();
+		userData.append(AppManager.getClientUser().userId)
+				.append(";")
+				.append(AppManager.getClientUser().user_name)
+				.append(";")
+				.append(AppManager.getClientUser().face_url)
+				.append(";")//真实用户信息
+				.append(clientUser.userId)
+				.append(";")
+				.append(clientUser.user_name)
+				.append(";")
+				.append(clientUser.face_url);//假用户信息
+		ecMessagee.setUserData(userData.toString());
+
 		ecMessagee.setMsgTime(System.currentTimeMillis());
 		ecMessagee.setType(ECMessage.Type.RICH_TEXT);
-		ecMessagee.setUserData(AppManager.getClientUser().user_name + ";" + AppManager.getClientUser().face_url);
 		ECTextMessageBody msgBody = new ECTextMessageBody(msgContent);
 		ecMessagee.setBody(msgBody);
 
@@ -561,6 +606,7 @@ public class IMChattingHelper implements OnChatReceiveListener{
 			convs.talker = String.valueOf(-1);
 			convs.talkerName = mContext.getResources().getString(R.string.app_name) + "团队";
 			convs.localPortrait = "res:///" + R.mipmap.ic_launcher;
+			convs.faceUrl = "http://real-love-server.oss-cn-shenzhen.aliyuncs.com/tan_love/img/tl_168.png";
 			convs.content = CSApplication.getInstance().getResources()
 					.getString(R.string.init_official_message);
 			convs.createTime = System.currentTimeMillis();
