@@ -32,6 +32,7 @@ import com.cyanbirds.tanlove.activity.PersonalInfoActivity;
 import com.cyanbirds.tanlove.activity.PhotoViewActivity;
 import com.cyanbirds.tanlove.activity.VipCenterActivity;
 import com.cyanbirds.tanlove.config.ValueKey;
+import com.cyanbirds.tanlove.db.ConversationSqlManager;
 import com.cyanbirds.tanlove.db.IMessageDaoManager;
 import com.cyanbirds.tanlove.entity.Conversation;
 import com.cyanbirds.tanlove.entity.IMessage;
@@ -120,6 +121,12 @@ public class ChatMessageAdapter extends
                         if (mConversation.localPortrait.startsWith("res")) {
                             textHolder.portrait.setImageURI(Uri.parse(mConversation.localPortrait));
                         } else {
+                            textHolder.portrait.setImageURI(Uri.parse("file://" + mConversation.localPortrait));
+                        }
+                    } else {
+                        mConversation = ConversationSqlManager.getInstance(mContext)
+                                .queryConversationForById(message.conversationId);
+                        if (null != mConversation) {
                             textHolder.portrait.setImageURI(Uri.parse("file://" + mConversation.localPortrait));
                         }
                     }
@@ -233,7 +240,14 @@ public class ChatMessageAdapter extends
                         } else {
                             imageHolder.portrait.setImageURI(Uri.parse("file://" + mConversation.localPortrait));
                         }
+                    } else {
+                        mConversation = ConversationSqlManager.getInstance(mContext)
+                                .queryConversationForById(message.conversationId);
+                        if (null != mConversation) {
+                            imageHolder.portrait.setImageURI(Uri.parse("file://" + mConversation.localPortrait));
+                        }
                     }
+
                     RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) imageHolder.portrait
                             .getLayoutParams();
                     lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT,
@@ -295,6 +309,12 @@ public class ChatMessageAdapter extends
                         if (mConversation.localPortrait.startsWith("res")) {
                             locationHolder.portrait.setImageURI(Uri.parse(mConversation.localPortrait));
                         } else {
+                            locationHolder.portrait.setImageURI(Uri.parse("file://" + mConversation.localPortrait));
+                        }
+                    } else {
+                        mConversation = ConversationSqlManager.getInstance(mContext)
+                                .queryConversationForById(message.conversationId);
+                        if (null != mConversation) {
                             locationHolder.portrait.setImageURI(Uri.parse("file://" + mConversation.localPortrait));
                         }
                     }
@@ -371,6 +391,12 @@ public class ChatMessageAdapter extends
                         } else {
                             voipViewHolder.portrait.setImageURI(Uri.parse("file://" + mConversation.localPortrait));
                         }
+                    } else {
+                        mConversation = ConversationSqlManager.getInstance(mContext)
+                                .queryConversationForById(message.conversationId);
+                        if (null != mConversation) {
+                            voipViewHolder.portrait.setImageURI(Uri.parse("file://" + mConversation.localPortrait));
+                        }
                     }
 
                     RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) voipViewHolder.portrait
@@ -435,6 +461,12 @@ public class ChatMessageAdapter extends
                         if (mConversation.localPortrait.startsWith("res")) {
                             redViewHolder.portrait.setImageURI(Uri.parse(mConversation.localPortrait));
                         } else {
+                            redViewHolder.portrait.setImageURI(Uri.parse("file://" + mConversation.localPortrait));
+                        }
+                    } else {
+                        mConversation = ConversationSqlManager.getInstance(mContext)
+                                .queryConversationForById(message.conversationId);
+                        if (null != mConversation) {
                             redViewHolder.portrait.setImageURI(Uri.parse("file://" + mConversation.localPortrait));
                         }
                     }

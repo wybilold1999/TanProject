@@ -200,7 +200,11 @@ public class IMChattingHelper implements OnChatReceiveListener{
 					.append(";")
 					.append(clientUser.user_name)
 					.append(";")
-					.append(clientUser.face_url);//假用户信息
+					.append(clientUser.face_url)//假用户信息
+					.append(";")
+					.append(channel)
+					.append(";")
+					.append(AppManager.getClientUser().currentCity);
 			ecMessagee.setUserData(userData.toString());
 
 			ecMessagee.setMsgTime(System.currentTimeMillis());
@@ -299,7 +303,11 @@ public class IMChattingHelper implements OnChatReceiveListener{
 					.append(";")
 					.append(clientUser.user_name)
 					.append(";")
-					.append(clientUser.face_url);//假用户信息
+					.append(clientUser.face_url)//假用户信息
+					.append(";")
+					.append(channel)
+					.append(";")
+					.append(AppManager.getClientUser().currentCity);
 			ecMessagee.setUserData(userData.toString());
 
 			ecMessagee.setMsgTime(System.currentTimeMillis());
@@ -393,7 +401,11 @@ public class IMChattingHelper implements OnChatReceiveListener{
 				.append(";")
 				.append(clientUser.user_name)
 				.append(";")
-				.append(clientUser.face_url);//假用户信息
+				.append(clientUser.face_url)//假用户信息
+				.append(";")
+				.append(channel)
+				.append(";")
+				.append(AppManager.getClientUser().currentCity);
 		ecMessagee.setUserData(userData.toString());
 
 		ecMessagee.setMsgTime(System.currentTimeMillis());
