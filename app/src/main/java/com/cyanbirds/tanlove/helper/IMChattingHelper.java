@@ -33,7 +33,9 @@ import com.yuntongxun.ecsdk.im.ECFileMessageBody;
 import com.yuntongxun.ecsdk.im.ECImageMessageBody;
 import com.yuntongxun.ecsdk.im.ECLocationMessageBody;
 import com.yuntongxun.ecsdk.im.ECMessageNotify;
+import com.yuntongxun.ecsdk.im.ECPreviewMessageBody;
 import com.yuntongxun.ecsdk.im.ECTextMessageBody;
+import com.yuntongxun.ecsdk.im.ECUserStateMessageBody;
 import com.yuntongxun.ecsdk.im.ECVideoMessageBody;
 import com.yuntongxun.ecsdk.im.ECVoiceMessageBody;
 import com.yuntongxun.ecsdk.im.group.ECGroupNoticeMessage;
@@ -78,7 +80,8 @@ public class IMChattingHelper implements OnChatReceiveListener{
 		ecMessagee.setDirection(ECMessage.Direction.SEND);
 		ecMessagee.setMsgId(AppManager.getUUID());
 
-		String channel = CheckUtil.getAppMetaData(mContext, "UMENG_CHANNEL");
+//		String channel = CheckUtil.getAppMetaData(mContext, "UMENG_CHANNEL");
+		String channel = "oppo";
 		ecMessagee.setFrom(AppManager.getClientUser().userId);
 		ecMessagee.setNickName(AppManager.getClientUser().user_name);
 		String toUserId = "";
@@ -174,7 +177,8 @@ public class IMChattingHelper implements OnChatReceiveListener{
 			ecMessagee.setDirection(ECMessage.Direction.SEND);
 			ecMessagee.setMsgId(AppManager.getUUID());
 
-			String channel = CheckUtil.getAppMetaData(mContext, "UMENG_CHANNEL");
+//			String channel = CheckUtil.getAppMetaData(mContext, "UMENG_CHANNEL");
+			String channel = "oppo";
 			ecMessagee.setFrom(AppManager.getClientUser().userId);
 			ecMessagee.setNickName(AppManager.getClientUser().user_name);
 			String toUserId = "";
@@ -277,7 +281,8 @@ public class IMChattingHelper implements OnChatReceiveListener{
 			ecMessagee.setDirection(ECMessage.Direction.SEND);
 			ecMessagee.setMsgId(AppManager.getUUID());
 
-			String channel = CheckUtil.getAppMetaData(mContext, "UMENG_CHANNEL");
+//			String channel = CheckUtil.getAppMetaData(mContext, "UMENG_CHANNEL");
+			String channel = "oppo";
 			ecMessagee.setFrom(AppManager.getClientUser().userId);
 			ecMessagee.setNickName(AppManager.getClientUser().user_name);
 			String toUserId = "";
@@ -371,7 +376,7 @@ public class IMChattingHelper implements OnChatReceiveListener{
 
 	public void sendRedPacketMsg(final ClientUser clientUser, final String msgContent) {
 		// 组建一个待发送的ECMessage
-		ECMessage ecMessagee = ECMessage.createECMessage(ECMessage.Type.TXT);
+		ECMessage ecMessagee = ECMessage.createECMessage(ECMessage.Type.STATE);
 		ecMessagee.setDirection(ECMessage.Direction.SEND);
 		ecMessagee.setMsgId(AppManager.getUUID());
 
@@ -409,8 +414,9 @@ public class IMChattingHelper implements OnChatReceiveListener{
 		ecMessagee.setUserData(userData.toString());
 
 		ecMessagee.setMsgTime(System.currentTimeMillis());
-		ecMessagee.setType(ECMessage.Type.RICH_TEXT);
-		ECTextMessageBody msgBody = new ECTextMessageBody(msgContent);
+		// 创建一个状态消息体，并添加到消息对象中
+		ECUserStateMessageBody msgBody = new ECUserStateMessageBody(msgContent);//state当前聊天过程中的输入状态
+		ecMessagee.setType(ECMessage.Type.STATE);
 		ecMessagee.setBody(msgBody);
 
 		/**
@@ -421,8 +427,7 @@ public class IMChattingHelper implements OnChatReceiveListener{
 		message.talker = ecMessagee.getTo();
 		message.sender = ecMessagee.getForm();
 		message.sender_name = ecMessagee.getNickName();
-		ECTextMessageBody body = (ECTextMessageBody) ecMessagee.getBody();
-		message.content = body.getMessage();
+		message.content = msgContent;
 		message.msgType = IMessage.MessageType.RED_PKT;
 		message.isRead = true;
 		message.isSend = IMessage.MessageIsSend.SEND;
@@ -590,6 +595,7 @@ public class IMChattingHelper implements OnChatReceiveListener{
 				IMessageDaoManager.getInstance(mContext).insertIMessageList(offlineMsg);
 				AppManager.showNotification(message);
 				isSyncOffline = false;
+				offlineMsg.clear();
 			}
 		}
 	}

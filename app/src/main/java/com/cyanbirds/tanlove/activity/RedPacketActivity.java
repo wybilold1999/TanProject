@@ -344,9 +344,6 @@ public class RedPacketActivity extends BaseActivity {
 	class GetPayResultTask extends GetPayResultRequest {
 		@Override
 		public void onPostExecute(UserVipModel userVipModel) {
-			AppManager.getClientUser().is_vip = userVipModel.isVip;
-			AppManager.getClientUser().is_download_vip = userVipModel.isDownloadVip;
-			AppManager.getClientUser().gold_num = userVipModel.goldNum;
 			finishActivity();
 		}
 
