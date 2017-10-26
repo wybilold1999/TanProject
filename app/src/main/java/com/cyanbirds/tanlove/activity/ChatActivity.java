@@ -857,7 +857,6 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 				//在某一个用户会话界面，但是另一个用户发来消息
 				(!mIMessages.isEmpty() && mIMessages.get(0).conversationId == message.conversationId)) {
 			boolean isScrollBottom = isScrollBottom();
-			message.isRead = true;
 			mIMessages.add(message);
 			mMessageAdapter.notifyItemInserted(mIMessages.size() - 1);
 			if (isScrollBottom || message.isSend == IMessage.MessageIsSend.SEND) {
