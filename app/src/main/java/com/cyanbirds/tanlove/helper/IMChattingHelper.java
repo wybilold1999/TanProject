@@ -80,8 +80,8 @@ public class IMChattingHelper implements OnChatReceiveListener{
 		ecMessagee.setDirection(ECMessage.Direction.SEND);
 		ecMessagee.setMsgId(AppManager.getUUID());
 
-//		String channel = CheckUtil.getAppMetaData(mContext, "UMENG_CHANNEL");
-		String channel = "oppo";
+		String channel = CheckUtil.getAppMetaData(mContext, "UMENG_CHANNEL");
+//		String channel = "oppo";
 		ecMessagee.setFrom(AppManager.getClientUser().userId);
 		ecMessagee.setNickName(AppManager.getClientUser().user_name);
 		String toUserId = "";
@@ -177,8 +177,8 @@ public class IMChattingHelper implements OnChatReceiveListener{
 			ecMessagee.setDirection(ECMessage.Direction.SEND);
 			ecMessagee.setMsgId(AppManager.getUUID());
 
-//			String channel = CheckUtil.getAppMetaData(mContext, "UMENG_CHANNEL");
-			String channel = "oppo";
+			String channel = CheckUtil.getAppMetaData(mContext, "UMENG_CHANNEL");
+//			String channel = "oppo";
 			ecMessagee.setFrom(AppManager.getClientUser().userId);
 			ecMessagee.setNickName(AppManager.getClientUser().user_name);
 			String toUserId = "";
@@ -281,8 +281,8 @@ public class IMChattingHelper implements OnChatReceiveListener{
 			ecMessagee.setDirection(ECMessage.Direction.SEND);
 			ecMessagee.setMsgId(AppManager.getUUID());
 
-//			String channel = CheckUtil.getAppMetaData(mContext, "UMENG_CHANNEL");
-			String channel = "oppo";
+			String channel = CheckUtil.getAppMetaData(mContext, "UMENG_CHANNEL");
+//			String channel = "oppo";
 			ecMessagee.setFrom(AppManager.getClientUser().userId);
 			ecMessagee.setNickName(AppManager.getClientUser().user_name);
 			String toUserId = "";
@@ -537,7 +537,7 @@ public class IMChattingHelper implements OnChatReceiveListener{
 		long conversationId = ConversationSqlManager.getInstance(mContext)
 				.insertConversation(msg);
 		IMessage message = new IMessage();
-		message.msgId = msg.getMsgId();
+		message.msgId = AppManager.getUUID();
 		String userData = msg.getUserData();
 		if (!TextUtils.isEmpty(userData)) {
 			String[] data = userData.split(";");
@@ -547,7 +547,7 @@ public class IMChattingHelper implements OnChatReceiveListener{
 				message.sender_name = data[1];
 			}
 		}
-		message.isRead = true;
+		message.isRead = false;
 		message.isSend = IMessage.MessageIsSend.RECEIVING;
 		message.create_time = msg.getMsgTime();
 		message.send_time = message.create_time;
@@ -581,8 +581,10 @@ public class IMChattingHelper implements OnChatReceiveListener{
 			message.longitude = locationBody.getLongitude();
 			message.content = locationBody.getTitle();
 			message.fileUrl = locationBody.getRemoteUrl();
-		} else if (msg.getType() == ECMessage.Type.CALL){
-
+		} else if (msg.getType() == ECMessage.Type.STATE){
+			ECUserStateMessageBody stateBody = (ECUserStateMessageBody) msg.getBody();
+			message.msgType = IMessage.MessageType.RED_PKT;
+			message.content = stateBody.getMessage();
 		}
 
 		MessageCallbackListener.getInstance().notifyPushMessage(message);//刷新UI

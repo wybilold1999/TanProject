@@ -176,13 +176,14 @@ public class RedPacketActivity extends BaseActivity {
 						mBtnSendMoney.setOnClickListener(new View.OnClickListener() {
 							@Override
 							public void onClick(View v) {
-								if (mMemberBuy != null) {
+								/*if (mMemberBuy != null) {
 									if (mPayType.equals(AppConstants.ALI_PAY_PLATFORM)) {
 										new GetAliPayOrderInfoTask().request(mMemberBuy.id, AppConstants.ALI_PAY_PLATFORM, mReadPacketAmount.getText().toString());
 									} else {
 										new CreateOrderTask().request(mMemberBuy.id, AppConstants.WX_PAY_PLATFORM, mReadPacketAmount.getText().toString());
 									}
-								}
+								}*/
+								finishActivity();
 							}
 						});
 					} else {
@@ -356,10 +357,17 @@ public class RedPacketActivity extends BaseActivity {
 
 	private void finishActivity() {
 		Intent intent = new Intent();
+		StringBuilder content = new StringBuilder();
 		if (!TextUtils.isEmpty(mBlessings.getText().toString())) {
-			intent.putExtra(ValueKey.DATA, mBlessings.getText().toString());
+			content.append(mBlessings.getText().toString())
+					.append(";")
+					.append(mReadPacketAmount.getText().toString());
+			intent.putExtra(ValueKey.DATA, content.toString());
 		} else {
-			intent.putExtra(ValueKey.DATA, getResources().getString(R.string.feedback_info));
+			content.append(getResources().getString(R.string.feedback_info))
+					.append(";")
+					.append(mReadPacketAmount.getText().toString());
+			intent.putExtra(ValueKey.DATA, content.toString());
 		}
 		setResult(RESULT_OK, intent);
 		finish();

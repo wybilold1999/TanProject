@@ -75,6 +75,7 @@ public class ChatMessageAdapter extends
      */
     private ArrayList<String> mShowTimePosition;
     private static Context mContext;
+    private String redPkt[] = null;//红包数据结构:祝福语;金额
 
     public ChatMessageAdapter(Context context, List<IMessage> messages, Conversation mConversation) {
         mContext = context;
@@ -451,7 +452,10 @@ public class ChatMessageAdapter extends
                 // 红包消息
                 RedViewHolder redViewHolder = (RedViewHolder) holder;
                 if (!TextUtils.isEmpty(message.content)) {
-                    redViewHolder.message_text.setText(message.content);
+                    redPkt = message.content.split(";");
+                    if (redPkt != null && redPkt.length == 2) {
+                        redViewHolder.message_text.setText(redPkt[0]);
+                    }
                 }
                 redViewHolder.nickname.setVisibility(View.GONE);
                 redViewHolder.message_send_fail.setVisibility(View.GONE);
@@ -496,7 +500,7 @@ public class ChatMessageAdapter extends
                                     ToastUtil.showMessage("红包已领");
                                 } else {
                                     float count = PreferencesUtils.getMyMoney(mContext);
-                                    PreferencesUtils.setMyMoney(mContext, count + StringUtil.generateRandomValue());
+                                    PreferencesUtils.setMyMoney(mContext, count + Float.parseFloat(redPkt[1]));
                                     EventBus.getDefault().post(new SnackBarEvent());
                                     message.isRead = true;
                                     IMessageDaoManager.getInstance(mContext).updateIMessage(message);
@@ -512,7 +516,7 @@ public class ChatMessageAdapter extends
                                     ToastUtil.showMessage("红包已领");
                                 } else {
                                     float count = PreferencesUtils.getMyMoney(mContext);
-                                    PreferencesUtils.setMyMoney(mContext, count + StringUtil.generateRandomValue());
+                                    PreferencesUtils.setMyMoney(mContext, count + Float.parseFloat(redPkt[1]));
                                     EventBus.getDefault().post(new SnackBarEvent());
                                     message.isRead = true;
                                     IMessageDaoManager.getInstance(mContext).updateIMessage(message);
