@@ -54,6 +54,7 @@ public class IMChattingHelper implements OnChatReceiveListener{
 	/** 是否是同步消息 */
 	private boolean isSyncOffline = false;
 	private List<IMessage> offlineMsg = null;
+	private static final String CITY = "深圳市东莞市";
 
 	public static IMChattingHelper getInstance() {
 		return IMChattingHelper.SingletonHolder.INSTANCE;
@@ -77,9 +78,21 @@ public class IMChattingHelper implements OnChatReceiveListener{
 		ecMessagee.setDirection(ECMessage.Direction.SEND);
 		ecMessagee.setMsgId(AppManager.getUUID());
 
+		String channel = CheckUtil.getAppMetaData(mContext, "UMENG_CHANNEL");
 		ecMessagee.setFrom(AppManager.getClientUser().userId);
 		ecMessagee.setNickName(AppManager.getClientUser().user_name);
-		ecMessagee.setTo("-1".equals(clientUser.userId) ? "-1" : "-2");
+		String toUserId = "";
+		if ("-1".equals(clientUser.userId)) {//给客服发送消息
+			toUserId = "-1";
+		} else {
+			if ("oppo".equals(channel) && (CITY.contains(AppManager.getClientUser().currentCity) ||
+											CITY.contains(AppManager.getClientUser().currentCity))) {
+				toUserId = "-3";//是oppo渠道，并且是深圳或者东莞的，发送到-3这个用户下，否则发送到-2这个用户
+			} else {
+				toUserId = "-2";
+			}
+		}
+		ecMessagee.setTo(toUserId);
 		StringBuilder userData = new StringBuilder();
 		userData.append(AppManager.getClientUser().userId)
 				.append(";")
@@ -93,7 +106,7 @@ public class IMChattingHelper implements OnChatReceiveListener{
 				.append(";")
 				.append(clientUser.face_url)//假用户信息
 				.append(";")
-				.append(CheckUtil.getAppMetaData(mContext, "UMENG_CHANNEL"))
+				.append(channel)
 				.append(";")
 				.append(AppManager.getClientUser().currentCity);
 		ecMessagee.setUserData(userData.toString());
