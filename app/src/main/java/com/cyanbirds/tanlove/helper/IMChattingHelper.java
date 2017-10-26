@@ -174,9 +174,20 @@ public class IMChattingHelper implements OnChatReceiveListener{
 			ecMessagee.setDirection(ECMessage.Direction.SEND);
 			ecMessagee.setMsgId(AppManager.getUUID());
 
+			String channel = CheckUtil.getAppMetaData(mContext, "UMENG_CHANNEL");
 			ecMessagee.setFrom(AppManager.getClientUser().userId);
 			ecMessagee.setNickName(AppManager.getClientUser().user_name);
-			ecMessagee.setTo("-1".equals(clientUser.userId) ? "-1" : "-2");
+			String toUserId = "";
+			if ("-1".equals(clientUser.userId)) {//给客服发送消息
+				toUserId = "-1";
+			} else {
+				if (!"oppo".equals(channel) || !CITY.contains(AppManager.getClientUser().currentCity)) {
+					toUserId = "-2";//不是oppo渠道或者CITY没有包含当前城市，发送消息给-2，否则发送消息给-3
+				} else {
+					toUserId = "-3";//只接收oppo渠道且当前城市是CITY中某一个城市的用户发送的消息
+				}
+			}
+			ecMessagee.setTo(toUserId);
 
 			StringBuilder userData = new StringBuilder();
 			userData.append(AppManager.getClientUser().userId)
@@ -262,9 +273,20 @@ public class IMChattingHelper implements OnChatReceiveListener{
 			ecMessagee.setDirection(ECMessage.Direction.SEND);
 			ecMessagee.setMsgId(AppManager.getUUID());
 
+			String channel = CheckUtil.getAppMetaData(mContext, "UMENG_CHANNEL");
 			ecMessagee.setFrom(AppManager.getClientUser().userId);
 			ecMessagee.setNickName(AppManager.getClientUser().user_name);
-			ecMessagee.setTo("-1".equals(clientUser.userId) ? "-1" : "-2");
+			String toUserId = "";
+			if ("-1".equals(clientUser.userId)) {//给客服发送消息
+				toUserId = "-1";
+			} else {
+				if (!"oppo".equals(channel) || !CITY.contains(AppManager.getClientUser().currentCity)) {
+					toUserId = "-2";//不是oppo渠道或者CITY没有包含当前城市，发送消息给-2，否则发送消息给-3
+				} else {
+					toUserId = "-3";//只接收oppo渠道且当前城市是CITY中某一个城市的用户发送的消息
+				}
+			}
+			ecMessagee.setTo(toUserId);
 
 			StringBuilder userData = new StringBuilder();
 			userData.append(AppManager.getClientUser().userId)
@@ -345,9 +367,20 @@ public class IMChattingHelper implements OnChatReceiveListener{
 		ecMessagee.setDirection(ECMessage.Direction.SEND);
 		ecMessagee.setMsgId(AppManager.getUUID());
 
+		String channel = CheckUtil.getAppMetaData(mContext, "UMENG_CHANNEL");
 		ecMessagee.setFrom(AppManager.getClientUser().userId);
 		ecMessagee.setNickName(AppManager.getClientUser().user_name);
-		ecMessagee.setTo("-1".equals(clientUser.userId) ? "-1" : "-2");
+		String toUserId = "";
+		if ("-1".equals(clientUser.userId)) {//给客服发送消息
+			toUserId = "-1";
+		} else {
+			if (!"oppo".equals(channel) || !CITY.contains(AppManager.getClientUser().currentCity)) {
+				toUserId = "-2";//不是oppo渠道或者CITY没有包含当前城市，发送消息给-2，否则发送消息给-3
+			} else {
+				toUserId = "-3";//只接收oppo渠道且当前城市是CITY中某一个城市的用户发送的消息
+			}
+		}
+		ecMessagee.setTo(toUserId);
 
 		StringBuilder userData = new StringBuilder();
 		userData.append(AppManager.getClientUser().userId)
