@@ -61,19 +61,12 @@ import mehdi.sakout.fancybuttons.FancyButton;
  */
 public class RegisterActivity extends BaseActivity implements View.OnClickListener{
 
-    @BindView(R.id.phone_num)
     EditText phoneNum;
-    @BindView(R.id.next)
     FancyButton next;
-    @BindView(R.id.qq_login)
     ImageView qqLogin;
-    @BindView(R.id.weixin_login)
     ImageView weiXinLogin;
-    @BindView(R.id.select_man)
     ImageView mSelectMan;
-    @BindView(R.id.select_lady)
     ImageView mSelectLady;
-    @BindView(R.id.xm_login)
     ImageView xmLogin;
 
     /**
