@@ -191,6 +191,9 @@ public class ConversationSqlManager extends DBManager {
 		if (!isSend && !"com.cyanbirds.tanlove.activity.ChatActivity".equals(AppManager.getTopActivity(mContext))) {
 			conversation.unreadCount++;
 		}
+		if (isSend) {
+			conversation.chatLimit++;
+		}
 		if (ecMessage.getType() == ECMessage.Type.TXT) {
 			ECTextMessageBody body = (ECTextMessageBody)ecMessage.getBody();
 			if (body != null) {

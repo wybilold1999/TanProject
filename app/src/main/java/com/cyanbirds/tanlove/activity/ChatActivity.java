@@ -49,6 +49,7 @@ import com.cyanbirds.tanlove.adapter.ChatEmoticonsAdapter;
 import com.cyanbirds.tanlove.adapter.ChatEmoticonsAdapter.OnEmojiItemClickListener;
 import com.cyanbirds.tanlove.adapter.ChatMessageAdapter;
 import com.cyanbirds.tanlove.adapter.PagerGridAdapter;
+import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.db.ConversationSqlManager;
 import com.cyanbirds.tanlove.db.IMessageDaoManager;
@@ -309,6 +310,9 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 			mConversation = ConversationSqlManager.getInstance(this)
 					.queryConversationForByTalkerId(mClientUser.userId);
 		}
+		if (null == mConversation) {
+			mConversation = new Conversation();
+		}
 		initEmoticon();
 		initEmotionUI();
 		mIMessages = new ArrayList<>();
@@ -465,32 +469,40 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 				break;
 			case R.id.tool_view_input_text:
 				if (AppManager.getClientUser().isShowVip) {
-					if (AppManager.getClientUser().is_vip) {
-						if (AppManager.getClientUser().gold_num  < 101) {
-							showGoldDialog();
-						} else {
-							if (!TextUtils.isEmpty(mContentInput.getText().toString())) {
-								if (null != IMChattingHelper.getInstance().getChatManager()) {
-									IMChattingHelper.getInstance().sendTextMsg(
-											mClientUser, mContentInput.getText().toString());
-									mContentInput.setText("");
+					if (!TextUtils.isEmpty(mContentInput.getText().toString())) {
+						if (null != IMChattingHelper.getInstance().getChatManager()) {
+							if (mConversation.chatLimit < AppConstants.CHAT_LIMIT) {
+								sendTextMsg();
+							} else {
+								if (AppManager.getClientUser().is_vip) {
+									if (AppManager.getClientUser().gold_num  < 101) {
+										showGoldDialog();
+									} else {
+										sendTextMsg();
+									}
+								} else {
+									showBeyondChatLimitDialog();
 								}
 							}
 						}
-					} else {
-						showVipDialog();
 					}
 				} else {
 					if (!TextUtils.isEmpty(mContentInput.getText().toString())) {
-						if (null != IMChattingHelper.getInstance().getChatManager()) {
-							IMChattingHelper.getInstance().sendTextMsg(
-									mClientUser, mContentInput.getText().toString());
-							mContentInput.setText("");
-						}
+						sendTextMsg();
 					}
 				}
 				break;
 		}
+	}
+
+	private void sendTextMsg() {
+		long conversationId = IMChattingHelper.getInstance().sendTextMsg(
+				mClientUser, mContentInput.getText().toString());
+		if (TextUtils.isEmpty(mConversation.localPortrait)) {
+			mConversation = ConversationSqlManager.getInstance(this)
+					.queryConversationForById(conversationId);
+		}
+		mContentInput.setText("");
 	}
 
 	private void showVipDialog() {
@@ -973,6 +985,26 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 				intent.setData(uri);
 				startActivityForResult(intent, REQUEST_PERMISSION_SETTING);
 
+			}
+		});
+		builder.show();
+	}
+
+	private void showBeyondChatLimitDialog() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage("您的免费聊天次数已经用完，会员可无限畅聊，立即开通会员？");
+		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
+				Intent intent = new Intent(ChatActivity.this, VipCenterActivity.class);
+				startActivity(intent);
+			}
+		});
+		builder.setNegativeButton(R.string.until_single, new DialogInterface.OnClickListener() {
+			@Override
+			public void onClick(DialogInterface dialog, int which) {
+				dialog.dismiss();
 			}
 		});
 		builder.show();

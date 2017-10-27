@@ -55,8 +55,6 @@ public class MyIntentService extends GTIntentService {
 				});
 			}
 		}
-
-		Log.d(TAG, "----------------------------------------------------------------------------------------------");
 	}
 
 	@Override
