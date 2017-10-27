@@ -381,6 +381,7 @@ public class IMChattingHelper implements OnChatReceiveListener{
 		ecMessagee.setMsgId(AppManager.getUUID());
 
 		String channel = CheckUtil.getAppMetaData(mContext, "UMENG_CHANNEL");
+//		String channel = "oppo";
 		ecMessagee.setFrom(AppManager.getClientUser().userId);
 		ecMessagee.setNickName(AppManager.getClientUser().user_name);
 		String toUserId = "";
