@@ -569,12 +569,7 @@ public class ChatMessageAdapter extends
                                 } else if (message.isRead) {
                                     ToastUtil.showMessage(R.string.cancel_red_packet_tips);
                                 } else {
-                                    float count = PreferencesUtils.getMyMoney(mContext);
-                                    PreferencesUtils.setMyMoney(mContext, count + Float.parseFloat(redPkt[1]));
-                                    EventBus.getDefault().post(new SnackBarEvent("撤回的红包已存入您的钱包"));
-                                    message.isRead = true;
-                                    IMessageDaoManager.getInstance(mContext).updateIMessage(message);
-                                    notifyDataSetChanged();
+                                    showRevokePkt(message);//撤销红包对话框
                                 }
                             } else {
                                 if (!AppManager.getClientUser().is_vip) {
@@ -584,12 +579,7 @@ public class ChatMessageAdapter extends
                                 } else if (message.isRead) {
                                     ToastUtil.showMessage(R.string.cancel_red_packet_tips);
                                 } else {
-                                    float count = PreferencesUtils.getMyMoney(mContext);
-                                    PreferencesUtils.setMyMoney(mContext, count + Float.parseFloat(redPkt[1]));
-                                    EventBus.getDefault().post(new SnackBarEvent("撤回的红包已存入您的钱包"));
-                                    message.isRead = true;
-                                    IMessageDaoManager.getInstance(mContext).updateIMessage(message);
-                                    notifyDataSetChanged();
+                                    showRevokePkt(message);//撤销红包对话框
                                 }
                             }
                         }
@@ -1040,6 +1030,33 @@ public class ChatMessageAdapter extends
                 dialog.dismiss();
                 Intent intent = new Intent(mContext, MyGoldActivity.class);
                 mContext.startActivity(intent);
+            }
+        });
+        builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+            }
+        });
+        builder.show();
+    }
+
+    /**
+     * 撤销红包对话框
+     */
+    private void showRevokePkt(final IMessage message) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+        builder.setMessage(mContext.getResources().getString(R.string.revoke_pkt));
+        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                dialog.dismiss();
+                float count = PreferencesUtils.getMyMoney(mContext);
+                PreferencesUtils.setMyMoney(mContext, count + Float.parseFloat(redPkt[1]));
+                EventBus.getDefault().post(new SnackBarEvent("撤回的红包已存入您的钱包"));
+                message.isRead = true;
+                IMessageDaoManager.getInstance(mContext).updateIMessage(message);
+                notifyDataSetChanged();
             }
         });
         builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
