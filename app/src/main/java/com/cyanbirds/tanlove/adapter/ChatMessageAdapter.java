@@ -500,8 +500,9 @@ public class ChatMessageAdapter extends
                                     ToastUtil.showMessage("红包已领");
                                 } else {
                                     float count = PreferencesUtils.getMyMoney(mContext);
-                                    PreferencesUtils.setMyMoney(mContext, count + Float.parseFloat(redPkt[1]));
-                                    EventBus.getDefault().post(new SnackBarEvent());
+                                    float moneyPkt = Float.parseFloat(redPkt[1]);
+                                    PreferencesUtils.setMyMoney(mContext, count + moneyPkt);
+                                    EventBus.getDefault().post(new SnackBarEvent(moneyPkt + "元红包已存入您的钱包"));
                                     message.isRead = true;
                                     IMessageDaoManager.getInstance(mContext).updateIMessage(message);
                                     notifyDataSetChanged();
@@ -516,8 +517,9 @@ public class ChatMessageAdapter extends
                                     ToastUtil.showMessage("红包已领");
                                 } else {
                                     float count = PreferencesUtils.getMyMoney(mContext);
-                                    PreferencesUtils.setMyMoney(mContext, count + Float.parseFloat(redPkt[1]));
-                                    EventBus.getDefault().post(new SnackBarEvent());
+                                    float moneyPkt = Float.parseFloat(redPkt[1]);
+                                    PreferencesUtils.setMyMoney(mContext, count + moneyPkt);
+                                    EventBus.getDefault().post(new SnackBarEvent(moneyPkt + "元红包已存入您的钱包"));
                                     message.isRead = true;
                                     IMessageDaoManager.getInstance(mContext).updateIMessage(message);
                                     notifyDataSetChanged();
@@ -564,16 +566,30 @@ public class ChatMessageAdapter extends
                                     showVipDialog(mContext.getResources().getString(R.string.un_cancel_red_packet_for_td));
                                 } else if (AppManager.getClientUser().gold_num < 100) {
                                     showGoldDialog(mContext.getResources().getString(R.string.no_gold_un_cancel_red_packet));
-                                } else {
+                                } else if (message.isRead) {
                                     ToastUtil.showMessage(R.string.cancel_red_packet_tips);
+                                } else {
+                                    float count = PreferencesUtils.getMyMoney(mContext);
+                                    PreferencesUtils.setMyMoney(mContext, count + Float.parseFloat(redPkt[1]));
+                                    EventBus.getDefault().post(new SnackBarEvent("撤回的红包已存入您的钱包"));
+                                    message.isRead = true;
+                                    IMessageDaoManager.getInstance(mContext).updateIMessage(message);
+                                    notifyDataSetChanged();
                                 }
                             } else {
                                 if (!AppManager.getClientUser().is_vip) {
                                     showVipDialog(mContext.getResources().getString(R.string.un_cancel_red_packet));
                                 } else if (AppManager.getClientUser().gold_num < 100) {
                                     showGoldDialog(mContext.getResources().getString(R.string.no_gold_un_cancel_red_packet));
-                                } else {
+                                } else if (message.isRead) {
                                     ToastUtil.showMessage(R.string.cancel_red_packet_tips);
+                                } else {
+                                    float count = PreferencesUtils.getMyMoney(mContext);
+                                    PreferencesUtils.setMyMoney(mContext, count + Float.parseFloat(redPkt[1]));
+                                    EventBus.getDefault().post(new SnackBarEvent("撤回的红包已存入您的钱包"));
+                                    message.isRead = true;
+                                    IMessageDaoManager.getInstance(mContext).updateIMessage(message);
+                                    notifyDataSetChanged();
                                 }
                             }
                         }

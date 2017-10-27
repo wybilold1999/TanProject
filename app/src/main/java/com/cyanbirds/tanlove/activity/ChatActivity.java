@@ -980,7 +980,7 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 
 	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void showSnackBar(SnackBarEvent event) {
-		Snackbar.make(findViewById(R.id.message_recycler_view), "红包已存入您的钱包", Snackbar.LENGTH_LONG)
+		Snackbar.make(findViewById(R.id.message_recycler_view), event.content, Snackbar.LENGTH_LONG)
 				.setActionTextColor(Color.RED)
 				.setAction("点击查看", new View.OnClickListener() {
 					@Override

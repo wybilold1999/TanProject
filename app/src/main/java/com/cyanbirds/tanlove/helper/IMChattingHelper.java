@@ -429,7 +429,7 @@ public class IMChattingHelper implements OnChatReceiveListener{
 		message.sender_name = ecMessagee.getNickName();
 		message.content = msgContent;
 		message.msgType = IMessage.MessageType.RED_PKT;
-		message.isRead = true;
+		message.isRead = false;
 		message.isSend = IMessage.MessageIsSend.SEND;
 		message.status = IMessage.MessageStatus.SENDING;
 		message.create_time = ecMessagee.getMsgTime();
