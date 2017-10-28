@@ -43,6 +43,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 
+import com.umeng.analytics.MobclickAgent;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.adapter.ChatEmoticonsAdapter;
@@ -51,12 +52,13 @@ import com.cyanbirds.tanlove.adapter.ChatMessageAdapter;
 import com.cyanbirds.tanlove.adapter.PagerGridAdapter;
 import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
+import com.cyanbirds.tanlove.db.ChatLimitDaoManager;
 import com.cyanbirds.tanlove.db.ConversationSqlManager;
 import com.cyanbirds.tanlove.db.IMessageDaoManager;
+import com.cyanbirds.tanlove.entity.ChatLimit;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.entity.Conversation;
 import com.cyanbirds.tanlove.entity.Emoticon;
-import com.cyanbirds.tanlove.entity.ExpressionGroup;
 import com.cyanbirds.tanlove.entity.IMessage;
 import com.cyanbirds.tanlove.eventtype.SnackBarEvent;
 import com.cyanbirds.tanlove.helper.IMChattingHelper;
@@ -74,7 +76,6 @@ import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.cyanbirds.tanlove.utils.FileUtils;
 import com.cyanbirds.tanlove.utils.ImageUtil;
 import com.cyanbirds.tanlove.utils.ToastUtil;
-import com.umeng.analytics.MobclickAgent;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
@@ -123,7 +124,8 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 	private List<IMessage> mIMessages;
 	private List<GridView> mChatEmoticonsGridView;
 	private LinearLayoutManager mLinearLayoutManager;
-	private List<ExpressionGroup> mExpressionGroups;
+
+	private ChatLimit mChatLimit;
 
 	/**
 	 * 消息分页条数
@@ -309,10 +311,14 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 		if (mClientUser != null) {
 			mConversation = ConversationSqlManager.getInstance(this)
 					.queryConversationForByTalkerId(mClientUser.userId);
+			mChatLimit = ChatLimitDaoManager.getInstance(this).getChatLimitByUid(mClientUser.userId);
+			if (mChatLimit == null) {
+				mChatLimit = new ChatLimit();
+				mChatLimit.userId = mClientUser.userId;
+				mChatLimit.count = 0;
+			}
 		}
-		if (null == mConversation) {
-			mConversation = new Conversation();
-		}
+
 		initEmoticon();
 		initEmotionUI();
 		mIMessages = new ArrayList<>();
@@ -471,7 +477,8 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 				if (AppManager.getClientUser().isShowVip) {
 					if (!TextUtils.isEmpty(mContentInput.getText().toString())) {
 						if (null != IMChattingHelper.getInstance().getChatManager()) {
-							if (mConversation.chatLimit < AppConstants.CHAT_LIMIT) {
+							if (mChatLimit.count < AppConstants.CHAT_LIMIT) {
+								++mChatLimit.count;
 								sendTextMsg();
 							} else {
 								if (AppManager.getClientUser().is_vip) {
@@ -496,13 +503,12 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 	}
 
 	private void sendTextMsg() {
-		long conversationId = IMChattingHelper.getInstance().sendTextMsg(
+		IMChattingHelper.getInstance().sendTextMsg(
 				mClientUser, mContentInput.getText().toString());
-		if (TextUtils.isEmpty(mConversation.localPortrait)) {
-			mConversation = ConversationSqlManager.getInstance(this)
-					.queryConversationForById(conversationId);
-		}
 		mContentInput.setText("");
+		if (mChatLimit.count < AppConstants.CHAT_LIMIT) {
+			ChatLimitDaoManager.getInstance(this).insertOrReplace(mChatLimit);
+		}
 	}
 
 	private void showVipDialog() {
