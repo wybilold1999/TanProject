@@ -85,10 +85,6 @@ public interface UserService {
     Call<ResponseBody> getUserName(@Header("token") String token, @FieldMap ArrayMap<String, String> params);
 
     @FormUrlEncoded
-    @POST("user/foundList")
-    Call<ResponseBody> getFoundList(@Header("token") String token, @FieldMap ArrayMap<String, String> params);
-
-    @FormUrlEncoded
     @POST("captch/smsCode")
     Call<ResponseBody> checkSmsCode(@Header("token") String token, @FieldMap ArrayMap<String, String> params);
 
