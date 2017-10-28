@@ -10,14 +10,12 @@ import org.greenrobot.greendao.internal.DaoConfig;
 
 import com.cyanbirds.tanlove.entity.Conversation;
 import com.cyanbirds.tanlove.entity.Dynamic;
-import com.cyanbirds.tanlove.entity.FConversation;
 import com.cyanbirds.tanlove.entity.Gold;
 import com.cyanbirds.tanlove.entity.IMessage;
 import com.cyanbirds.tanlove.entity.NameList;
 
 import com.cyanbirds.tanlove.greendao.ConversationDao;
 import com.cyanbirds.tanlove.greendao.DynamicDao;
-import com.cyanbirds.tanlove.greendao.FConversationDao;
 import com.cyanbirds.tanlove.greendao.GoldDao;
 import com.cyanbirds.tanlove.greendao.IMessageDao;
 import com.cyanbirds.tanlove.greendao.NameListDao;
@@ -33,14 +31,12 @@ public class DaoSession extends AbstractDaoSession {
 
     private final DaoConfig conversationDaoConfig;
     private final DaoConfig dynamicDaoConfig;
-    private final DaoConfig fConversationDaoConfig;
     private final DaoConfig goldDaoConfig;
     private final DaoConfig iMessageDaoConfig;
     private final DaoConfig nameListDaoConfig;
 
     private final ConversationDao conversationDao;
     private final DynamicDao dynamicDao;
-    private final FConversationDao fConversationDao;
     private final GoldDao goldDao;
     private final IMessageDao iMessageDao;
     private final NameListDao nameListDao;
@@ -55,9 +51,6 @@ public class DaoSession extends AbstractDaoSession {
         dynamicDaoConfig = daoConfigMap.get(DynamicDao.class).clone();
         dynamicDaoConfig.initIdentityScope(type);
 
-        fConversationDaoConfig = daoConfigMap.get(FConversationDao.class).clone();
-        fConversationDaoConfig.initIdentityScope(type);
-
         goldDaoConfig = daoConfigMap.get(GoldDao.class).clone();
         goldDaoConfig.initIdentityScope(type);
 
@@ -69,14 +62,12 @@ public class DaoSession extends AbstractDaoSession {
 
         conversationDao = new ConversationDao(conversationDaoConfig, this);
         dynamicDao = new DynamicDao(dynamicDaoConfig, this);
-        fConversationDao = new FConversationDao(fConversationDaoConfig, this);
         goldDao = new GoldDao(goldDaoConfig, this);
         iMessageDao = new IMessageDao(iMessageDaoConfig, this);
         nameListDao = new NameListDao(nameListDaoConfig, this);
 
         registerDao(Conversation.class, conversationDao);
         registerDao(Dynamic.class, dynamicDao);
-        registerDao(FConversation.class, fConversationDao);
         registerDao(Gold.class, goldDao);
         registerDao(IMessage.class, iMessageDao);
         registerDao(NameList.class, nameListDao);
@@ -85,7 +76,6 @@ public class DaoSession extends AbstractDaoSession {
     public void clear() {
         conversationDaoConfig.clearIdentityScope();
         dynamicDaoConfig.clearIdentityScope();
-        fConversationDaoConfig.clearIdentityScope();
         goldDaoConfig.clearIdentityScope();
         iMessageDaoConfig.clearIdentityScope();
         nameListDaoConfig.clearIdentityScope();
@@ -97,10 +87,6 @@ public class DaoSession extends AbstractDaoSession {
 
     public DynamicDao getDynamicDao() {
         return dynamicDao;
-    }
-
-    public FConversationDao getFConversationDao() {
-        return fConversationDao;
     }
 
     public GoldDao getGoldDao() {

@@ -31,7 +31,6 @@ public class MySQLiteOpenHelper extends DaoMaster.OpenHelper {
 				DynamicDao.class,
 				GoldDao.class,
 				IMessageDao.class,
-				NameListDao.class,
-				FConversationDao.class);
+				NameListDao.class);
 	}
 }
