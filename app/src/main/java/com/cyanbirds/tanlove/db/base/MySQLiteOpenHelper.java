@@ -6,7 +6,6 @@ import android.database.sqlite.SQLiteDatabase;
 import com.cyanbirds.tanlove.greendao.ConversationDao;
 import com.cyanbirds.tanlove.greendao.DaoMaster;
 import com.cyanbirds.tanlove.greendao.DynamicDao;
-import com.cyanbirds.tanlove.greendao.FConversationDao;
 import com.cyanbirds.tanlove.greendao.GoldDao;
 import com.cyanbirds.tanlove.greendao.IMessageDao;
 import com.cyanbirds.tanlove.greendao.NameListDao;
