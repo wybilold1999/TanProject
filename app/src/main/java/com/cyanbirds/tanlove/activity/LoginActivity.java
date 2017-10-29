@@ -456,6 +456,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     protected void onPause() {
         super.onPause();
         activityIsRunning = false;
+        ProgressDialogUtils.getInstance(this).dismiss();
         MobclickAgent.onPageEnd(this.getClass().getName());
         MobclickAgent.onPause(this);
     }
