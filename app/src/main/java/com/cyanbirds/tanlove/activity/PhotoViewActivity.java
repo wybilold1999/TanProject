@@ -91,7 +91,6 @@ public class PhotoViewActivity extends BaseActivity implements View.OnClickListe
             case R.id.love_layout :
                 mIvLove.setImageResource(R.mipmap.love_focused);
                 new SenderGreetTask().request(String.valueOf(mUser.userId));
-                new AddLoveTask().request(String.valueOf(mUser.userId));
                 break;
             case R.id.ll_msg :
                 Intent intent = new Intent();
@@ -121,15 +120,6 @@ public class PhotoViewActivity extends BaseActivity implements View.OnClickListe
         }
     }
 
-    class AddLoveTask extends AddLoveRequest {
-        @Override
-        public void onPostExecute(String s) {
-        }
-
-        @Override
-        public void onErrorExecute(String error) {
-        }
-    }
 
     @Override
     protected void onResume() {

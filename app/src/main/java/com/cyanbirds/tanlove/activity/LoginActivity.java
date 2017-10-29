@@ -227,6 +227,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     class WXLoginTask extends WXLoginRequest {
         @Override
         public void onPostExecute(ClientUser clientUser) {
+            ProgressDialogUtils.getInstance(LoginActivity.this).dismiss();
             MobclickAgent.onProfileSignIn(String.valueOf(AppManager
                     .getClientUser().userId));
             if(!new File(FileAccessorUtils.FACE_IMAGE,
@@ -260,6 +261,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     class UserLoginTask extends UserLoginRequest {
         @Override
         public void onPostExecute(ClientUser clientUser) {
+            ProgressDialogUtils.getInstance(LoginActivity.this).dismiss();
             hideSoftKeyboard();
             MobclickAgent.onProfileSignIn(String.valueOf(AppManager
                     .getClientUser().userId));
@@ -373,6 +375,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     class QqLoginTask extends QqLoginRequest {
         @Override
         public void onPostExecute(ClientUser clientUser) {
+            ProgressDialogUtils.getInstance(LoginActivity.this).dismiss();
             MobclickAgent.onProfileSignIn(String.valueOf(AppManager
                     .getClientUser().userId));
             if(!new File(FileAccessorUtils.FACE_IMAGE,
@@ -397,6 +400,7 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
 
         @Override
         public void onErrorExecute(String error) {
+            ProgressDialogUtils.getInstance(LoginActivity.this).dismiss();
         }
     }
 
@@ -444,15 +448,8 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     protected void onResume() {
         super.onResume();
         activityIsRunning = true;
-        ProgressDialogUtils.getInstance(this).dismiss();
         MobclickAgent.onPageStart(this.getClass().getName());
         MobclickAgent.onResume(this);
-    }
-
-    @Override
-    protected void onStop() {
-        super.onStop();
-        ProgressDialogUtils.getInstance(this).dismiss();
     }
 
     @Override

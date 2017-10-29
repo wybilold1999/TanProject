@@ -226,6 +226,7 @@ public class CardActivity extends BaseActivity implements SwipeFlingAdapterView.
 
 		@Override
 		public void onErrorExecute(String error) {
+			ToastUtil.showMessage(error);
 		}
 	}
 
