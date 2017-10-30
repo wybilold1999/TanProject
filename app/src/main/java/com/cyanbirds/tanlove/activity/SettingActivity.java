@@ -12,7 +12,6 @@ import android.widget.TextView;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.ValueKey;
-import com.cyanbirds.tanlove.db.ChatLimitDaoManager;
 import com.cyanbirds.tanlove.db.ConversationSqlManager;
 import com.cyanbirds.tanlove.db.IMessageDaoManager;
 import com.cyanbirds.tanlove.db.MyGoldDaoManager;
@@ -212,7 +211,6 @@ public class SettingActivity extends BaseActivity {
         IMessageDaoManager.reset();
         ConversationSqlManager.reset();
         MyGoldDaoManager.reset();
-        ChatLimitDaoManager.reset();
     }
 
     @Override
