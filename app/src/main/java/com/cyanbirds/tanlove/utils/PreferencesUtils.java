@@ -106,6 +106,8 @@ public class PreferencesUtils {
 	public static final String SETTINGS_ALI_PAY_COUNT = "com.cyanbird.tanlove_ali_pay_count";
 	/** 我的零钱*/
 	public static final String SETTINGS_MY_MONEY = "com.cyanbird.tanlove_my_money";
+	/** 聊天次数限制*/
+	public static final String SETTINGS_CHAT_LIMIT = "com.cyanbird.tanlove_chat_limit";
 
 	/**
 	 * 获取RL账号
@@ -1148,6 +1150,26 @@ public class PreferencesUtils {
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(context);
 		sp.edit().putFloat(SETTINGS_MY_MONEY, count).commit();
+	}
+
+	/**
+	 *
+	 * @param context
+	 * @return
+	 */
+	public static int getChatLimit(final Context context) {
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sp.getInt(SETTINGS_CHAT_LIMIT, 0);
+	}
+
+	/**
+	 * @param context
+	 */
+	public static void setChatLimit(final Context context, final int count) {
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		sp.edit().putInt(SETTINGS_CHAT_LIMIT, count).commit();
 	}
 
 }

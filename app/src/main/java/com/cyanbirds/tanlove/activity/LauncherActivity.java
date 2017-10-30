@@ -100,6 +100,7 @@ public class LauncherActivity extends Activity {
             AppConstants.WEIXIN_PAY_ID = allKeys.weChatPayId;
             AppConstants.YUNTONGXUN_ID = allKeys.ytxId;
             AppConstants.YUNTONGXUN_TOKEN = allKeys.ytxKey;
+            AppConstants.CHAT_LIMIT = allKeys.chatLimit;
             registerWeiXin();
         }
 
