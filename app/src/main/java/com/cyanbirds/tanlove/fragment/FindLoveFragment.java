@@ -103,9 +103,6 @@ public class FindLoveFragment extends Fragment implements OnRefreshListener, Vie
         if (parent != null) {
             parent.removeView(rootView);
         }
-        /*((AppCompatActivity) getActivity()).getSupportActionBar().show();
-        ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle(
-                R.string.tab_find_love);*/
         return rootView;
     }
 
