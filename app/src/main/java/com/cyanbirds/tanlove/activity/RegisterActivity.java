@@ -446,7 +446,6 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
     protected void onPause() {
         super.onPause();
         activityIsRunning = false;
-        ProgressDialogUtils.getInstance(RegisterActivity.this).dismiss();
         MobclickAgent.onPageEnd(this.getClass().getName());
         MobclickAgent.onPause(this);
     }
