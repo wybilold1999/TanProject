@@ -143,29 +143,30 @@ public class IMChattingHelper implements OnChatReceiveListener{
 		message.conversationId = convsId;
 		MessageCallbackListener.getInstance().notifyPushMessage(message);//刷新UI
 
-		// 调用SDK发送接口发送消息到服务器
-		mChatManager.sendMessage(ecMessagee, new ECChatManager.OnSendMessageListener() {
-			@Override
-			public void onSendMessageComplete(ECError error, ECMessage ecMessage) {
-				// 处理消息发送结果
-				if (ecMessage == null || error.errorCode != 200) {
-					message.status = IMessage.MessageStatus.FAILED;
+		if (mChatManager != null) {
+			// 调用SDK发送接口发送消息到服务器
+			mChatManager.sendMessage(ecMessagee, new ECChatManager.OnSendMessageListener() {
+				@Override
+				public void onSendMessageComplete(ECError error, ECMessage ecMessage) {
+					// 处理消息发送结果
+					if (ecMessage == null || error.errorCode != 200) {
+						message.status = IMessage.MessageStatus.FAILED;
+					}
+					/**
+					 * 通知消息发送的状态，发送成功，目的是让环形进度条消失
+					 */
+					message.status = IMessage.MessageStatus.SENT;
+					IMessageDaoManager.getInstance(mContext).insertIMessage(message);
+					//通知消息发送的状态
+					MessageStatusReportListener.getInstance().notifyMessageStatus(message);
 				}
-				/**
-				 * 通知消息发送的状态，发送成功，目的是让环形进度条消失
-				 */
-				message.status = IMessage.MessageStatus.SENT;
-				IMessageDaoManager.getInstance(mContext).insertIMessage(message);
-				//通知消息发送的状态
-				MessageStatusReportListener.getInstance().notifyMessageStatus(message);
-			}
 
-			@Override
-			public void onProgress(String msgId, int totalByte, int progressByte) {
-				// 处理文件发送上传进度（尽上传文件、图片时候SDK回调该方法）
-			}
-		});
-
+				@Override
+				public void onProgress(String msgId, int totalByte, int progressByte) {
+					// 处理文件发送上传进度（尽上传文件、图片时候SDK回调该方法）
+				}
+			});
+		}
 		RingtoneManager.getRingtone(
 				CSApplication.getInstance(),
 				Uri.parse("android.resource://" + AppManager.getPackageName()
