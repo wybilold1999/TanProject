@@ -127,8 +127,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name="com.xiaomi.account.openauth.AuthorizeActivity" />
-
         <activity
             android:name="com.tencent.tauth.AuthActivity"
             android:launchMode="singleTask"
@@ -462,6 +460,14 @@
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:windowSoftInputMode="stateAlwaysHidden"
             android:label="@string/money_output"
+            android:screenOrientation="portrait">
+        </activity>
+
+        <activity
+            android:name=".activity.FeedBackActivity"
+            android:configChanges="keyboard|keyboardHidden|orientation"
+            android:windowSoftInputMode="adjustResize"
+            android:label="@string/feed_back"
             android:screenOrientation="portrait">
         </activity>
 

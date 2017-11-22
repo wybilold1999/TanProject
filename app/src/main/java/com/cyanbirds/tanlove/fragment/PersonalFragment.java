@@ -18,6 +18,7 @@ import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.AboutActivity;
 import com.cyanbirds.tanlove.activity.AttentionMeActivity;
 import com.cyanbirds.tanlove.activity.BetweenLoversActivity;
+import com.cyanbirds.tanlove.activity.FeedBackActivity;
 import com.cyanbirds.tanlove.activity.IdentifyActivity;
 import com.cyanbirds.tanlove.activity.LoveFormeActivity;
 import com.cyanbirds.tanlove.activity.MakeMoneyActivity;
@@ -132,6 +133,8 @@ public class PersonalFragment extends Fragment {
 	CardView mMoneyCard;
 	@BindView(R.id.money_lay)
 	RelativeLayout mMoneyLay;
+	@BindView(R.id.feedback)
+	RelativeLayout mFeedBack;
 	Unbinder unbinder;
 
 	private View rootView;
@@ -273,7 +276,7 @@ public class PersonalFragment extends Fragment {
 			R.id.head_portrait_lay, R.id.vip_lay, R.id.my_attention,
 			R.id.attentioned_user, R.id.good_user, R.id.setting, R.id.about, R.id.my_gold,
 			R.id.download_layout, R.id.lovers_lay, R.id.success_case,
-			R.id.near_party, R.id.identify_lay, R.id.my_gifts, R.id.money_lay})
+			R.id.near_party, R.id.identify_lay, R.id.my_gifts, R.id.money_lay, R.id.feedback})
 	public void onClick(View view) {
 		Intent intent = new Intent();
 		switch (view.getId()) {
@@ -339,6 +342,10 @@ public class PersonalFragment extends Fragment {
 				break;
 			case R.id.money_lay:
 				intent.setClass(getActivity(), MoneyPacketActivity.class);
+				startActivity(intent);
+				break;
+			case R.id.feedback:
+				intent.setClass(getActivity(), FeedBackActivity.class);
 				startActivity(intent);
 				break;
 		}
