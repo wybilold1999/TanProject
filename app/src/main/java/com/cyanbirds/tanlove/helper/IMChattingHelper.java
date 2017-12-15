@@ -18,7 +18,6 @@ import com.cyanbirds.tanlove.listener.FileProgressListener;
 import com.cyanbirds.tanlove.listener.MessageCallbackListener;
 import com.cyanbirds.tanlove.listener.MessageChangedListener;
 import com.cyanbirds.tanlove.listener.MessageStatusReportListener;
-import com.cyanbirds.tanlove.listener.MessageUnReadListener;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.FileUtils;
@@ -33,7 +32,6 @@ import com.yuntongxun.ecsdk.im.ECFileMessageBody;
 import com.yuntongxun.ecsdk.im.ECImageMessageBody;
 import com.yuntongxun.ecsdk.im.ECLocationMessageBody;
 import com.yuntongxun.ecsdk.im.ECMessageNotify;
-import com.yuntongxun.ecsdk.im.ECPreviewMessageBody;
 import com.yuntongxun.ecsdk.im.ECTextMessageBody;
 import com.yuntongxun.ecsdk.im.ECUserStateMessageBody;
 import com.yuntongxun.ecsdk.im.ECVideoMessageBody;
@@ -56,7 +54,7 @@ public class IMChattingHelper implements OnChatReceiveListener{
 	/** 是否是同步消息 */
 	private boolean isSyncOffline = false;
 	private List<IMessage> offlineMsg = null;
-	private static final String CITY = "深圳市东莞市";
+	private static final String CITY = "深圳市";
 
 	public static IMChattingHelper getInstance() {
 		return IMChattingHelper.SingletonHolder.INSTANCE;
