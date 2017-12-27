@@ -15,6 +15,7 @@ import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
+import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.ValueKey;
@@ -65,6 +66,9 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
         new GetCityInfoTask().request();
         initLocationClient();
         AppManager.requestLocationPermission(this);
+        if ("GIONEE".equals(Build.MANUFACTURER)) {
+            requestLocationPermission();
+        }
     }
 
     /**
@@ -199,6 +203,19 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
                     showAccessLocationDialog();
                 }
             }
+        }
+    }
+
+    private void requestLocationPermission() {
+        PackageManager pkgManager = CSApplication.getInstance().getPackageManager();
+        boolean ACCESS_COARSE_LOCATION =
+                pkgManager.checkPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION, getPackageName()) == PackageManager.PERMISSION_GRANTED;
+        boolean ACCESS_FINE_LOCATION =
+                pkgManager.checkPermission(Manifest.permission.ACCESS_FINE_LOCATION, getPackageName()) == PackageManager.PERMISSION_GRANTED;
+        if (Build.VERSION.SDK_INT >= 22 && !ACCESS_COARSE_LOCATION || !ACCESS_FINE_LOCATION) {
+            //请求权限
+            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
+                    REQUEST_LOCATION_PERMISSION);
         }
     }
 
