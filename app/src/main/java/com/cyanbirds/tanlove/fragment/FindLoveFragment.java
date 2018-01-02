@@ -162,7 +162,7 @@ public class FindLoveFragment extends Fragment implements OnRefreshListener, Vie
         }
 
         mClientUsers = new ArrayList<>();
-        mAdapter = new FindLoveAdapter(mClientUsers, getActivity());
+        mAdapter = new FindLoveAdapter(mClientUsers, getActivity(), mCurIndex);
         mAdapter.setOnItemClickListener(mOnItemClickListener);
         mRecyclerView.setAdapter(mAdapter);
         mProgress.setVisibility(View.VISIBLE);

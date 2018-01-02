@@ -222,17 +222,18 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 		layoutManager.setOrientation(LinearLayoutManager.HORIZONTAL);
 		mEmoticonRecyclerview.setLayoutManager(layoutManager);
 
-		openEmotion.setVisibility(View.VISIBLE);
 		if (!AppManager.getClientUser().isShowVip) {
 			openCamera.setVisibility(View.GONE);
 			openAlbums.setVisibility(View.GONE);
 			openLocation.setVisibility(View.GONE);
 			redPacket.setVisibility(View.GONE);
+			openEmotion.setVisibility(View.GONE);
 		} else {
 			openCamera.setVisibility(View.VISIBLE);
 			openAlbums.setVisibility(View.VISIBLE);
 			openLocation.setVisibility(View.VISIBLE);
 			redPacket.setVisibility(View.VISIBLE);
+			openEmotion.setVisibility(View.VISIBLE);
 		}
 	}
 
