@@ -279,9 +279,11 @@ public class ShareLocationActivity extends BaseActivity implements
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.current_location:
-			LatLng latLng = new LatLng(mLatLonPoint.getLatitude(),
-					mLatLonPoint.getLongitude());
-			aMap.animateCamera(CameraUpdateFactory.changeLatLng(latLng));
+			if (null != mLatLonPoint) {
+				LatLng latLng = new LatLng(mLatLonPoint.getLatitude(),
+						mLatLonPoint.getLongitude());
+				aMap.animateCamera(CameraUpdateFactory.changeLatLng(latLng));
+			}
 			break;
 		}
 	}
