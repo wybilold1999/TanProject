@@ -473,7 +473,16 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 				if (AppManager.getClientUser().isShowVip) {
 					if (!TextUtils.isEmpty(mContentInput.getText().toString())) {
 						if (null != IMChattingHelper.getInstance().getChatManager()) {
-							int count = PreferencesUtils.getChatLimit(this);
+							if (AppManager.getClientUser().is_vip) {
+								if (AppManager.getClientUser().gold_num  < 101) {
+									showGoldDialog();
+								} else {
+									sendTextMsg();
+								}
+							} else {
+								showBeyondChatLimitDialog();
+							}
+							/*int count = PreferencesUtils.getChatLimit(this);
 							if (count < AppConstants.CHAT_LIMIT) {
 								count = count + 1;
 								PreferencesUtils.setChatLimit(this, count);
@@ -491,7 +500,7 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 								} else {
 									showBeyondChatLimitDialog();
 								}
-							}
+							}*/
 						}
 					}
 				} else {
