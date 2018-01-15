@@ -66,9 +66,7 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
         new GetCityInfoTask().request();
         initLocationClient();
         AppManager.requestLocationPermission(this);
-        if ("GIONEE".equals(Build.MANUFACTURER)) {
-            requestLocationPermission();
-        }
+        requestLocationPermission();
     }
 
     /**
@@ -212,7 +210,7 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
                 pkgManager.checkPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION, getPackageName()) == PackageManager.PERMISSION_GRANTED;
         boolean ACCESS_FINE_LOCATION =
                 pkgManager.checkPermission(Manifest.permission.ACCESS_FINE_LOCATION, getPackageName()) == PackageManager.PERMISSION_GRANTED;
-        if (Build.VERSION.SDK_INT >= 22 && !ACCESS_COARSE_LOCATION || !ACCESS_FINE_LOCATION) {
+        if (Build.VERSION.SDK_INT >= 23 && !ACCESS_COARSE_LOCATION || !ACCESS_FINE_LOCATION) {
             //请求权限
             ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
                     REQUEST_LOCATION_PERMISSION);

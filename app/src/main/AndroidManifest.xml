@@ -94,6 +94,8 @@
                 android:protectionLevel="signature"/>
     <uses-permission android:name="com.cyanbirds.tanlove.permission.C2D_MESSAGE"/>
 
+    <permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" android:protectionLevel="signature"/>
+
 
     <application
         android:name=".CSApplication"
