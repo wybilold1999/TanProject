@@ -7,6 +7,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.cyanbirds.tanlove.R;
@@ -54,6 +55,7 @@ public class GiftMarketAdapter extends
 		holder.mGiftName.setText(gift.name);
 		holder.mImgUrl.setImageURI(Uri.parse(gift.dynamic_image_url));
 		if (AppManager.getClientUser().isShowVip) {
+			holder.mPriceLay.setVisibility(View.VISIBLE);
 			holder.mLine.setVisibility(View.VISIBLE);
 			holder.mVipAmount.setVisibility(View.VISIBLE);
 			holder.mVip.setVisibility(View.VISIBLE);
@@ -63,6 +65,7 @@ public class GiftMarketAdapter extends
 				holder.mVipAmount.setText(gift.vip_amount + "金币");
 			}
 		} else {
+			holder.mPriceLay.setVisibility(View.GONE);
 			holder.mVipAmount.setVisibility(View.GONE);
 			holder.mLine.setVisibility(View.GONE);
 			holder.mVip.setVisibility(View.GONE);
@@ -88,6 +91,7 @@ public class GiftMarketAdapter extends
 		TextView mAmount;
 		TextView mLine;
 		ImageView mVip;
+		LinearLayout mPriceLay;
 		public ViewHolder(View itemView) {
 			super(itemView);
 			mGiftName = (TextView) itemView.findViewById(R.id.gift_name);
@@ -96,6 +100,7 @@ public class GiftMarketAdapter extends
 			mAmount = (TextView) itemView.findViewById(R.id.amount);
 			mLine = (TextView) itemView.findViewById(R.id.line);
 			mVip = (ImageView) itemView.findViewById(R.id.iv_vip);
+			mPriceLay = (LinearLayout) itemView.findViewById(R.id.price_lay);
 			mImgUrl.setOnClickListener(this);
 		}
 

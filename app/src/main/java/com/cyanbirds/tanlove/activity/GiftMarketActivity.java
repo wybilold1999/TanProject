@@ -133,8 +133,10 @@ public class GiftMarketActivity extends BaseActivity implements View.OnClickList
 		mSendGift.setOnClickListener(this);
 		if (AppManager.getClientUser().isShowVip) {
 			mVipLay.setVisibility(View.VISIBLE);
+			mAmount.setVisibility(View.VISIBLE);
 		} else {
 			mVipLay.setVisibility(View.GONE);
+			mAmount.setVisibility(View.GONE);
 		}
 	}
 
