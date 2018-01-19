@@ -65,21 +65,29 @@ public class ImagePreviewActivity extends BaseActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 		if (id == R.id.send) {
-			if(!AppManager.getClientUser().isShowVip || AppManager.getClientUser().is_vip){
-				if (AppManager.getClientUser().isShowGold && AppManager.getClientUser().gold_num  < 101) {
-					showGoldDialog();
+			if (AppManager.getClientUser().isShowVip) {
+				if (AppManager.getClientUser().is_vip) {
+					if (AppManager.getClientUser().isShowGold && AppManager.getClientUser().gold_num  < 101) {
+						showGoldDialog();
+					} else {
+						sendImg();
+					}
 				} else {
-					Intent intent = new Intent();
-					intent.setData(mUri);
-					setResult(RESULT_OK,intent);
-					finish();
-					return true;
+					showTurnOnVipDialog();
 				}
 			} else {
-				showTurnOnVipDialog();
+				sendImg();
 			}
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	private boolean sendImg() {
+		Intent intent = new Intent();
+		intent.setData(mUri);
+		setResult(RESULT_OK,intent);
+		finish();
+		return true;
 	}
 
 	private void showTurnOnVipDialog(){

@@ -298,24 +298,32 @@ public class ShareLocationActivity extends BaseActivity implements
 	public boolean onOptionsItemSelected(MenuItem item) {
 		int id = item.getItemId();
 		if (id == R.id.send) {
-			if (!AppManager.getClientUser().isShowVip || AppManager.getClientUser().is_vip) {
-				if (AppManager.getClientUser().isShowGold && AppManager.getClientUser().gold_num  < 101) {
-					showGoldDialog();
-				} else {
-					if (mSelLoactionLatLng == null || mSelLoactionLatLng.latitude == 0
-							|| mSelLoactionLatLng.longitude == 0
-							|| TextUtils.isEmpty(mAddress)) {
-						ToastUtil.showMessage(R.string.select_send_location_tips);
-						return true;
+			if (AppManager.getClientUser().isShowVip) {
+				if (AppManager.getClientUser().is_vip) {
+					if (AppManager.getClientUser().isShowGold && AppManager.getClientUser().gold_num  < 101) {
+						showGoldDialog();
+					} else {
+						sendLocation();
 					}
-					getMapScreenShot();
-					return true;
+				} else {
+					showTurnOnVipDialog();
 				}
 			} else {
-				showTurnOnVipDialog();
+				sendLocation();
 			}
 		}
 		return super.onOptionsItemSelected(item);
+	}
+
+	private boolean sendLocation() {
+		if (mSelLoactionLatLng == null || mSelLoactionLatLng.latitude == 0
+				|| mSelLoactionLatLng.longitude == 0
+				|| TextUtils.isEmpty(mAddress)) {
+			ToastUtil.showMessage(R.string.select_send_location_tips);
+			return true;
+		}
+		getMapScreenShot();
+		return true;
 	}
 
 	private void showTurnOnVipDialog(){

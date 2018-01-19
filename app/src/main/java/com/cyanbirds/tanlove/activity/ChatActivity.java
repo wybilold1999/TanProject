@@ -474,7 +474,7 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 					if (!TextUtils.isEmpty(mContentInput.getText().toString())) {
 						if (null != IMChattingHelper.getInstance().getChatManager()) {
 							if (AppManager.getClientUser().is_vip) {
-								if (AppManager.getClientUser().gold_num  < 101) {
+								if (AppManager.getClientUser().isShowGold && AppManager.getClientUser().gold_num  < 101) {
 									showGoldDialog();
 								} else {
 									sendTextMsg();
@@ -674,7 +674,7 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 		} else if (resultCode == RESULT_OK && requestCode == ALBUMS_RESULT) {
 			if (AppManager.getClientUser().isShowVip) {
 				if (AppManager.getClientUser().is_vip) {
-					if (AppManager.getClientUser().gold_num  < 101) {
+					if (AppManager.getClientUser().isShowGold && AppManager.getClientUser().gold_num  < 101) {
 						showGoldDialog();
 					} else {
 						Uri uri = data.getData();

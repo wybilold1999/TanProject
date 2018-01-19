@@ -131,7 +131,7 @@ public class GiftMarketActivity extends BaseActivity implements View.OnClickList
 		mOtherPortrait = (SimpleDraweeView) mGiftDialogView.findViewById(R.id.other_portrait);
 		mSendGift = (TextView) mGiftDialogView.findViewById(R.id.send_gift);
 		mSendGift.setOnClickListener(this);
-		if (AppManager.getClientUser().isShowVip) {
+		if (AppManager.getClientUser().isShowGold) {
 			mVipLay.setVisibility(View.VISIBLE);
 			mAmount.setVisibility(View.VISIBLE);
 		} else {
@@ -143,12 +143,12 @@ public class GiftMarketActivity extends BaseActivity implements View.OnClickList
 	@Override
 	public void onClick(View v) {
 		mGiftDialog.dismiss();
-		if (AppManager.getClientUser().isShowVip) {
+		if (AppManager.getClientUser().isShowGold) {
 			if (AppManager.getClientUser().gold_num == 0) {
 				showBuyGoldDialog();
 			} else {
 				String gold = "";
-				if (AppManager.getClientUser().is_vip) {
+				if (AppManager.getClientUser().isShowVip && AppManager.getClientUser().is_vip) {
 					gold = String.valueOf(gift.vip_amount);
 				} else {
 					gold = String.valueOf(gift.amount);
