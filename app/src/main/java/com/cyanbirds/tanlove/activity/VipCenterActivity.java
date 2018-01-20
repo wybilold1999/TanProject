@@ -87,6 +87,8 @@ public class VipCenterActivity extends BaseActivity {
 	RelativeLayout mVip8Lay;
 	@BindView(R.id.scrollView)
 	NestedScrollView mScrollView;
+	@BindView(R.id.vip_9_lay)
+	RelativeLayout mVip9Lay;
 
 	private MemberBuyAdapter mAdapter;
 
@@ -194,6 +196,11 @@ public class VipCenterActivity extends BaseActivity {
 		} else {
 			mVip7Lay.setVisibility(View.GONE);
 			mVip8Lay.setVisibility(View.GONE);
+		}
+		if (AppManager.getClientUser().isShowVideo) {
+			mVip9Lay.setVisibility(View.VISIBLE);
+		} else {
+			mVip9Lay.setVisibility(View.GONE);
 		}
 		new GetMemberBuyListTask().request(NORMAL_VIP);
 		aliPayCount = PreferencesUtils.getAliPayCount(this);

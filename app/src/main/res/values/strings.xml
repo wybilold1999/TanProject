@@ -43,6 +43,7 @@
     <string name="user_info">用户信息</string>
     <string name="personal_setting">个人设置</string>
     <string name="personal_signature">个性签名</string>
+    <string name="personal_info">个人信息</string>
     <string name="select_image">选择图片</string>
     <string name="image_scan">图片浏览</string>
     <string name="lovers_service">红娘尊贵服务</string>
@@ -175,10 +176,10 @@
     <string name="no_gold">您的金币数量不足,购买金币即可无限赠送礼物</string>
     <string name="un_call">亲,升级VIP即可给所有人打电话,立即开通会员？</string>
     <string name="un_see_video">亲,升级VIP即可观看所有人的视频,立即开通会员？</string>
-    <string name="social_id_need_vip">您还不是会员,不能查看%1$s号,立即开通会员？</string>
-    <string name="social_id_need_gold">您账户中无金币,无法查看%1$s号，购买金币即可无限查看</string>
-    <string name="social_id_need_more_gold">查看%1$s号需账户中金币数量大于100，您账户中金币数量不足，购买即可无限查看</string>
-    <string name="no_gold_un_send_msg">您账户中金币数量不足，暂时不能发送消息，购买金币即可无限畅聊</string>
+    <string name="social_id_need_vip">您还不是会员,不能查看%1$s号,开通会员即可无限查看</string>
+    <string name="social_id_need_gold">您账户中无金币,无法查看%1$s号,购买金币即可无限查看</string>
+    <string name="social_id_need_more_gold">查看%1$s号需账户中金币数量大于100,您账户中金币数量不足,购买即可无限查看</string>
+    <string name="no_gold_un_send_msg">您账户中金币数量不足,暂时不能发送消息,购买金币即可无限畅聊</string>
     <string name="upload_portrait_tips">上传头像才能让更多人认识您</string>
     <string name="upload">上传</string>
     <string name="upload_success">上传成功</string>
@@ -353,5 +354,7 @@
     <string name="input_hint">请输入您宝贵的意见或建议</string>
     <string name="please_input_suggestion">您还未输入意见或建议</string>
     <string name="submit_success">提交成功</string>
+
+    <string name="tab_video_tips">还未上传过视频哦</string>
 
 </resources>
