@@ -1,6 +1,5 @@
 package com.cyanbirds.tanlove.activity;
 
-import android.app.DatePickerDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -17,15 +16,19 @@ import android.widget.TextView;
 
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
+import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
+import com.cyanbirds.tanlove.entity.AppointmentModel;
+import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.ApplyForAppointmentRequest;
+import com.cyanbirds.tanlove.net.request.OSSImagUploadRequest;
 import com.cyanbirds.tanlove.utils.DateUtil;
+import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.umeng.analytics.MobclickAgent;
 
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -63,10 +66,16 @@ public class AppointmentActivity extends BaseActivity {
     TextView mSure;
 
     private String mApplyForUid;//向谁申请
+    private String mApplyForUName;//向谁申请
+    private String mApplyForFaceUrl;//向谁申请
     private View mDateTimeView;
     private DatePicker datePicker;
-    private String latitude;
-    private String longitude;
+    private double latitude;
+    private double longitude;
+    private String mMapImgUrl;
+
+    private boolean isAlreadyUpload = true;
+    private AppointmentModel mModel;
 
     /**
      * 分享位置
@@ -79,12 +88,19 @@ public class AppointmentActivity extends BaseActivity {
         setContentView(R.layout.activity_appointment);
         ButterKnife.bind(this);
         mToolbarActionbar.setNavigationIcon(R.mipmap.ic_up);
+        initData();
+    }
 
+    private void initData() {
         mApplyForUid = getIntent().getStringExtra(ValueKey.USER_ID);
+        mApplyForUName = getIntent().getStringExtra(ValueKey.USER_NAME);
+        mApplyForFaceUrl = getIntent().getStringExtra(ValueKey.IMAGE_URL);
 
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.DATE, +1);
         mAppointmentTime.setText(DateUtil.formatDateByFormat(calendar.getTime(), DEFAULT_PATTERN));
+
+        mModel = new AppointmentModel();
     }
 
 
@@ -105,27 +121,53 @@ public class AppointmentActivity extends BaseActivity {
                 break;
             case R.id.sure:
                 if (!TextUtils.isEmpty(mApplyForUid)) {
-                    String prj = mAppointmentPrj.getText().toString();
-                    String time = mAppointmentTime.getText().toString();
-                    String timeLong = mAppointmentLong.getText().toString();
-                    String address = mAppointmentAddress.getText().toString();
-                    String remark = mAppointmentRemark.getText().toString();
-                    new ApplyForAppointmentTask().request(latitude, longitude,
-                            mApplyForUid, prj, timeLong, time, address, remark);
+                    if (!TextUtils.isEmpty(mAppointmentAddress.getText().toString())) {
+                        initAppointmentModel();
+                        ProgressDialogUtils.getInstance(this).show(R.string.dialog_apply_for);
+                        if (!TextUtils.isEmpty(mMapImgUrl)) {
+                            mModel.imgUrl = mMapImgUrl;
+                            isAlreadyUpload = true;
+                            new ApplyForAppointmentTask().request(mModel);
+                        } else {
+                            isAlreadyUpload = false;
+                        }
+                    } else {
+                        ToastUtil.showMessage(R.string.select_appointment_location_tips);
+                    }
                 }
                 break;
         }
     }
 
+    private void initAppointmentModel() {
+        mModel.remark = mAppointmentRemark.getText().toString();
+        mModel.theme = mAppointmentPrj.getText().toString();
+        mModel.appointTime = mAppointmentTime.getText().toString();
+        mModel.latitude = latitude;
+        mModel.longitude = longitude;
+        mModel.userById = mApplyForUid;
+        mModel.userByName = mApplyForUName;
+        mModel.faceUrl = mApplyForFaceUrl;
+        mModel.status = AppointmentModel.AppointStatus.WAIT_CALL_BACK;
+        mModel.appointTimeLong = mAppointmentLong.getText().toString();
+        mModel.userId = AppManager.getClientUser().userId;
+        mModel.userName = AppManager.getClientUser().user_name;
+        mModel.address = mAppointmentAddress.getText().toString();
+    }
+
     class ApplyForAppointmentTask extends ApplyForAppointmentRequest {
         @Override
         public void onPostExecute(String s) {
+            ProgressDialogUtils.getInstance(AppointmentActivity.this).dismiss();
             ToastUtil.showMessage(R.string.appointment_apply_for_success);
+            finish();
         }
 
         @Override
         public void onErrorExecute(String error) {
+            ProgressDialogUtils.getInstance(AppointmentActivity.this).dismiss();
             ToastUtil.showMessage(R.string.appointment_apply_for_faiure);
+            finish();
         }
     }
 
@@ -179,6 +221,7 @@ public class AppointmentActivity extends BaseActivity {
         initDateTimeView();
         final AlertDialog mDialog = new AlertDialog.Builder(this).setPositiveButton(R.string.ok, null)
                 .setNegativeButton(R.string.cancel, null).create();
+        mDialog.setTitle(R.string.tv_appointment_info);
         mDialog.setView(mDateTimeView);
         mDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override
@@ -258,10 +301,39 @@ public class AppointmentActivity extends BaseActivity {
         if (resultCode == RESULT_OK
                 && requestCode == SHARE_LOCATION_RESULT) {
             String address = data.getStringExtra(ValueKey.ADDRESS);
-            latitude = data.getStringExtra(ValueKey.LATITUDE);
-            longitude = data.getStringExtra(ValueKey.LONGITUDE);
+            latitude = data.getDoubleExtra(ValueKey.LATITUDE, 0);
+            longitude = data.getDoubleExtra(ValueKey.LONGITUDE, 0);
             if (!TextUtils.isEmpty(address)) {
                 mAppointmentAddress.setText(address);
+            }
+            String path = data.getStringExtra(ValueKey.IMAGE_URL);
+            if (!TextUtils.isEmpty(path)) {
+                new OSSImgUploadTask().request(AppManager.getFederationToken().bucketName,
+                        AppManager.getOSSFacePath(), path);
+            }
+        }
+    }
+
+    /**
+     * 上传图片至OSS
+     */
+    class OSSImgUploadTask extends OSSImagUploadRequest {
+
+        @Override
+        public void onPostExecute(String s) {
+            mMapImgUrl = AppConstants.OSS_IMG_ENDPOINT + s;
+            mModel.imgUrl = mMapImgUrl;
+            if (!isAlreadyUpload) {
+                initAppointmentModel();
+                new ApplyForAppointmentTask().request(mModel);
+            }
+        }
+
+        @Override
+        public void onErrorExecute(String error) {
+            if (!isAlreadyUpload) {
+                ProgressDialogUtils.getInstance(AppointmentActivity.this).dismiss();
+                ToastUtil.showMessage(R.string.appointment_apply_for_faiure);
             }
         }
     }

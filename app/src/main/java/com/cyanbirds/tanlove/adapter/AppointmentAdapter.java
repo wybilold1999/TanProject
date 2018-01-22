@@ -3,6 +3,8 @@ package com.cyanbirds.tanlove.adapter;
 import android.content.Context;
 import android.net.Uri;
 import android.support.v7.widget.RecyclerView;
+import android.text.Html;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -25,13 +27,14 @@ public class AppointmentAdapter extends
 
     private List<AppointmentModel> mAppointmentModels;
     private Context mContext;
-    private boolean mShowFooter = false;
+    private String mFrom;
 
     private OnItemClickListener mOnItemClickListener;
 
-    public AppointmentAdapter(List<AppointmentModel> appointmentModels, Context mContext) {
+    public AppointmentAdapter(String from, List<AppointmentModel> appointmentModels, Context mContext) {
         this.mAppointmentModels = appointmentModels;
         this.mContext = mContext;
+        this.mFrom = from;
     }
 
 
@@ -50,11 +53,21 @@ public class AppointmentAdapter extends
         if(model == null){
             return;
         }
-        holder.appointmentTime.setText(model.time);
-        holder.portrait.setImageURI(Uri.parse(model.faceUrl));
-        holder.userName.setText(model.userByName);
-        holder.theme.setText(model.theme);
-        holder.status.setText(AppointmentModel.getStatus(model.status));
+        holder.appointmentTime.setText(model.appointTime);
+        if (!TextUtils.isEmpty(model.faceUrl)) {
+            holder.portrait.setImageURI(Uri.parse(model.faceUrl));
+        }
+        if (!TextUtils.isEmpty(mFrom)) {
+            if (!TextUtils.isEmpty(model.userName)) {
+                holder.userName.setText(model.userName);
+            }
+        } else {
+            if (!TextUtils.isEmpty(model.userByName)) {
+                holder.userName.setText(model.userByName);
+            }
+        }
+        holder.theme.setText("主题：" + model.theme);
+        holder.status.setText(Html.fromHtml(AppointmentModel.getStatus(model.status)));
     }
 
     @Override

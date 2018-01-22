@@ -4,9 +4,11 @@ import android.support.v4.util.ArrayMap;
 
 import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;
+import com.cyanbirds.tanlove.entity.AppointmentModel;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.base.ResultPostExecute;
 import com.cyanbirds.tanlove.utils.AESOperator;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -22,17 +24,10 @@ import retrofit2.Callback;
  * @email 395044952@qq.com
  */
 public class ApplyForAppointmentRequest extends ResultPostExecute<String> {
-    public void request(String applyForUid, String prj, String timeLong, String appointmentTime,
-                        String address, String remark, String latitude, String longitude){
-        ArrayMap<String, String> params = new ArrayMap<>();
-        params.put("applyForUid", applyForUid);
-        params.put("prj", prj);
-        params.put("timeLong", timeLong);
-        params.put("appointmentTime", appointmentTime);
-        params.put("address", address);
-        params.put("remark", remark);
-        params.put("latitude", latitude);
-        params.put("longitude", longitude);
+    public void request(AppointmentModel model){
+        Gson gson = new Gson();
+        ArrayMap<String, String> params = new ArrayMap<>(1);
+        params.put("appointmentData", gson.toJson(model));
         Call<ResponseBody> call = AppManager.getLoveService().applyForAppointment(AppManager.getClientUser().sessionId, params);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
@@ -63,15 +58,14 @@ public class ApplyForAppointmentRequest extends ResultPostExecute<String> {
 
     private void parseJson(String json){
         try {
-            String decryptData = AESOperator.getInstance().decrypt(json);
-            JsonObject obj = new JsonParser().parse(decryptData).getAsJsonObject();
+            JsonObject obj = new JsonParser().parse(json).getAsJsonObject();
             int code = obj.get("code").getAsInt();
             if (code != 0) {
                 onErrorExecute(CSApplication.getInstance().getResources()
                         .getString(R.string.data_load_error));
                 return;
             }
-            String result = obj.get("data").getAsString();
+            onPostExecute("");
         } catch (Exception e) {
             onErrorExecute(CSApplication.getInstance().getResources()
                     .getString(R.string.data_parser_error));

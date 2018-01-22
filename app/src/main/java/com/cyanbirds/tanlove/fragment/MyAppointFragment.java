@@ -54,7 +54,6 @@ public class MyAppointFragment extends Fragment {
         if (rootView == null) {
             rootView = inflater.inflate(R.layout.fragment_appoint, null);
             setupViews();
-            setupEvent();
             setupData();
             setHasOptionsMenu(true);
         }
@@ -78,13 +77,10 @@ public class MyAppointFragment extends Fragment {
 
     }
 
-    private void setupEvent() {
-        mRecyclerView.addOnScrollListener(mOnScrollListener);
-    }
-
     private void setupData() {
+        mProgress.setVisibility(View.VISIBLE);
         mAppointmentModels = new ArrayList<>();
-        mAdapter = new AppointmentAdapter(mAppointmentModels, getActivity());
+        mAdapter = new AppointmentAdapter("", mAppointmentModels, getActivity());
         mAdapter.setOnItemClickListener(mOnItemClickListener);
         mRecyclerView.setAdapter(mAdapter);
         new GetAppointmentListTask().request(pageIndex, pageSize, AppManager.getClientUser().userId, flag);
@@ -101,8 +97,8 @@ public class MyAppointFragment extends Fragment {
                 mAppointmentModels.addAll(appointmentModels);
                 mAdapter.setAppointmentModels(mAppointmentModels);
             } else {
-                mRecyclerView.setVisibility(View.GONE);
                 mNoResult.setVisibility(View.VISIBLE);
+                mRecyclerView.setVisibility(View.GONE);
             }
         }
 
@@ -116,35 +112,13 @@ public class MyAppointFragment extends Fragment {
         }
     }
 
-    private RecyclerView.OnScrollListener mOnScrollListener = new RecyclerView.OnScrollListener() {
-
-        private int lastVisibleItem;
-
-        @Override
-        public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
-            super.onScrolled(recyclerView, dx, dy);
-            lastVisibleItem = layoutManager.findLastVisibleItemPosition();
-        }
-
-        @Override
-        public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
-            super.onScrollStateChanged(recyclerView, newState);
-            if (newState == RecyclerView.SCROLL_STATE_IDLE
-                    && lastVisibleItem + 1 == mAdapter.getItemCount()) {
-                //加载更多
-                //请求数据
-                new GetAppointmentListTask().request(pageIndex, pageSize, AppManager.getClientUser().userId, flag);
-            }
-        }
-    };
-
     private AppointmentAdapter.OnItemClickListener mOnItemClickListener = new AppointmentAdapter.OnItemClickListener() {
         @Override
         public void onItemClick(View view, int position) {
             AppointmentModel model = mAdapter.getItem(position);
             if (model != null) {
                 Intent intent = new Intent(getActivity(), AppointmentInfoActivity.class);
-                intent.putExtra(ValueKey.DATA, (Serializable) model);
+                intent.putExtra(ValueKey.DATA, model);
                 startActivity(intent);
             }
         }

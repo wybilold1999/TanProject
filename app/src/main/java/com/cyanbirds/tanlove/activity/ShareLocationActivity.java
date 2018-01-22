@@ -321,12 +321,7 @@ public class ShareLocationActivity extends BaseActivity implements
 				sendLocation();
 			}
 		} else if (id == R.id.ok) {
-			Intent intent = new Intent();
-			intent.putExtra(ValueKey.ADDRESS, mAddress);
-			intent.putExtra(ValueKey.LATITUDE, mSelLoactionLatLng.latitude);
-			intent.putExtra(ValueKey.LONGITUDE, mSelLoactionLatLng.longitude);
-			setResult(RESULT_OK, intent);
-			finish();
+			sendLocation();
 		}
 		return super.onOptionsItemSelected(item);
 	}
@@ -335,7 +330,11 @@ public class ShareLocationActivity extends BaseActivity implements
 		if (mSelLoactionLatLng == null || mSelLoactionLatLng.latitude == 0
 				|| mSelLoactionLatLng.longitude == 0
 				|| TextUtils.isEmpty(mAddress)) {
-			ToastUtil.showMessage(R.string.select_send_location_tips);
+			if (!TextUtils.isEmpty(from)) {
+				ToastUtil.showMessage(R.string.select_appointment_location_tips);
+			} else {
+				ToastUtil.showMessage(R.string.select_send_location_tips);
+			}
 			return true;
 		}
 		getMapScreenShot();

@@ -12,8 +12,8 @@ package com.cyanbirds.tanlove.config;
 public class AppConstants {
 	
 //	public static final String BASE_URL = "http://119.23.144.11/TanLoveServer/";
-//	public static final String BASE_URL = "http://192.168.1.100/TanLoveServer/";
-	public static final String BASE_URL = "http://10.0.109.239:8080/TanLoveServer/";
+	public static final String BASE_URL = "http://192.168.1.100/TanLoveServer/";
+//	public static final String BASE_URL = "http://10.0.109.239:8080/TanLoveServer/";
 
 	/**
 	 * 密码加密密匙

@@ -236,11 +236,14 @@ public class PersonalFragment extends Fragment {
 				mVipCard.setVisibility(View.VISIBLE);
 				mIdentifyCard.setVisibility(View.VISIBLE);
 				vipLay.setVisibility(View.VISIBLE);
-				mAppointmentLay.setVisibility(View.VISIBLE);
 			} else {
 				mVipCard.setVisibility(View.GONE);
 				mIdentifyCard.setVisibility(View.GONE);
 				vipLay.setVisibility(View.GONE);
+			}
+			if (clientUser.isShowAppointment) {
+				mAppointmentLay.setVisibility(View.VISIBLE);
+			} else {
 				mAppointmentLay.setVisibility(View.GONE);
 			}
 			if (clientUser.isShowDownloadVip) {
