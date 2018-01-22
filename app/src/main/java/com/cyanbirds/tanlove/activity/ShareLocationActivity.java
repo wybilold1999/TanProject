@@ -85,7 +85,7 @@ public class ShareLocationActivity extends BaseActivity implements
 	private int mSelId = 0;
 	private String mAddress;// 选中的地址
 
-	private DialogInterface mDialog;
+	private String from;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +106,7 @@ public class ShareLocationActivity extends BaseActivity implements
 	}
 
 	private void setupData() {
+		from = getIntent().getStringExtra(ValueKey.FROM_ACTIVITY);
 		mPoiLists = new ArrayList<PoiItem>();
 		mAdapter = new PlaceListAdapter(mPoiLists, mSelId, mRecyclerView) {
 			@Override
@@ -239,7 +240,11 @@ public class ShareLocationActivity extends BaseActivity implements
 						.getString(R.string.location_symbol), result
 						.getRegeocodeAddress().getFormatAddress());
 				mPoiLists.add(poiItem);
-				mAddress = poiItem.getTitle()  + poiItem.getSnippet();
+				if (!TextUtils.isEmpty(from)) {
+					mAddress = poiItem.getSnippet();
+				} else {
+					mAddress = poiItem.getTitle()  + poiItem.getSnippet();
+				}
 				for (PoiItem item : poiList) {
 					if (!TextUtils.isEmpty(item.getSnippet())) {
 						mPoiLists.add(item);
@@ -290,7 +295,11 @@ public class ShareLocationActivity extends BaseActivity implements
 
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		getMenuInflater().inflate(R.menu.send_menu, menu);
+		if (AppManager.getClientUser().isShowVip && !TextUtils.isEmpty(from)) {
+			getMenuInflater().inflate(R.menu.define_menu, menu);
+		} else {
+			getMenuInflater().inflate(R.menu.send_menu, menu);
+		}
 		return true;
 	}
 
@@ -311,6 +320,13 @@ public class ShareLocationActivity extends BaseActivity implements
 			} else {
 				sendLocation();
 			}
+		} else if (id == R.id.ok) {
+			Intent intent = new Intent();
+			intent.putExtra(ValueKey.ADDRESS, mAddress);
+			intent.putExtra(ValueKey.LATITUDE, mSelLoactionLatLng.latitude);
+			intent.putExtra(ValueKey.LONGITUDE, mSelLoactionLatLng.longitude);
+			setResult(RESULT_OK, intent);
+			finish();
 		}
 		return super.onOptionsItemSelected(item);
 	}

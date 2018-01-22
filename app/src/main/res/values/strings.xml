@@ -35,6 +35,7 @@
     <string name="attentioned">已关注</string>
     <string name="my_attention">我的关注</string>
     <string name="my_gifts">我的礼物</string>
+    <string name="my_appointment">我的约会</string>
     <string name="send_red_packet">发红包</string>
     <string name="who_attention_me">谁关注我</string>
     <string name="who_good_for_me">谁赞了我</string>
@@ -356,5 +357,21 @@
     <string name="submit_success">提交成功</string>
 
     <string name="tab_video_tips">还未上传过视频哦</string>
+
+    <string name="tv_appointment">约会</string>
+    <string name="tv_appointment_content">约会内容</string>
+    <string name="tv_project">约会项目</string>
+    <string name="tv_appointment_info">约会信息</string>
+    <string name="tv_appointment_time">约会时间</string>
+    <string name="tv_appointment_long">时长</string>
+    <string name="tv_appointment_address">地点</string>
+    <string name="tv_appointment_remark">留言</string>
+    <string name="tv_appointment_remark_content">请尊重对方并详细说明本次约会的具体内容，这样被对方接受的概率更大。</string>
+    <string name="appointment_apply_for">约会申请</string>
+    <string name="right_now_sure">马上约TA</string>
+    <string name="appointment_apply_for_success">约会申请成功，等待对方回应</string>
+    <string name="appointment_apply_for_faiure">约会申请失败</string>
+    <string name="appointment_time">约会时间必须大于当前时间</string>
+    <string name="appointment_info">约会详情</string>
 
 </resources>

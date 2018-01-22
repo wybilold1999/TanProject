@@ -23,6 +23,7 @@ import com.cyanbirds.tanlove.activity.IdentifyActivity;
 import com.cyanbirds.tanlove.activity.LoveFormeActivity;
 import com.cyanbirds.tanlove.activity.MakeMoneyActivity;
 import com.cyanbirds.tanlove.activity.MoneyPacketActivity;
+import com.cyanbirds.tanlove.activity.MyAppointmentActivity;
 import com.cyanbirds.tanlove.activity.MyAttentionActivity;
 import com.cyanbirds.tanlove.activity.MyGiftsActivity;
 import com.cyanbirds.tanlove.activity.MyGoldActivity;
@@ -140,6 +141,8 @@ public class PersonalFragment extends Fragment {
 	CardView mVideoShowCard;
 	@BindView(R.id.video_show_lay)
 	RelativeLayout mVideoShowLay;
+	@BindView(R.id.my_appointment_lay)
+	RelativeLayout mAppointmentLay;
 
 	Unbinder unbinder;
 
@@ -233,10 +236,12 @@ public class PersonalFragment extends Fragment {
 				mVipCard.setVisibility(View.VISIBLE);
 				mIdentifyCard.setVisibility(View.VISIBLE);
 				vipLay.setVisibility(View.VISIBLE);
+				mAppointmentLay.setVisibility(View.VISIBLE);
 			} else {
 				mVipCard.setVisibility(View.GONE);
 				mIdentifyCard.setVisibility(View.GONE);
 				vipLay.setVisibility(View.GONE);
+				mAppointmentLay.setVisibility(View.GONE);
 			}
 			if (clientUser.isShowDownloadVip) {
 				mDownloadlayout.setVisibility(View.VISIBLE);
@@ -288,7 +293,7 @@ public class PersonalFragment extends Fragment {
 			R.id.attentioned_user, R.id.good_user, R.id.setting, R.id.about, R.id.my_gold,
 			R.id.download_layout, R.id.lovers_lay, R.id.success_case,
 			R.id.near_party, R.id.identify_lay, R.id.my_gifts, R.id.money_lay,
-			R.id.feedback, R.id.video_show_lay})
+			R.id.feedback, R.id.video_show_lay, R.id.my_appointment_lay})
 	public void onClick(View view) {
 		Intent intent = new Intent();
 		switch (view.getId()) {
@@ -362,6 +367,10 @@ public class PersonalFragment extends Fragment {
 				break;
 			case R.id.video_show_lay:
 				intent.setClass(getActivity(), VideoListActivity.class);
+				startActivity(intent);
+				break;
+			case R.id.my_appointment_lay:
+				intent.setClass(getActivity(), MyAppointmentActivity.class);
 				startActivity(intent);
 				break;
 		}

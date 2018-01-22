@@ -63,6 +63,7 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import butterknife.OnClick;
 
 /**
  * @author Cloudsoar(wangyb)
@@ -204,6 +205,16 @@ public class VipCenterActivity extends BaseActivity {
 		}
 		new GetMemberBuyListTask().request(NORMAL_VIP);
 		aliPayCount = PreferencesUtils.getAliPayCount(this);
+	}
+
+	@OnClick({R.id.vip_9_lay})
+	public void onClick(View view) {
+		switch (view.getId()) {
+			case R.id.vip_9_lay:
+				Intent intent = new Intent(this, VideoListActivity.class);
+				startActivity(intent);
+				break;
+		}
 	}
 
 	/**
