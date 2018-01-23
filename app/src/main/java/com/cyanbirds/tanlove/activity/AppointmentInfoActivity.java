@@ -27,6 +27,7 @@ import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.AppointmentModel;
+import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.UpdateAppointmentRequest;
 import com.cyanbirds.tanlove.utils.ToastUtil;
@@ -64,6 +65,8 @@ public class AppointmentInfoActivity extends BaseActivity implements GeocodeSear
     TextView mApplayStatus;
     @BindView(R.id.time)
     TextView mTime;
+    @BindView(R.id.time_long)
+    TextView mTimeLong;
     @BindView(R.id.address)
     TextView mAddress;
     @BindView(R.id.remark)
@@ -121,7 +124,11 @@ public class AppointmentInfoActivity extends BaseActivity implements GeocodeSear
 
     private void initData() {
         mPortrait.setImageURI(Uri.parse(mModel.faceUrl));
-        mUserName.setText(mModel.userName);
+        if (!TextUtils.isEmpty(from)) {
+            mUserName.setText(mModel.userName);
+        } else {
+            mUserName.setText(mModel.userByName);
+        }
         mAppointmentTheme.setText("主题：" + mModel.theme);
         mApplayStatus.setText(Html.fromHtml(AppointmentModel.getStatus(mModel.status)));
         mTime.setText("时间：" + mModel.appointTime);
@@ -133,6 +140,9 @@ public class AppointmentInfoActivity extends BaseActivity implements GeocodeSear
         }
         if (!TextUtils.isEmpty(mModel.imgUrl)) {
             mMapUrl.setImageURI(Uri.parse(mModel.imgUrl));
+        }
+        if (!TextUtils.isEmpty(mModel.appointTimeLong)) {
+            mTimeLong.setText("时长：" + mModel.appointTimeLong);
         }
     }
 
@@ -185,9 +195,20 @@ public class AppointmentInfoActivity extends BaseActivity implements GeocodeSear
         }
     }
 
-    @OnClick({R.id.map_url, R.id.accept, R.id.decline, R.id.chat})
+    @OnClick({R.id.portrait, R.id.map_url, R.id.accept, R.id.decline, R.id.chat})
     public void onViewClicked(View view) {
         switch (view.getId()) {
+            case R.id.portrait:
+                if (null != mModel) {
+                    Intent personIntent = new Intent(this, PersonalInfoActivity.class);
+                    if (!TextUtils.isEmpty(from)) {
+                        personIntent.putExtra(ValueKey.USER_ID, mModel.userId);
+                    } else {
+                        personIntent.putExtra(ValueKey.USER_ID, mModel.userById);
+                    }
+                    startActivity(personIntent);
+                }
+                break;
             case R.id.map_url:
                 Intent intent = new Intent(this, LocationDetailActivity.class);
                 intent.putExtra(ValueKey.LATITUDE, mModel.latitude);
@@ -204,6 +225,20 @@ public class AppointmentInfoActivity extends BaseActivity implements GeocodeSear
                 new UpdateAppointmentTask().request(mModel);
                 break;
             case R.id.chat:
+                if (null != mModel) {
+                    Intent chatIntent = new Intent(this, ChatActivity.class);
+                    ClientUser clientUser = new ClientUser();
+                    if (!TextUtils.isEmpty(from)) {
+                        clientUser.user_name = mModel.userName;
+                        clientUser.userId = mModel.userId;
+                    } else {
+                        clientUser.user_name = mModel.userByName;
+                        clientUser.userId = mModel.userById;
+                    }
+                    clientUser.face_url = mModel.faceUrl;
+                    chatIntent.putExtra(ValueKey.USER, clientUser);
+                    startActivity(chatIntent);
+                }
                 break;
         }
     }

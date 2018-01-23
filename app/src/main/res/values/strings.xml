@@ -375,7 +375,8 @@
     <string name="appointment_time">约会时间必须大于当前时间</string>
     <string name="appointment_info">约会详情</string>
     <string name="select_appointment_location_tips">请选择要约会的位置</string>
-
     <string name="appointment_status"><Data><![CDATA[申请状态：<font color="#ff0000"><b>%1$s</b></font>]]></Data></string>
+
+    <string name="official_qq">如有任何疑问，可联系官方客服QQ：2350635875</string>
 
 </resources>

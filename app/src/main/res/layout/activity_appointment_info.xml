@@ -95,6 +95,15 @@
                 android:textSize="12sp"/>
 
             <TextView
+                android:id="@+id/time_long"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:text="时长："
+                android:textColor="@color/gray_text"
+                android:textSize="12sp"/>
+
+            <TextView
                 android:id="@+id/address"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
