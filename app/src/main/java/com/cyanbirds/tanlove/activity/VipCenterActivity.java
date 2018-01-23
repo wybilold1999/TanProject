@@ -20,6 +20,7 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.method.LinkMovementMethod;
 import android.view.View;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -90,6 +91,10 @@ public class VipCenterActivity extends BaseActivity {
 	NestedScrollView mScrollView;
 	@BindView(R.id.vip_9_lay)
 	RelativeLayout mVip9Lay;
+	@BindView(R.id.pref_tel_fare_lay)
+	LinearLayout mPrefTelFareLay;
+	@BindView(R.id.name_list)
+	TextView mTvNameList;
 
 	private MemberBuyAdapter mAdapter;
 
@@ -341,6 +346,15 @@ public class VipCenterActivity extends BaseActivity {
 					if (!TextUtils.isEmpty(memberBuys.get(i).preferential)) {
 						array.add(Integer.parseInt(memberBuys.get(i).preferential));
 					}
+				}
+				if (array.size() == 0) {
+					mPrefTelFareLay.setVisibility(View.VISIBLE);
+					mTvNameList.setVisibility(View.GONE);
+					mVerticalText.setVisibility(View.GONE);
+				} else {
+					mPrefTelFareLay.setVisibility(View.GONE);
+					mTvNameList.setVisibility(View.VISIBLE);
+					mVerticalText.setVisibility(View.VISIBLE);
 				}
 			}
 			new GetUserNameTask().request(1, 100);

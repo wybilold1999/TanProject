@@ -5,6 +5,7 @@ import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.TextView;
 
@@ -48,6 +49,7 @@ public class LocationDetailActivity extends BaseActivity implements
 
 	private LatLng mMessageLatLng;
 	private String mAddress;
+	private String from;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -74,7 +76,6 @@ public class LocationDetailActivity extends BaseActivity implements
 	 * 设置数据
 	 */
 	private void setupData() {
-
 	}
 
 	/**
@@ -127,9 +128,12 @@ public class LocationDetailActivity extends BaseActivity implements
 								.decodeResource(getResources(),
 										R.mipmap.icon_marked)))
 						.draggable(true));
-		marker.setTitle("");
+		from = getIntent().getStringExtra(ValueKey.FROM_ACTIVITY);
+		if (TextUtils.isEmpty(from)) {
+			marker.setTitle("");
 
-		marker.showInfoWindow();// 设置默认显示一个infowinfow
+			marker.showInfoWindow();// 设置默认显示一个infowinfow
+		}
 	}
 
 	/**

@@ -26,7 +26,8 @@
 				app:failureImage="@mipmap/default_pic"
 				app:placeholderImage="@mipmap/default_pic"
 				app:placeholderImageScaleType="fitXY"
-				app:roundedCornerRadius="2dp"/>
+				app:roundedCornerRadius="2dp"
+				android:visibility="gone"/>
 
 			<android.support.v7.widget.RecyclerView
 				android:id="@+id/recyclerview"

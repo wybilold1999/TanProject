@@ -221,7 +221,7 @@ public class AppointmentActivity extends BaseActivity {
         initDateTimeView();
         final AlertDialog mDialog = new AlertDialog.Builder(this).setPositiveButton(R.string.ok, null)
                 .setNegativeButton(R.string.cancel, null).create();
-        mDialog.setTitle(R.string.tv_appointment_info);
+        mDialog.setTitle(R.string.tv_appointment_time);
         mDialog.setView(mDateTimeView);
         mDialog.setOnShowListener(new DialogInterface.OnShowListener() {
             @Override

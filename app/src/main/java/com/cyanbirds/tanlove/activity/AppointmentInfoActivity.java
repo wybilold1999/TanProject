@@ -214,6 +214,7 @@ public class AppointmentInfoActivity extends BaseActivity implements GeocodeSear
                 intent.putExtra(ValueKey.LATITUDE, mModel.latitude);
                 intent.putExtra(ValueKey.LONGITUDE, mModel.longitude);
                 intent.putExtra(ValueKey.ADDRESS, mAddress.getText().toString());
+                intent.putExtra(ValueKey.FROM_ACTIVITY, this.getClass().getSimpleName());
                 startActivity(intent);
                 break;
             case R.id.accept:

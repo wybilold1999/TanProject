@@ -100,6 +100,8 @@ public class PreferencesUtils {
 	public static final String SETTINGS_ATTENTION_ME_USER_ID = "com.cyanbird.tanlove_attention_me_user_id";
 	/** 最近送我礼物的userid*/
 	public static final String SETTINGS_GIFT_ME_USER_ID = "com.cyanbird.tanlove_gift_me_user_id";
+	/** 改变约会状态的userid*/
+	public static final String SETTINGS_APPOINTMENT_USER_ID = "com.cyanbird.tanlove_appointment_user_id";
 	/** 登录时间*/
 	public static final String SETTINGS_LOGIN_TIME = "com.cyanbird.tanlove_login_time";
 	/** 支付宝支付次数*/
@@ -1081,6 +1083,26 @@ public class PreferencesUtils {
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(context);
 		return sp.getString(SETTINGS_GIFT_ME_USER_ID, "");
+	}
+
+	/**
+	 * @param context
+	 */
+	public static void setAppointmentUserId(final Context context, final String userId) {
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		sp.edit().putString(SETTINGS_APPOINTMENT_USER_ID, userId).commit();
+	}
+
+	/**
+	 *
+	 * @param context
+	 * @return
+	 */
+	public static String getAppointmentUserId(final Context context) {
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sp.getString(SETTINGS_APPOINTMENT_USER_ID, "");
 	}
 
 	/**

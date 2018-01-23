@@ -37,6 +37,7 @@ import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.db.ConversationSqlManager;
+import com.cyanbirds.tanlove.entity.AppointmentModel;
 import com.cyanbirds.tanlove.entity.CityInfo;
 import com.cyanbirds.tanlove.entity.FederationToken;
 import com.cyanbirds.tanlove.entity.FollowModel;
@@ -45,6 +46,7 @@ import com.cyanbirds.tanlove.entity.ReceiveGiftModel;
 import com.cyanbirds.tanlove.fragment.FoundFragment;
 import com.cyanbirds.tanlove.fragment.HomeLoveFragment;
 import com.cyanbirds.tanlove.fragment.MessageFragment;
+import com.cyanbirds.tanlove.fragment.MyAppointFragment;
 import com.cyanbirds.tanlove.fragment.PersonalFragment;
 import com.cyanbirds.tanlove.fragment.VideoShowFragment;
 import com.cyanbirds.tanlove.helper.SDKCoreHelper;
@@ -52,6 +54,7 @@ import com.cyanbirds.tanlove.listener.MessageUnReadListener;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.manager.NotificationManager;
 import com.cyanbirds.tanlove.net.request.FollowListRequest;
+import com.cyanbirds.tanlove.net.request.GetAppointmentListRequest;
 import com.cyanbirds.tanlove.net.request.GetCityInfoRequest;
 import com.cyanbirds.tanlove.net.request.GetLoveFormeListRequest;
 import com.cyanbirds.tanlove.net.request.GetOSSTokenRequest;
@@ -75,6 +78,9 @@ import java.util.Set;
 
 import cn.jpush.android.api.JPushInterface;
 import cn.jpush.android.api.TagAliasCallback;
+
+import static com.cyanbirds.tanlove.entity.AppointmentModel.AppointStatus.ACCEPT;
+import static com.cyanbirds.tanlove.entity.AppointmentModel.AppointStatus.DECLINE;
 
 public class MainActivity extends BaseActivity implements MessageUnReadListener.OnMessageUnReadListener, AMapLocationListener {
 
@@ -190,6 +196,9 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 					new FollowListTask().request("followFormeList", 1, 1);
 				}
 			}, 5000 * 10);
+		}
+		if (AppManager.getClientUser().isShowVip && AppManager.getClientUser().isShowAppointment) {
+			new GetAppointmentListTask().request(1, 1, AppManager.getClientUser().userId, 0);
 		}
 		registerWeiXin();
 	}
@@ -471,6 +480,35 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 					MsgUtil.sendAttentionOrGiftMsg(String.valueOf(followModel.userId),
 							followModel.nickname, followModel.faceUrl,
 							followModel.nickname + "关注了您");
+				}
+			}
+		}
+
+		@Override
+		public void onErrorExecute(String error) {
+		}
+	}
+
+	class GetAppointmentListTask extends GetAppointmentListRequest {
+
+		@Override
+		public void onPostExecute(List<AppointmentModel> appointmentModels) {
+			if(appointmentModels != null && appointmentModels.size() > 0){
+				AppointmentModel model = appointmentModels.get(0);
+				if(model.status == ACCEPT || model.status == DECLINE) {
+					String lastUserId = PreferencesUtils.getAppointmentUserId(MainActivity.this);
+					if (!lastUserId.equals(String.valueOf(model.userById))) {
+						PreferencesUtils.setAppointmentUserId(
+								MainActivity.this, String.valueOf(model.userById));
+						String status = "";
+						if (model.status == ACCEPT) {
+							status = model.userByName + "同意了你的约会请求";
+						} else {
+							status = model.userByName + "拒绝了你的约会请求";
+						}
+						MsgUtil.sendAttentionOrGiftMsg(String.valueOf(model.userById),
+								model.userName, model.faceUrl, status);
+					}
 				}
 			}
 		}

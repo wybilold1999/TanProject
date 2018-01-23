@@ -379,4 +379,7 @@
 
     <string name="official_qq">如有任何疑问，可联系官方客服QQ：2350635875</string>
 
+    <string name="tv_fare">充值送话费！让您尽情谈情，尽情约爱！</string>
+    <string name="tv_fare_info">1.限时抢购单次充值满100即有机会获赠话费\n2.绑定手机充值话费将会自动充值到您的手机中\n3.若话费未充值到您的手机，请联系官方客服QQ</string>
+
 </resources>
