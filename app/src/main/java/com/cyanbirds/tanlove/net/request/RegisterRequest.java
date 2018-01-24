@@ -9,6 +9,7 @@ import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.base.ResultPostExecute;
 import com.cyanbirds.tanlove.utils.AESOperator;
+import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -43,6 +44,7 @@ public class RegisterRequest extends ResultPostExecute<ClientUser> {
         } else {
             params.put("currentCity", "");
         }
+        params.put("province", PreferencesUtils.getCurrentProvince(CSApplication.getInstance()));
         Call<ResponseBody> call = AppManager.getUserService().userRegister(params);
         call.enqueue(new Callback<ResponseBody>() {
             @Override

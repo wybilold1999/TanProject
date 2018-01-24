@@ -98,6 +98,7 @@ public class MyAppointFragment extends Fragment {
                 mAdapter.setAppointmentModels(mAppointmentModels);
             } else {
                 mNoResult.setVisibility(View.VISIBLE);
+                mNoResult.setText(R.string.no_my_appointment_list);
                 mRecyclerView.setVisibility(View.GONE);
             }
         }

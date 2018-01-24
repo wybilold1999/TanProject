@@ -98,6 +98,7 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
             mCityInfo = cityInfo;
             mCurrrentCity = cityInfo.city;
             PreferencesUtils.setCurrentCity(EntranceActivity.this, mCurrrentCity);
+            PreferencesUtils.setCurrentProvince(EntranceActivity.this, cityInfo.province);
             EventBus.getDefault().post(new LocationEvent(mCurrrentCity));
         }
 
@@ -132,6 +133,7 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
             curLon = String.valueOf(aMapLocation.getLongitude());
             mCurrrentCity = aMapLocation.getCity();
             PreferencesUtils.setCurrentCity(this, mCurrrentCity);
+            PreferencesUtils.setCurrentProvince(EntranceActivity.this, aMapLocation.getProvince());
             EventBus.getDefault().post(new LocationEvent(mCurrrentCity));
         } else {
             if (mCityInfo != null) {

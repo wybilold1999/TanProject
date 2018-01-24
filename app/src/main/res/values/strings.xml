@@ -376,9 +376,13 @@
     <string name="appointment_info">约会详情</string>
     <string name="select_appointment_location_tips">请选择要约会的位置</string>
     <string name="appointment_status"><Data><![CDATA[申请状态：<font color="#ff0000"><b>%1$s</b></font>]]></Data></string>
+    <string name="appointment_invite">约会邀请</string>
+    <string name="appointment_invite_info"><Data><![CDATA[<font color="#ff0000"><b>%1$s</b></font> 向您发出了约会邀请]]></Data></string>
+    <string name="check_appointment_invite_info">查看约会详情</string>
+    <string name="no_my_appointment_list">您还未发出过约会申请哦！</string>
+    <string name="no_appointment_me_list">您还未收到过约会申请哦！</string>
 
     <string name="official_qq">如有任何疑问，可联系官方客服QQ：2350635875</string>
-
     <string name="tv_fare">充值送话费！让您尽情谈情，尽情约爱！</string>
     <string name="tv_fare_info">1.限时抢购单次充值满100即有机会获赠话费\n2.绑定手机充值话费将会自动充值到您的手机中\n3.若话费未充值到您的手机，请联系官方客服QQ</string>
 
