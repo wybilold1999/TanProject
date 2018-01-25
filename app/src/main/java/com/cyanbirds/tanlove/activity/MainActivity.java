@@ -369,6 +369,9 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 			AppManager.getClientUser().longitude = String.valueOf(aMapLocation.getLongitude());
 			new UploadCityInfoTask().request(aMapLocation.getCity(),
 					AppManager.getClientUser().latitude, AppManager.getClientUser().longitude);
+			if (TextUtils.isEmpty(PreferencesUtils.getCurrentProvince(this))) {
+				PreferencesUtils.setCurrentProvince(this, aMapLocation.getProvince());
+			}
 		} else {
 			new UploadCityInfoTask().request(currentCity, curLat, curLon);
 		}
