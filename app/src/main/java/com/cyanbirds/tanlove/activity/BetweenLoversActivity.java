@@ -2,7 +2,6 @@ package com.cyanbirds.tanlove.activity;
 
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
-import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -17,7 +16,6 @@ import android.text.TextUtils;
 import android.view.View;
 
 import com.alipay.sdk.app.PayTask;
-import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.adapter.BetweenLoversAdapter;
@@ -41,7 +39,6 @@ import com.cyanbirds.tanlove.ui.widget.DividerItemDecoration;
 import com.cyanbirds.tanlove.ui.widget.WrapperLinearLayoutManager;
 import com.cyanbirds.tanlove.utils.DensityUtil;
 import com.cyanbirds.tanlove.utils.ToastUtil;
-import com.facebook.drawee.view.SimpleDraweeView;
 import com.tencent.mm.sdk.modelpay.PayReq;
 import com.umeng.analytics.MobclickAgent;
 
@@ -62,8 +59,6 @@ import butterknife.ButterKnife;
  */
 public class BetweenLoversActivity extends BaseActivity {
 
-	@BindView(R.id.portrait)
-	SimpleDraweeView mPortrait;
 	@BindView(R.id.vip_recyclerview)
 	RecyclerView mVipRecyclerview;
 	@BindView(R.id.love_recyclerview)
@@ -119,7 +114,6 @@ public class BetweenLoversActivity extends BaseActivity {
 		if (toolbar != null) {
 			toolbar.setNavigationIcon(R.mipmap.ic_up);
 		}
-		mPortrait.setImageURI(Uri.parse("http://cdn.wmlover.cn/style/assets/wap/ID13/banner.jpg"));
 		setupView();
 		setupData();
 	}
