@@ -420,6 +420,21 @@ public class PersonalFragment extends Fragment {
 			} else {
 				mLoversCard.setVisibility(View.GONE);
 			}
+			if (clientUser.isShowRpt) {
+				mMoneyCard.setVisibility(View.VISIBLE);
+			} else {
+				mMoneyCard.setVisibility(View.GONE);
+			}
+			if (clientUser.isShowVideo) {
+				mVideoShowCard.setVisibility(View.VISIBLE);
+			} else {
+				mVideoShowCard.setVisibility(View.GONE);
+			}
+			if (clientUser.isShowAppointment) {
+				mAppointmentLay.setVisibility(View.VISIBLE);
+			} else {
+				mAppointmentLay.setVisibility(View.GONE);
+			}
 		}
 	}
 
