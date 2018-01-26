@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -13,7 +12,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentTabHost;
 import android.support.v7.app.AlertDialog;
@@ -50,9 +48,7 @@ import com.cyanbirds.tanlove.entity.ReceiveGiftModel;
 import com.cyanbirds.tanlove.fragment.FoundFragment;
 import com.cyanbirds.tanlove.fragment.HomeLoveFragment;
 import com.cyanbirds.tanlove.fragment.MessageFragment;
-import com.cyanbirds.tanlove.fragment.MyAppointFragment;
 import com.cyanbirds.tanlove.fragment.PersonalFragment;
-import com.cyanbirds.tanlove.fragment.VideoShowFragment;
 import com.cyanbirds.tanlove.helper.SDKCoreHelper;
 import com.cyanbirds.tanlove.listener.MessageUnReadListener;
 import com.cyanbirds.tanlove.manager.AppManager;
@@ -63,7 +59,6 @@ import com.cyanbirds.tanlove.net.request.GetCityInfoRequest;
 import com.cyanbirds.tanlove.net.request.GetLoveFormeListRequest;
 import com.cyanbirds.tanlove.net.request.GetOSSTokenRequest;
 import com.cyanbirds.tanlove.net.request.GiftsListRequest;
-import com.cyanbirds.tanlove.net.request.UploadCityInfoRequest;
 import com.cyanbirds.tanlove.service.MyIntentService;
 import com.cyanbirds.tanlove.service.MyPushService;
 import com.cyanbirds.tanlove.utils.MsgUtil;
@@ -367,14 +362,16 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		if (aMapLocation != null && !TextUtils.isEmpty(aMapLocation.getCity())) {
 			AppManager.getClientUser().latitude = String.valueOf(aMapLocation.getLatitude());
 			AppManager.getClientUser().longitude = String.valueOf(aMapLocation.getLongitude());
-			new UploadCityInfoTask().request(aMapLocation.getCity(),
-					AppManager.getClientUser().latitude, AppManager.getClientUser().longitude);
+
+			curLat = String.valueOf(aMapLocation.getLatitude());
+			curLon = String.valueOf(aMapLocation.getLongitude());
+
 			if (TextUtils.isEmpty(PreferencesUtils.getCurrentProvince(this))) {
 				PreferencesUtils.setCurrentProvince(this, aMapLocation.getProvince());
 			}
-		} else {
-			new UploadCityInfoTask().request(currentCity, curLat, curLon);
 		}
+		PreferencesUtils.setLatitude(this, curLat);
+		PreferencesUtils.setLongitude(this, curLon);
 	}
 
 	/**
@@ -413,7 +410,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	/**
 	 * 上传城市信息，用于控制区域显示
 	 */
-	class UploadCityInfoTask extends UploadCityInfoRequest {
+	/*class UploadCityInfoTask extends UploadCityInfoRequest {
 
 		@Override
 		public void onPostExecute(String isShow) {
@@ -431,7 +428,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		@Override
 		public void onErrorExecute(String error) {
 		}
-	}
+	}*/
 
 	/**
 	 * 获取最近喜欢我的那个人
