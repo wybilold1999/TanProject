@@ -152,6 +152,8 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
                 }
             }
         }
+        PreferencesUtils.setLatitude(this, curLat);
+        PreferencesUtils.setLongitude(this, curLon);
     }
 
     @OnClick({R.id.login, R.id.register})

@@ -468,7 +468,7 @@
         <activity
             android:name=".activity.FeedBackActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
-            android:windowSoftInputMode="adjustResize"
+            android:windowSoftInputMode="stateAlwaysHidden"
             android:label="@string/feed_back"
             android:screenOrientation="portrait">
         </activity>

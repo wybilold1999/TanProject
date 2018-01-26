@@ -135,6 +135,8 @@ public class PersonalFragment extends Fragment {
 	CardView mMoneyCard;
 	@BindView(R.id.money_lay)
 	RelativeLayout mMoneyLay;
+	@BindView(R.id.card_feedback)
+	CardView mFeedBackCard;
 	@BindView(R.id.feedback)
 	RelativeLayout mFeedBack;
 	@BindView(R.id.video_show_card)
@@ -236,10 +238,12 @@ public class PersonalFragment extends Fragment {
 				mVipCard.setVisibility(View.VISIBLE);
 				mIdentifyCard.setVisibility(View.VISIBLE);
 				vipLay.setVisibility(View.VISIBLE);
+				mFeedBackCard.setVisibility(View.GONE);
 			} else {
 				mVipCard.setVisibility(View.GONE);
 				mIdentifyCard.setVisibility(View.GONE);
 				vipLay.setVisibility(View.GONE);
+				mFeedBackCard.setVisibility(View.VISIBLE);
 			}
 			if (clientUser.isShowAppointment) {
 				mAppointmentLay.setVisibility(View.VISIBLE);
@@ -401,9 +405,11 @@ public class PersonalFragment extends Fragment {
 			if (clientUser.isShowVip) {
 				mIdentifyCard.setVisibility(View.VISIBLE);
 				vipLay.setVisibility(View.VISIBLE);
+				mFeedBackCard.setVisibility(View.GONE);
 			} else {
 				mIdentifyCard.setVisibility(View.GONE);
 				vipLay.setVisibility(View.GONE);
+				mFeedBackCard.setVisibility(View.VISIBLE);
 			}
 			if (clientUser.isShowDownloadVip) {
 				mDownloadlayout.setVisibility(View.VISIBLE);
