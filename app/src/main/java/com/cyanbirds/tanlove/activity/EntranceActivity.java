@@ -23,6 +23,7 @@ import com.cyanbirds.tanlove.entity.CityInfo;
 import com.cyanbirds.tanlove.eventtype.LocationEvent;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.GetCityInfoRequest;
+import com.cyanbirds.tanlove.net.request.UploadCityInfoRequest;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.umeng.analytics.MobclickAgent;
 
@@ -135,6 +136,8 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
             PreferencesUtils.setCurrentCity(this, mCurrrentCity);
             PreferencesUtils.setCurrentProvince(EntranceActivity.this, aMapLocation.getProvince());
             EventBus.getDefault().post(new LocationEvent(mCurrrentCity));
+            new UploadCityInfoRequest().request(aMapLocation.getCity(), String.valueOf(aMapLocation.getLatitude()),
+                    String.valueOf(aMapLocation.getLongitude()));
         } else {
             if (mCityInfo != null) {
                 try {
