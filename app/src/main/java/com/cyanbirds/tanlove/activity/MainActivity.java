@@ -41,6 +41,7 @@ import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.db.ConversationSqlManager;
 import com.cyanbirds.tanlove.entity.AppointmentModel;
 import com.cyanbirds.tanlove.entity.CityInfo;
+import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.entity.FederationToken;
 import com.cyanbirds.tanlove.entity.FollowModel;
 import com.cyanbirds.tanlove.entity.LoveModel;
@@ -59,6 +60,7 @@ import com.cyanbirds.tanlove.net.request.GetCityInfoRequest;
 import com.cyanbirds.tanlove.net.request.GetLoveFormeListRequest;
 import com.cyanbirds.tanlove.net.request.GetOSSTokenRequest;
 import com.cyanbirds.tanlove.net.request.GiftsListRequest;
+import com.cyanbirds.tanlove.net.request.UploadCityInfoRequest;
 import com.cyanbirds.tanlove.service.MyIntentService;
 import com.cyanbirds.tanlove.service.MyPushService;
 import com.cyanbirds.tanlove.utils.MsgUtil;
@@ -360,15 +362,18 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	@Override
 	public void onLocationChanged(AMapLocation aMapLocation) {
 		if (aMapLocation != null && !TextUtils.isEmpty(aMapLocation.getCity())) {
-			AppManager.getClientUser().latitude = String.valueOf(aMapLocation.getLatitude());
-			AppManager.getClientUser().longitude = String.valueOf(aMapLocation.getLongitude());
-
-			curLat = String.valueOf(aMapLocation.getLatitude());
-			curLon = String.valueOf(aMapLocation.getLongitude());
-
+			PreferencesUtils.setCurrentCity(this, aMapLocation.getCity());
+			ClientUser clientUser = AppManager.getClientUser();
+			clientUser.latitude = String.valueOf(aMapLocation.getLatitude());
+			clientUser.longitude = String.valueOf(aMapLocation.getLongitude());
+			AppManager.setClientUser(clientUser);
+			curLat = clientUser.latitude;
+			curLon = clientUser.longitude;
 			if (TextUtils.isEmpty(PreferencesUtils.getCurrentProvince(this))) {
 				PreferencesUtils.setCurrentProvince(this, aMapLocation.getProvince());
 			}
+			new UploadCityInfoRequest().request(aMapLocation.getCity(), String.valueOf(aMapLocation.getLatitude()),
+					String.valueOf(aMapLocation.getLongitude()));
 		}
 		PreferencesUtils.setLatitude(this, curLat);
 		PreferencesUtils.setLongitude(this, curLon);
