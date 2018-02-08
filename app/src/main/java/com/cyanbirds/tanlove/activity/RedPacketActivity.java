@@ -32,14 +32,13 @@ import com.cyanbirds.tanlove.net.request.GetPayResultRequest;
 import com.cyanbirds.tanlove.net.request.RPAliPayOrderInfoRequest;
 import com.cyanbirds.tanlove.net.request.RPCreateOrderRequest;
 import com.cyanbirds.tanlove.utils.ToastUtil;
-import com.tencent.mm.sdk.modelpay.PayReq;
+import com.tencent.mm.opensdk.modelpay.PayReq;
 
 import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.DecimalFormat;
-import java.text.ParseException;
 import java.util.List;
 import java.util.Map;
 
