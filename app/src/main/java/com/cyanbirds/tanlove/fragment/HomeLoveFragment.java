@@ -18,6 +18,7 @@ import com.cyanbirds.tanlove.adapter.HomeTabFragmentAdapter;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.service.DownloadUpdateService;
+import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
@@ -102,6 +103,7 @@ public class HomeLoveFragment extends Fragment {
 						Intent intent = new Intent(getActivity(), DownloadUpdateService.class);
 						intent.putExtra(ValueKey.APK_URL, AppManager.getClientUser().apkUrl);
 						getActivity().startService(intent);
+						ToastUtil.showMessage(R.string.bg_downloading);
 //						AppManager.goToMarket(getActivity(), channel);
 					}
 				});
