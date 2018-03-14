@@ -41,7 +41,7 @@ import com.cyanbirds.tanlove.ui.widget.WrapperLinearLayoutManager;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.sunfusheng.marqueeview.MarqueeView;
-import com.tencent.mm.opensdk.modelpay.PayReq;
+import com.tencent.mm.sdk.modelpay.PayReq;
 import com.umeng.analytics.MobclickAgent;
 
 import org.greenrobot.eventbus.EventBus;

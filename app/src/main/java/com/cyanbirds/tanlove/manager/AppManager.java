@@ -30,7 +30,7 @@ import com.cyanbirds.tanlove.net.PictureService;
 import com.cyanbirds.tanlove.net.UserService;
 import com.cyanbirds.tanlove.net.VideoService;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
-import com.tencent.mm.opensdk.openapi.IWXAPI;
+import com.tencent.mm.sdk.openapi.IWXAPI;
 
 import java.io.File;
 import java.io.InputStreamReader;

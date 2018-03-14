@@ -39,7 +39,7 @@ import com.cyanbirds.tanlove.ui.widget.DividerItemDecoration;
 import com.cyanbirds.tanlove.ui.widget.WrapperLinearLayoutManager;
 import com.cyanbirds.tanlove.utils.DensityUtil;
 import com.cyanbirds.tanlove.utils.ToastUtil;
-import com.tencent.mm.opensdk.modelpay.PayReq;
+import com.tencent.mm.sdk.modelpay.PayReq;
 import com.umeng.analytics.MobclickAgent;
 
 import org.greenrobot.eventbus.EventBus;

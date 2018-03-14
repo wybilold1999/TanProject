@@ -21,7 +21,7 @@ import com.cyanbirds.tanlove.utils.Md5Util;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.PushMsgUtil;
 import com.cyanbirds.tanlove.utils.ToastUtil;
-import com.tencent.mm.opensdk.openapi.WXAPIFactory;
+import com.tencent.mm.sdk.openapi.WXAPIFactory;
 import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;

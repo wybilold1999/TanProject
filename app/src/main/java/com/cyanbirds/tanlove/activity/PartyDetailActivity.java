@@ -26,7 +26,7 @@ import com.cyanbirds.tanlove.net.request.GetAliPayOrderInfoRequest;
 import com.cyanbirds.tanlove.utils.StringUtil;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.facebook.drawee.view.SimpleDraweeView;
-import com.tencent.mm.opensdk.modelpay.PayReq;
+import com.tencent.mm.sdk.modelpay.PayReq;
 import com.umeng.analytics.MobclickAgent;
 
 import org.greenrobot.eventbus.EventBus;

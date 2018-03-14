@@ -10,8 +10,8 @@ android {
         applicationId "com.cyanbirds.tanlove"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 49
-        versionName "1.5.9"
+        versionCode 50
+        versionName "1.6.1"
         multiDexEnabled true
 
     }
@@ -149,5 +149,4 @@ dependencies {
     compile 'com.liulishuo.filedownloader:library:1.2.1'
     compile 'com.github.Rukey7:TagLayout:1.0.4'
     compile 'com.github.yuweiguocn:GreenDaoUpgradeHelper:v1.4.0'
-    compile 'com.tencent.mm.opensdk:wechat-sdk-android-with-mta:+'
 }

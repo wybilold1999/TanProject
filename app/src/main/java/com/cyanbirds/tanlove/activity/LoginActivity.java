@@ -33,7 +33,7 @@ import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.cyanbirds.tanlove.utils.Util;
 import com.tencent.connect.UserInfo;
 import com.tencent.connect.common.Constants;
-import com.tencent.mm.opensdk.modelmsg.SendAuth;
+import com.tencent.mm.sdk.modelmsg.SendAuth;
 import com.tencent.tauth.IUiListener;
 import com.tencent.tauth.Tencent;
 import com.tencent.tauth.UiError;
