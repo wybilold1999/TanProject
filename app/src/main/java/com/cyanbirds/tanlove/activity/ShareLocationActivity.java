@@ -116,10 +116,12 @@ public class ShareLocationActivity extends BaseActivity implements
 				PoiItem poiItem = mPoiLists.get(position);
 				mAddress = poiItem.getTitle()  + poiItem.getSnippet();
 				LatLonPoint latLonPoint = poiItem.getLatLonPoint();
-				LatLng latLng = new LatLng(latLonPoint.getLatitude(),
-						latLonPoint.getLongitude());
-				mSelLoactionLatLng = latLng;
-				aMap.animateCamera(CameraUpdateFactory.changeLatLng(latLng));
+				if (latLonPoint != null) {
+					LatLng latLng = new LatLng(latLonPoint.getLatitude(),
+							latLonPoint.getLongitude());
+					mSelLoactionLatLng = latLng;
+					aMap.animateCamera(CameraUpdateFactory.changeLatLng(latLng));
+				}
 			}
 		};
 		mRecyclerView.setAdapter(mAdapter);

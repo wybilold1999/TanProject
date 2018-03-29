@@ -46,6 +46,7 @@ import com.cyanbirds.tanlove.net.request.GetUserNameRequest;
 import com.cyanbirds.tanlove.ui.widget.CustomURLSpan;
 import com.cyanbirds.tanlove.ui.widget.DividerItemDecoration;
 import com.cyanbirds.tanlove.ui.widget.WrapperLinearLayoutManager;
+import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.DensityUtil;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.ToastUtil;
@@ -115,6 +116,7 @@ public class VipCenterActivity extends BaseActivity {
 	private String mPref;//优惠信息
 	private ArrayList<String> mNameList;
 	private MemberBuy mMemberBuy;
+	private String channel = "";
 
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
@@ -183,7 +185,8 @@ public class VipCenterActivity extends BaseActivity {
 	}
 
 	private void setupData() {
-		if (!AppManager.getClientUser().is_vip) {
+		channel = CheckUtil.getAppMetaData(this, "UMENG_CHANNEL");
+		if (!AppManager.getClientUser().is_vip && !"oppo".equals(channel)) {//oppo渠道，不显示这两个权限
 			mVip7Lay.setVisibility(View.VISIBLE);
 			mVip8Lay.setVisibility(View.VISIBLE);
 		} else {
@@ -333,7 +336,7 @@ public class VipCenterActivity extends BaseActivity {
 						array.add(Integer.parseInt(memberBuys.get(i).preferential));
 					}
 				}
-				if (array.size() == 0) {
+				if (array.size() == 0 || "oppo".equals(channel)) {//oppo渠道，不显示有什么人赠送话费
 					mPrefTelFareLay.setVisibility(View.VISIBLE);
 					mTvNameList.setVisibility(View.GONE);
 					mVerticalText.setVisibility(View.GONE);

@@ -29,6 +29,7 @@ import com.cyanbirds.tanlove.net.request.AddFollowRequest;
 import com.cyanbirds.tanlove.net.request.AddLoveRequest;
 import com.cyanbirds.tanlove.net.request.GetUserInfoRequest;
 import com.cyanbirds.tanlove.net.request.SendGreetRequest;
+import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.facebook.drawee.view.SimpleDraweeView;
@@ -86,6 +87,7 @@ public class PersonalInfoActivity extends BaseActivity {
 
 	private ClientUser mClientUser; //当前用户
 	private String curUserId; //当前用户id
+	private String channel = "";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -130,6 +132,7 @@ public class PersonalInfoActivity extends BaseActivity {
 	}
 
 	private void setupData() {
+		channel = CheckUtil.getAppMetaData(this, "UMENG_CHANNEL");
 		curUserId = getIntent().getStringExtra(ValueKey.USER_ID);
 		if (!TextUtils.isEmpty(curUserId)) {
 			if (AppManager.getClientUser().userId.equals(curUserId)) {
@@ -150,7 +153,7 @@ public class PersonalInfoActivity extends BaseActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		if (AppManager.getClientUser().userId.equals(curUserId)) {
 			getMenuInflater().inflate(R.menu.personal_menu, menu);
-		} else {
+		} else if (!"oppo".equals(channel)){//oppo渠道不显示call
 			if (AppManager.getClientUser().isShowVip) {
 				if (!AppManager.getClientUser().is_vip) {
 					getMenuInflater().inflate(R.menu.call_menu, menu);
