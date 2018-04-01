@@ -512,7 +512,8 @@ public class TabPersonalFragment extends Fragment implements GeocodeSearch.OnGeo
 						String tips = String.format(getResources().getString(R.string.social_id_need_more_gold), "微信");
 						showBuyGoldDialog(tips);
 					} else {
-						mWechatId.setText(clientUser.weixin_no);
+						showNoCheckDialog();
+//						mWechatId.setText(clientUser.weixin_no);
 						if (AppManager.getClientUser().isShowDownloadVip) {
 							if (!AppManager.getClientUser().is_download_vip) {
 								if (AppManager.getClientUser().isShowGold) {
@@ -536,7 +537,8 @@ public class TabPersonalFragment extends Fragment implements GeocodeSearch.OnGeo
 						String tips = String.format(getResources().getString(R.string.social_id_need_more_gold), "QQ");
 						showBuyGoldDialog(tips);
 					} else {
-						mQqId.setText(clientUser.qq_no);
+						showNoCheckDialog();
+//						mQqId.setText(clientUser.qq_no);
 						if (AppManager.getClientUser().isShowDownloadVip) {
 							if (!AppManager.getClientUser().is_download_vip) {
 								if (AppManager.getClientUser().isShowGold) {
@@ -606,6 +608,30 @@ public class TabPersonalFragment extends Fragment implements GeocodeSearch.OnGeo
 	private void showBuyGoldDialog(String tips) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setMessage(tips);
+		builder.setPositiveButton(getResources().getString(R.string.ok),
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.dismiss();
+						Intent intent = new Intent(getActivity(), MyGoldActivity.class);
+						startActivity(intent);
+					}
+				});
+		builder.setNegativeButton(getResources().getString(R.string.cancel),
+				new DialogInterface.OnClickListener() {
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						dialog.dismiss();
+					}
+				});
+		builder.show();
+	}
+
+	/**
+	 * 禁止查看
+	 */
+	private void showNoCheckDialog() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		builder.setMessage(R.string.no_check_tips);
 		builder.setPositiveButton(getResources().getString(R.string.ok),
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
