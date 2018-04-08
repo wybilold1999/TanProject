@@ -12,16 +12,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
+import android.support.design.internal.BottomNavigationMenuView;
+import android.support.design.widget.BottomNavigationView;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentTabHost;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
-import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
@@ -36,6 +38,7 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
+import com.cyanbirds.tanlove.adapter.ViewPagerAdapter;
 import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.db.ConversationSqlManager;
@@ -50,6 +53,7 @@ import com.cyanbirds.tanlove.fragment.FoundFragment;
 import com.cyanbirds.tanlove.fragment.HomeLoveFragment;
 import com.cyanbirds.tanlove.fragment.MessageFragment;
 import com.cyanbirds.tanlove.fragment.PersonalFragment;
+import com.cyanbirds.tanlove.helper.BottomNavigationViewHelper;
 import com.cyanbirds.tanlove.helper.SDKCoreHelper;
 import com.cyanbirds.tanlove.listener.MessageUnReadListener;
 import com.cyanbirds.tanlove.manager.AppManager;
@@ -63,6 +67,7 @@ import com.cyanbirds.tanlove.net.request.GiftsListRequest;
 import com.cyanbirds.tanlove.net.request.UploadCityInfoRequest;
 import com.cyanbirds.tanlove.service.MyIntentService;
 import com.cyanbirds.tanlove.service.MyPushService;
+import com.cyanbirds.tanlove.ui.widget.CustomViewPager;
 import com.cyanbirds.tanlove.utils.DateUtil;
 import com.cyanbirds.tanlove.utils.MsgUtil;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
@@ -82,6 +87,8 @@ import java.util.Set;
 
 import cn.jpush.android.api.JPushInterface;
 import cn.jpush.android.api.TagAliasCallback;
+import q.rorbin.badgeview.Badge;
+import q.rorbin.badgeview.QBadgeView;
 
 import static com.cyanbirds.tanlove.entity.AppointmentModel.AppointStatus.ACCEPT;
 import static com.cyanbirds.tanlove.entity.AppointmentModel.AppointStatus.DECLINE;
@@ -90,8 +97,8 @@ import static com.cyanbirds.tanlove.utils.DateUtil.TIMESTAMP_PATTERN;
 
 public class MainActivity extends BaseActivity implements MessageUnReadListener.OnMessageUnReadListener, AMapLocationListener {
 
-	private FragmentTabHost mTabHost;
-	private int mCurrentTab;
+	private CustomViewPager viewPager;
+	private BottomNavigationView bottomNavigationView;
 	private ClientConfiguration mOSSConf;
 
 	private static final int REQUEST_PERMISSION = 0;
@@ -108,7 +115,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 
 	private String curLat;
 	private String curLon;
-	private String currentCity;
 
 	private final Handler mHandler = new Handler() {
 		@Override
@@ -133,15 +139,8 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	public int mOSSTokenRetryCount = 0;
 
 	public final static String CURRENT_TAB = "current_tab";
-	private static final TableConfig[] tableConfig = new TableConfig[] {
-			new TableConfig(R.string.tab_find_love, HomeLoveFragment.class,
-					R.drawable.tab_tao_love_selector),
-			new TableConfig(R.string.tab_found, FoundFragment.class,
-					R.drawable.tab_found_selector),
-			new TableConfig(R.string.tab_message, MessageFragment.class,
-					R.drawable.tab_my_message_selector),
-			new TableConfig(R.string.tab_personal, PersonalFragment.class,
-					R.drawable.tab_personal_selector) };
+
+	private Badge mBadgeView;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -177,9 +176,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 
 			}
 		});
-
-		AppManager.requestLocationPermission(this);
-		requestPermission();
 
 		if (AppManager.getClientUser().isShowVip) {
 			mHandler.postDelayed(new Runnable() {
@@ -255,30 +251,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		mlocationClient.setLocationOption(mLocationOption);
 		//启动定位
 		mlocationClient.startLocation();
-	}
-
-	/**
-	 * 请求读写文件夹的权限
-	 */
-	private void requestPermission() {
-		PackageManager pkgManager = getPackageManager();
-		// 读写 sd card 权限非常重要, android6.0默认禁止的, 建议初始化之前就弹窗让用户赋予该权限
-		boolean sdCardWritePermission =
-				pkgManager.checkPermission(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, getPackageName()) == PackageManager.PERMISSION_GRANTED;
-		if (Build.VERSION.SDK_INT >= 23 && !sdCardWritePermission) {
-			//请求权限
-			ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.WRITE_EXTERNAL_STORAGE},
-					REQUEST_PERMISSION);
-		}
-
-		boolean readPhoneState =
-				pkgManager.checkPermission(Manifest.permission.READ_PHONE_STATE, getPackageName()) == PackageManager.PERMISSION_GRANTED;
-		if (Build.VERSION.SDK_INT >= 23 && !sdCardWritePermission) {
-			//请求权限
-			ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.READ_PHONE_STATE},
-					REQUEST_PERMISSION);
-		}
-
 	}
 
 	/**
@@ -380,8 +352,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	protected void onNewIntent(Intent intent) {
 		super.onNewIntent(intent);
 		setIntent(intent);// 必须要调用这句(信鸽推送)
-		mCurrentTab = getIntent().getIntExtra(CURRENT_TAB, 0);
-		mTabHost.setCurrentTab(mCurrentTab);
 	}
 
 	@Override
@@ -413,7 +383,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		public void onPostExecute(CityInfo cityInfo) {
 			if (cityInfo != null) {
 				try {
-					currentCity = cityInfo.city;
 					String[] rectangle = cityInfo.rectangle.split(";");
 					String[] leftBottom = rectangle[0].split(",");
 					String[] rightTop = rectangle[1].split(",");
@@ -436,29 +405,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		public void onErrorExecute(String error) {
 		}
 	}
-
-	/**
-	 * 上传城市信息，用于控制区域显示
-	 */
-	/*class UploadCityInfoTask extends UploadCityInfoRequest {
-
-		@Override
-		public void onPostExecute(String isShow) {
-			if ("0".equals(isShow)) {
-				AppManager.getClientUser().isShowDownloadVip = false;
-				AppManager.getClientUser().isShowGold = false;
-				AppManager.getClientUser().isShowLovers = false;
-				AppManager.getClientUser().isShowMap = false;
-				AppManager.getClientUser().isShowVideo = false;
-				AppManager.getClientUser().isShowVip = false;
-				AppManager.getClientUser().isShowRpt = false;
-			}
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-		}
-	}*/
 
 	/**
 	 * 获取最近喜欢我的那个人
@@ -632,20 +578,66 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	 * 设置视图
 	 */
 	private void setupViews() {
-		mTabHost = (FragmentTabHost) findViewById(android.R.id.tabhost);
-		mTabHost.setup(this, getSupportFragmentManager(), R.id.realtabcontent);
-		for (int i = 0; i < tableConfig.length; i++) {
-			mTabHost.addTab(
-					mTabHost.newTabSpec(getString(tableConfig[i].titleId))
-							.setIndicator(getIndicator(i)),
-					tableConfig[i].targetClass, null);
-		}
-		if (Build.VERSION.SDK_INT >= 11) {
-			mTabHost.getTabWidget().setShowDividers(
-					LinearLayout.SHOW_DIVIDER_NONE);// 设置不显示分割线
-		}
-		mTabHost.setCurrentTab(mCurrentTab);
+		viewPager = findViewById(R.id.viewpager);
+		viewPager.setNoScroll(true);
+		bottomNavigationView = findViewById(R.id.bottom_navigation);
+		//默认 >3 的选中效果会影响ViewPager的滑动切换时的效果，故利用反射去掉
+		BottomNavigationViewHelper.disableShiftMode(bottomNavigationView);
+		bottomNavigationView.setOnNavigationItemSelectedListener(
+				new BottomNavigationView.OnNavigationItemSelectedListener() {
+					@Override
+					public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+						switch (item.getItemId()) {
+							case R.id.item_news:
+								viewPager.setCurrentItem(0);
+								break;
+							case R.id.item_lib:
+								viewPager.setCurrentItem(1);
+								break;
+							case R.id.item_find:
+								viewPager.setCurrentItem(2);
+								break;
+							case R.id.item_more:
+								viewPager.setCurrentItem(3);
+								break;
+						}
+						return false;
+					}
+				});
 
+		viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
+			@Override
+			public void onPageScrolled(int position, float positionOffset, int positionOffsetPixels) {
+				if(bottomNavigationView.getMenu().getItem(position).isChecked()){
+					bottomNavigationView.getMenu().getItem(position).setChecked(false);
+				}
+			}
+
+			@Override
+			public void onPageSelected(int position) {
+				bottomNavigationView.getMenu().getItem(position).setChecked(true);
+			}
+
+			@Override
+			public void onPageScrollStateChanged(int state) {
+			}
+		});
+
+		setupViewPager(viewPager);
+
+		BottomNavigationMenuView menuView = (BottomNavigationMenuView) bottomNavigationView.getChildAt(0);
+		mBadgeView = new QBadgeView(this).setGravityOffset(108, 2, true)
+				.bindTarget(menuView);
+	}
+
+	private void setupViewPager(ViewPager viewPager) {
+		ViewPagerAdapter adapter = new ViewPagerAdapter(getSupportFragmentManager());
+
+		adapter.addFragment(new HomeLoveFragment());
+		adapter.addFragment(new FoundFragment());
+		adapter.addFragment(new MessageFragment());
+		adapter.addFragment(new PersonalFragment());
+		viewPager.setAdapter(adapter);
 	}
 
 
@@ -653,31 +645,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		MessageUnReadListener.getInstance().setMessageUnReadListener(this);
 	}
 
-
-	private View getIndicator(int index) {
-		View view = View.inflate(this, R.layout.tab_indicator_view, null);
-		TextView tv = (TextView) view.findViewById(R.id.tab_item);
-		ImageView tab_icon = (ImageView) view.findViewById(R.id.tab_icon);
-		tab_icon.setImageResource(tableConfig[index].tabImage);
-		tv.setText(tableConfig[index].titleId);
-		return view;
-
-	}
-
-	/**
-	 * 底部导航配置
-	 */
-	private static class TableConfig {
-		final int titleId;
-		final Class<?> targetClass;
-		final int tabImage;
-
-		TableConfig(int titleId, Class<?> targetClass, int tabImage) {
-			this.titleId = titleId;
-			this.targetClass = targetClass;
-			this.tabImage = tabImage;
-		}
-	}
 
 	@Override
 	public void notifyUnReadChanged(int type) {
@@ -688,21 +655,14 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	 * 更新会话未读消息总数
 	 */
 	private void updateConversationUnRead() {
-		View view;
-		view = mTabHost.getTabWidget().getChildTabViewAt(2);
-		TextView unread_message_num = (TextView) view
-				.findViewById(R.id.unread_message_num);
-
 		int total = ConversationSqlManager.getInstance(this)
 				.getAnalyticsUnReadConversation();
-		unread_message_num.setVisibility(View.GONE);
 		if (total > 0) {
 			if (total >= 100) {
-				unread_message_num.setText(String.valueOf("99+"));
+				mBadgeView.setBadgeText("99+");
 			} else {
-				unread_message_num.setText(String.valueOf(total));
+				mBadgeView.setBadgeText(String.valueOf(total));
 			}
-			unread_message_num.setVisibility(View.VISIBLE);
 		}
 	}
 
@@ -837,19 +797,9 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 
 	@Override
 	public boolean onKeyDown(int keyCode, KeyEvent event) {
-		/*if (keyCode == KeyEvent.KEYCODE_BACK) {
-			if ((System.currentTimeMillis() - clickTime) > 2000) {
-				ToastUtil.showMessage(R.string.exit_tips);
-				clickTime = System.currentTimeMillis();
-			} else {
-				exitApp();
-			}
-			return true;
-		}*/
 		if (keyCode == KeyEvent.KEYCODE_BACK
 				&& event.getAction() == KeyEvent.ACTION_DOWN) {
 			moveTaskToBack(false);
-			mTabHost.setCurrentTab(0);
 		}
 		return super.onKeyDown(keyCode, event);
 	}

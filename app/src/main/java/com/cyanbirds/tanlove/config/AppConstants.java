@@ -11,9 +11,9 @@ package com.cyanbirds.tanlove.config;
  */
 public class AppConstants {
 	
-	public static final String BASE_URL = "http://119.23.144.11/TanLoveServer/";
+//	public static final String BASE_URL = "http://119.23.144.11/TanLoveServer/";
 //	public static final String BASE_URL = "http://192.168.1.100/TanLoveServer/";
-//	public static final String BASE_URL = "http://10.0.109.239:8080/TanLoveServer/";
+	public static final String BASE_URL = "http://10.0.109.239:8080/TanLoveServer/";
 
 	/**
 	 * 密码加密密匙
@@ -28,8 +28,8 @@ public class AppConstants {
 	/**
 	 *容联云IM
 	 */
-	public static String YUNTONGXUN_ID = "8a216da85f5c89b1015f6d05c6240549";
-	public static String YUNTONGXUN_TOKEN = "61841a749f4fc284089fa7bcb1c52782";
+	public static String YUNTONGXUN_ID = "8a216da862a4b4880162a4e0affe0024";
+	public static String YUNTONGXUN_TOKEN = "d72a6d87c6133d3809fc3d90219639e2";
 
 	/**
 	 * QQ登录的appid和appkey
