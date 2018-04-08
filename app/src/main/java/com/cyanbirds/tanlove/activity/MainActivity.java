@@ -138,8 +138,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	 */
 	public int mOSSTokenRetryCount = 0;
 
-	public final static String CURRENT_TAB = "current_tab";
-
 	private Badge mBadgeView;
 
 	@Override
@@ -810,11 +808,5 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		if (requestCode == REQUEST_PERMISSION_SETTING) {
 			initLocationClient();
 		}
-	}
-
-	@Override
-	public void onBackPressed() {
-		onStateNotSaved();
-		super.onBackPressed();
 	}
 }
