@@ -69,6 +69,7 @@ import com.cyanbirds.tanlove.service.MyIntentService;
 import com.cyanbirds.tanlove.service.MyPushService;
 import com.cyanbirds.tanlove.ui.widget.CustomViewPager;
 import com.cyanbirds.tanlove.utils.DateUtil;
+import com.cyanbirds.tanlove.utils.DensityUtil;
 import com.cyanbirds.tanlove.utils.MsgUtil;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.PushMsgUtil;
@@ -624,7 +625,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		setupViewPager(viewPager);
 
 		BottomNavigationMenuView menuView = (BottomNavigationMenuView) bottomNavigationView.getChildAt(0);
-		mBadgeView = new QBadgeView(this).setGravityOffset(108, 2, true)
+		mBadgeView = new QBadgeView(this).setGravityOffset((float) (DensityUtil.getWidthInPx(this) / 3.2), 2, false)
 				.bindTarget(menuView);
 	}
 
