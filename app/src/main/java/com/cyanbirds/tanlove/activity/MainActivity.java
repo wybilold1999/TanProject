@@ -8,6 +8,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.internal.BottomNavigationMenuView;
@@ -17,6 +18,7 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.text.Html;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -62,6 +64,7 @@ import com.cyanbirds.tanlove.net.request.GetLoveFormeListRequest;
 import com.cyanbirds.tanlove.net.request.GetOSSTokenRequest;
 import com.cyanbirds.tanlove.net.request.GiftsListRequest;
 import com.cyanbirds.tanlove.net.request.UploadCityInfoRequest;
+import com.cyanbirds.tanlove.net.request.UploadTokenRequest;
 import com.cyanbirds.tanlove.service.MyIntentService;
 import com.cyanbirds.tanlove.service.MyPushService;
 import com.cyanbirds.tanlove.ui.widget.CustomViewPager;
@@ -73,11 +76,16 @@ import com.cyanbirds.tanlove.utils.PushMsgUtil;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.igexin.sdk.PushManager;
+import com.tencent.android.tpush.XGIOperateCallback;
+import com.tencent.android.tpush.XGPushConfig;
+import com.tencent.android.tpush.XGPushManager;
+import com.tencent.android.tpush.common.Constants;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;
 import com.umeng.analytics.MobclickAgent;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.yuntongxun.ecsdk.ECInitParams;
 
+import java.lang.ref.WeakReference;
 import java.util.Calendar;
 import java.util.List;
 
@@ -99,9 +107,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	private final int REQUEST_LOCATION_PERMISSION = 1000;
 	private final int REQUEST_PERMISSION_SETTING = 10001;
 
-	private static final int MSG_SET_ALIAS = 1001;//极光推送设置别名
-	private static final int MSG_SET_TAGS = 1002;//极光推送设置tag
-
 	private AMapLocationClientOption mLocationOption;
 	private AMapLocationClient mlocationClient;
 	private boolean isSecondAccess = false;
@@ -110,14 +115,14 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	private String curLat;
 	private String curLon;
 
-	private final Handler mHandler = new Handler();
-
 	/**
 	 * oss鉴权获取失败重试次数
 	 */
 	public int mOSSTokenRetryCount = 0;
 
 	private Badge mBadgeView;
+
+	private static Handler mHandler = new Handler();
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -131,24 +136,26 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		SDKCoreHelper.init(this, ECInitParams.LoginMode.FORCE_LOGIN);
 		updateConversationUnRead();
 
-
 		AppManager.getExecutorService().execute(new Runnable() {
 			@Override
 			public void run() {
-				/**
-				 * 注册小米推送
-				 */
-				MiPushClient.registerPush(MainActivity.this, AppConstants.MI_PUSH_APP_ID, AppConstants.MI_PUSH_APP_KEY);
-
-				//个推
-				initGeTuiPush();
-
-				loadData();
-
 				initLocationClient();
 
-				initFareGetTime();
+				if (AppManager.getClientUser().isShowVip) {
+					/**
+					 * 注册小米推送
+					 */
+					MiPushClient.registerPush(MainActivity.this, AppConstants.MI_PUSH_APP_ID, AppConstants.MI_PUSH_APP_KEY);
 
+					//个推
+					initGeTuiPush();
+
+					XGPushManager.registerPush(getApplicationContext());
+
+					loadData();
+
+					initFareGetTime();
+				}
 			}
 		});
 
@@ -744,4 +751,5 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 			initLocationClient();
 		}
 	}
+
 }
