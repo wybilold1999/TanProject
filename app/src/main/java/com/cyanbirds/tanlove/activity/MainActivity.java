@@ -1,12 +1,9 @@
 package com.cyanbirds.tanlove.activity;
 
 import android.Manifest;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.net.ConnectivityManager;
-import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -82,12 +79,8 @@ import com.xiaomi.mipush.sdk.MiPushClient;
 import com.yuntongxun.ecsdk.ECInitParams;
 
 import java.util.Calendar;
-import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Set;
 
-import cn.jpush.android.api.JPushInterface;
-import cn.jpush.android.api.TagAliasCallback;
 import q.rorbin.badgeview.Badge;
 import q.rorbin.badgeview.QBadgeView;
 
@@ -117,22 +110,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	private String curLat;
 	private String curLon;
 
-	private final Handler mHandler = new Handler() {
-		@Override
-		public void handleMessage(android.os.Message msg) {
-			super.handleMessage(msg);
-			switch (msg.what) {
-				case MSG_SET_ALIAS:
-					JPushInterface.setAliasAndTags(getApplicationContext(), null, null, mAliasCallback);
-					JPushInterface.setAliasAndTags(getApplicationContext(), (String) msg.obj, null, mAliasCallback);
-					break;
-				case MSG_SET_TAGS:
-					JPushInterface.setAliasAndTags(getApplicationContext(), null, null, mAliasCallback);
-					JPushInterface.setAliasAndTags(getApplicationContext(), null, (Set<String>) msg.obj, mAliasCallback);
-					break;
-			}
-		}
-	};
+	private final Handler mHandler = new Handler();
 
 	/**
 	 * oss鉴权获取失败重试次数
@@ -164,8 +142,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 
 				//个推
 				initGeTuiPush();
-
-				initJPush();
 
 				loadData();
 
@@ -326,25 +302,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		// SDK初始化，第三方程序启动时，都要进行SDK初始化工作
 		PushManager.getInstance().initialize(this.getApplicationContext(), MyPushService.class);
 		PushManager.getInstance().registerPushIntentService(this.getApplicationContext(), MyIntentService.class);
-	}
-
-	private void initJPush() {
-		// 初始化 JPush
-		JPushInterface.init(this);
-//		JPushInterface.setDebugMode(true);
-
-		if (!PreferencesUtils.getJpushSetAliasState(this)) {
-			//调用JPush API设置Alias
-			mHandler.sendMessage(mHandler.obtainMessage(MSG_SET_ALIAS, AppManager.getClientUser().userId));
-			//调用JPush API设置Tag
-			Set<String> tag = new LinkedHashSet<>(1);
-			if ("男".equals(AppManager.getClientUser().sex)) {
-				tag.add("female");
-			} else {
-				tag.add("male");
-			}
-			mHandler.sendMessage(mHandler.obtainMessage(MSG_SET_TAGS, tag));
-		}
 	}
 
 	@Override
@@ -756,33 +713,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		});
 		builder.show();
 	}
-
-	/**
-	 * 极光推送设置别名后的回调
-	 */
-	private final TagAliasCallback mAliasCallback = new TagAliasCallback() {
-
-		@Override
-		public void gotResult(int code, String alias, Set<String> tags) {
-			switch (code) {
-				case 0:
-					//Set tag and alias success
-					PreferencesUtils.setJpushSetAliasState(MainActivity.this, true);
-					break;
-
-				case 6002:
-					//"Failed to set alias and tags due to timeout. Try again after 60s.";
-					ConnectivityManager conn = (ConnectivityManager) getApplicationContext().getSystemService(Context.CONNECTIVITY_SERVICE);
-					NetworkInfo info = conn.getActiveNetworkInfo();
-					if (info != null && info.isConnected()) {
-						mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_SET_ALIAS, alias), 1000 * 60);
-						mHandler.sendMessageDelayed(mHandler.obtainMessage(MSG_SET_TAGS, tags), 1000 * 60);
-					}
-					break;
-			}
-		}
-	};
-
 
 	@Override
 	protected void onResume() {
