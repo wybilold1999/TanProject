@@ -134,9 +134,7 @@ public class MessageReceiver extends XGPushBaseReceiver {
     // 消息透传的回调
     @Override
     public void onTextMessage(Context context, XGPushTextMessage message) {
-        if (AppManager.getClientUser().isShowVip) {
-            PushMsgUtil.getInstance().handlePushMsg(true, message.getContent());
-        }
+        PushMsgUtil.getInstance().handlePushMsg(true, message.getContent());
     }
 
 }
