@@ -26,7 +26,6 @@ import android.widget.RadioGroup.OnCheckedChangeListener;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.CardActivity;
 import com.cyanbirds.tanlove.activity.PersonalInfoActivity;
-import com.cyanbirds.tanlove.activity.RadarActivity;
 import com.cyanbirds.tanlove.adapter.FindLoveAdapter;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.ClientUser;
