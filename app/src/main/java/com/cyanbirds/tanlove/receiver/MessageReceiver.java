@@ -1,9 +1,7 @@
 package com.cyanbirds.tanlove.receiver;
 
-import android.app.NotificationManager;
 import android.content.Context;
 import android.text.TextUtils;
-import android.util.Log;
 import android.widget.Toast;
 
 import com.cyanbirds.tanlove.CSApplication;
@@ -16,9 +14,6 @@ import com.tencent.android.tpush.XGPushClickedResult;
 import com.tencent.android.tpush.XGPushRegisterResult;
 import com.tencent.android.tpush.XGPushShowedResult;
 import com.tencent.android.tpush.XGPushTextMessage;
-
-import org.json.JSONException;
-import org.json.JSONObject;
 
 public class MessageReceiver extends XGPushBaseReceiver {
     public static final String LogTag = "TPushReceiver";
@@ -46,9 +41,9 @@ public class MessageReceiver extends XGPushBaseReceiver {
         notific.setUpdate_time(new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")
                 .format(Calendar.getInstance().getTime()));
         NotificationService.getInstance(context).save(notific);
-        context.sendBroadcast(intent);*/
+        context.sendBroadcast(intent);
         show(context, "您有1条新消息, " + "通知被展示 ， " + notifiShowedRlt.toString());
-        Log.d("LC", "+++++++++++++++++++++++++++++展示通知的回调");
+        Log.d("LC", "+++++++++++++++++++++++++++++展示通知的回调");*/
     }
 
     //反注册的回调
@@ -79,7 +74,7 @@ public class MessageReceiver extends XGPushBaseReceiver {
     @Override
     public void onNotifactionClickedResult(Context context,
                                            XGPushClickedResult message) {
-        Log.e("LC", "+++++++++++++++ 通知被点击 跳转到指定页面。");
+        /*Log.e("LC", "+++++++++++++++ 通知被点击 跳转到指定页面。");
         NotificationManager notificationManager = (NotificationManager) context
                 .getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancelAll();
@@ -116,7 +111,7 @@ public class MessageReceiver extends XGPushBaseReceiver {
         }
         // APP自主处理的过程。。。
         Log.d(LogTag, text);
-        show(context, text);
+        show(context, text);*/
     }
 
     //注册的回调
