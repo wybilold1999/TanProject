@@ -33,6 +33,7 @@ import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
+import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.adapter.ViewPagerAdapter;
@@ -127,7 +128,9 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		setupViews();
 		setupEvent();
 		initOSS();
-		SDKCoreHelper.init(this, ECInitParams.LoginMode.FORCE_LOGIN);
+		if (AppManager.getClientUser().is_vip) {
+			SDKCoreHelper.init(CSApplication.getInstance(), ECInitParams.LoginMode.FORCE_LOGIN);
+		}
 		updateConversationUnRead();
 
 		AppManager.getExecutorService().execute(new Runnable() {
@@ -174,6 +177,8 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 					new FollowListTask().request("followFormeList", 1, 1);
 				}
 			}, 1500 * 10);
+		} else {
+			SDKCoreHelper.init(CSApplication.getInstance(), ECInitParams.LoginMode.FORCE_LOGIN);
 		}
 		if (AppManager.getClientUser().versionCode <= AppManager.getVersionCode() &&
 				AppManager.getClientUser().isShowVip && AppManager.getClientUser().isShowAppointment) {
