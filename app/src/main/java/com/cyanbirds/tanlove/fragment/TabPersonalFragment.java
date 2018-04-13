@@ -636,15 +636,6 @@ public class TabPersonalFragment extends Fragment implements GeocodeSearch.OnGeo
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
 						dialog.dismiss();
-						Intent intent = new Intent(getActivity(), MyGoldActivity.class);
-						startActivity(intent);
-					}
-				});
-		builder.setNegativeButton(getResources().getString(R.string.cancel),
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
 					}
 				});
 		builder.show();
