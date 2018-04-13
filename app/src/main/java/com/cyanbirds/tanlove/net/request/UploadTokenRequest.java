@@ -2,8 +2,6 @@ package com.cyanbirds.tanlove.net.request;
 
 import android.support.v4.util.ArrayMap;
 
-import com.cyanbirds.tanlove.CSApplication;
-import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.base.ResultPostExecute;
 
@@ -25,13 +23,16 @@ public class UploadTokenRequest extends ResultPostExecute<String> {
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
+                try {
+                    if (response.body() != null) {
+                        response.body().close();
+                    }
+                } catch (Exception e) {
+                }
             }
 
             @Override
             public void onFailure(Call<ResponseBody> call, Throwable t) {
-                onErrorExecute(CSApplication.getInstance()
-                        .getResources()
-                        .getString(R.string.network_requests_error));
             }
         });
     }
