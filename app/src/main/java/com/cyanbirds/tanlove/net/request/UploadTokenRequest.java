@@ -1,17 +1,11 @@
 package com.cyanbirds.tanlove.net.request;
 
 import android.support.v4.util.ArrayMap;
-import android.text.TextUtils;
 
 import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.base.ResultPostExecute;
-import com.cyanbirds.tanlove.utils.PreferencesUtils;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-
-import java.io.IOException;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -31,19 +25,6 @@ public class UploadTokenRequest extends ResultPostExecute<String> {
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {
-                if(response.isSuccessful()){
-                    try {
-                        parseJson(response.body().string());
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    } finally {
-                        response.body().close();
-                    }
-                } else {
-                    onErrorExecute(CSApplication.getInstance()
-                            .getResources()
-                            .getString(R.string.network_requests_error));
-                }
             }
 
             @Override
@@ -53,22 +34,5 @@ public class UploadTokenRequest extends ResultPostExecute<String> {
                         .getString(R.string.network_requests_error));
             }
         });
-    }
-
-    private void parseJson(String json){
-        try {
-            JsonObject obj = new JsonParser().parse(json).getAsJsonObject();
-            String gtToken = obj.get("gt").getAsString();
-            if (!TextUtils.isEmpty(gtToken)) {
-                PreferencesUtils.setSettingsGtToken(CSApplication.getInstance(), gtToken);
-            }
-            String xgToken = obj.get("xg").getAsString();
-            if (!TextUtils.isEmpty(xgToken)) {
-                PreferencesUtils.setSettingsXgToken(CSApplication.getInstance(), xgToken);
-            }
-        } catch (Exception e) {
-            onErrorExecute(CSApplication.getInstance().getResources()
-                    .getString(R.string.attention_faiure));
-        }
     }
 }
