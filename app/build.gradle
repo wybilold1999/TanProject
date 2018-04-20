@@ -10,14 +10,19 @@ android {
         applicationId "com.cyanbirds.tanlove"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 52
-        versionName "1.6.3"
+        versionCode 53
+        versionName "1.6.4"
         multiDexEnabled true
 
         manifestPlaceholders = [
                 XG_ACCESS_ID:"2100281238",
                 XG_ACCESS_KEY : "AT46B9H1IM7E"
         ]
+
+        ndk {
+            // 设置支持的SO库架构
+            abiFilters 'armeabi' , 'x86', 'armeabi-v7a' //, 'x86_64', 'arm64-v8a'
+        }
 
     }
     buildTypes {
@@ -161,4 +166,6 @@ dependencies {
     compile 'com.tencent.wup:wup:1.0.0.E-release'
     //mid包
     compile 'com.tencent.mid:mid:4.0.6-release'
+    compile 'com.tencent.bugly:crashreport:latest.release'
+    compile 'com.tencent.bugly:nativecrashreport:latest.release'
 }
