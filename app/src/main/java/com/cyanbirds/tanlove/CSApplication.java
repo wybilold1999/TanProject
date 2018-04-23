@@ -72,8 +72,6 @@ public class CSApplication extends MultiDexApplication {
 				AppManager.setContext(sApplication);
 				AppManager.setUserInfo();
 
-				CrashHandler.getInstance().init(sApplication);
-
 				registerActivityLifecycleCallbacks(AppActivityLifecycleCallbacks.getInstance());
 
 				initFresco();
@@ -90,6 +88,8 @@ public class CSApplication extends MultiDexApplication {
 				return RetrofitManager.getInstance().getOkHttpClient();
 			}
 		});
+
+		CrashHandler.getInstance().init(sApplication);
 
 		initBugly();
 	}
