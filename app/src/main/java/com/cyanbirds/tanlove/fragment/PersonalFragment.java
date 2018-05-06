@@ -19,6 +19,7 @@ import com.cyanbirds.tanlove.activity.AboutActivity;
 import com.cyanbirds.tanlove.activity.AttentionMeActivity;
 import com.cyanbirds.tanlove.activity.BetweenLoversActivity;
 import com.cyanbirds.tanlove.activity.FeedBackActivity;
+import com.cyanbirds.tanlove.activity.GiveVipActivity;
 import com.cyanbirds.tanlove.activity.IdentifyActivity;
 import com.cyanbirds.tanlove.activity.LoveFormeActivity;
 import com.cyanbirds.tanlove.activity.MakeMoneyActivity;
@@ -145,6 +146,8 @@ public class PersonalFragment extends Fragment {
 	RelativeLayout mVideoShowLay;
 	@BindView(R.id.my_appointment_lay)
 	RelativeLayout mAppointmentLay;
+	@BindView(R.id.give_vip)
+	RelativeLayout mGiveVipLay;
 
 	Unbinder unbinder;
 
@@ -275,6 +278,11 @@ public class PersonalFragment extends Fragment {
 			} else {
 				mVideoShowCard.setVisibility(View.GONE);
 			}
+			if (clientUser.isShowGiveVip) {
+				mGiveVipLay.setVisibility(View.VISIBLE);
+			} else {
+				mGiveVipLay.setVisibility(View.GONE);
+			}
 		}
 	}
 
@@ -300,7 +308,7 @@ public class PersonalFragment extends Fragment {
 			R.id.attentioned_user, R.id.good_user, R.id.setting, R.id.about, R.id.my_gold,
 			R.id.download_layout, R.id.lovers_lay, R.id.success_case,
 			R.id.near_party, R.id.identify_lay, R.id.my_gifts, R.id.money_lay,
-			R.id.feedback, R.id.video_show_lay, R.id.my_appointment_lay})
+			R.id.feedback, R.id.video_show_lay, R.id.my_appointment_lay, R.id.give_vip})
 	public void onClick(View view) {
 		Intent intent = new Intent();
 		switch (view.getId()) {
@@ -380,6 +388,10 @@ public class PersonalFragment extends Fragment {
 				intent.setClass(getActivity(), MyAppointmentActivity.class);
 				startActivity(intent);
 				break;
+			case R.id.give_vip:
+				intent.setClass(getActivity(), GiveVipActivity.class);
+				startActivity(intent);
+				break;
 		}
 	}
 
@@ -440,6 +452,11 @@ public class PersonalFragment extends Fragment {
 				mAppointmentLay.setVisibility(View.VISIBLE);
 			} else {
 				mAppointmentLay.setVisibility(View.GONE);
+			}
+			if (clientUser.isShowGiveVip) {
+				mGiveVipLay.setVisibility(View.VISIBLE);
+			} else {
+				mGiveVipLay.setVisibility(View.GONE);
 			}
 		}
 	}
