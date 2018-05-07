@@ -12,6 +12,7 @@ import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.OSSImagUploadRequest;
+import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
 import com.google.gson.Gson;
@@ -94,6 +95,7 @@ public class GiveVipActivity extends BaseActivity {
         Intent intent = new Intent();
         switch (view.getId()) {
             case R.id.skip_market:
+                AppManager.goToMarket(this, CheckUtil.getAppMetaData(this, "UMENG_CHANNEL"));
                 break;
             case R.id.upload_img:
                 intent.setClass(this, PhotoChoserActivity.class);
