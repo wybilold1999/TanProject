@@ -412,5 +412,6 @@
     <string name="skip_market">跳转应用市场5星好评</string>
     <string name="upload_market_img">上传好评截图</string>
     <string name="free_give_vip">免费赠送会员</string>
+    <string name="upload_faiure">上传失败</string>
 
 </resources>

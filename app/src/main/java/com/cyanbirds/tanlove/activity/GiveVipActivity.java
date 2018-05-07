@@ -12,9 +12,11 @@ import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.OSSImagUploadRequest;
+import com.cyanbirds.tanlove.net.request.UploadCommentImgRequest;
 import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
+import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.google.gson.Gson;
 import com.umeng.analytics.MobclickAgent;
 
@@ -109,10 +111,11 @@ public class GiveVipActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == RESULT_OK && requestCode == CHOOSE_IMG_RESULT) {
-            String imgUrl = data.getStringExtra(ValueKey.IMAGE_URL);
-            if (!TextUtils.isEmpty(imgUrl)) {
+            List<String> imgUrls = data.getStringArrayListExtra(ValueKey.IMAGE_URL);
+            if (null != imgUrls && imgUrls.size() > 0) {
+                ProgressDialogUtils.getInstance(this).show(R.string.dialog_request_uploda);
                 new OSSUploadImgTask().request(AppManager.getFederationToken().bucketName,
-                        AppManager.getOSSFacePath(), imgUrl);
+                        AppManager.getOSSFacePath(), imgUrls.get(0));
             }
         }
     }
@@ -120,12 +123,31 @@ public class GiveVipActivity extends BaseActivity {
     class OSSUploadImgTask extends OSSImagUploadRequest {
         @Override
         public void onPostExecute(String s) {
-            PreferencesUtils.setIsUploadCommentImg(GiveVipActivity.this, true);
+            String url = AppConstants.OSS_IMG_ENDPOINT + s;
+            new UploadCImgTask().request(url);
         }
 
         @Override
         public void onErrorExecute(String error) {
             ProgressDialogUtils.getInstance(GiveVipActivity.this).dismiss();
+        }
+    }
+
+    class UploadCImgTask extends UploadCommentImgRequest {
+        @Override
+        public void onPostExecute(String s) {
+            ProgressDialogUtils.getInstance(GiveVipActivity.this).dismiss();
+            ToastUtil.showMessage(s);
+            PreferencesUtils.setIsUploadCommentImg(GiveVipActivity.this, true);
+            mUploadImg.setEnabled(false);
+            mUploadImg.setFocusBackgroundColor(getResources().getColor(R.color.gray_text));
+            mUploadImg.setBackgroundColor(getResources().getColor(R.color.gray_text));
+        }
+
+        @Override
+        public void onErrorExecute(String error) {
+            ProgressDialogUtils.getInstance(GiveVipActivity.this).dismiss();
+            ToastUtil.showMessage(error);
         }
     }
 }
