@@ -278,7 +278,7 @@ public class PersonalFragment extends Fragment {
 			} else {
 				mVideoShowCard.setVisibility(View.GONE);
 			}
-			if (clientUser.isShowGiveVip) {
+			if (clientUser.isShowVip && clientUser.isShowGiveVip) {
 				mGiveVipLay.setVisibility(View.VISIBLE);
 			} else {
 				mGiveVipLay.setVisibility(View.GONE);
@@ -453,7 +453,7 @@ public class PersonalFragment extends Fragment {
 			} else {
 				mAppointmentLay.setVisibility(View.GONE);
 			}
-			if (clientUser.isShowGiveVip) {
+			if (clientUser.isShowVip && clientUser.isShowGiveVip) {
 				mGiveVipLay.setVisibility(View.VISIBLE);
 			} else {
 				mGiveVipLay.setVisibility(View.GONE);
