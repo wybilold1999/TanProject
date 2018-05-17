@@ -11,7 +11,7 @@ package com.cyanbirds.tanlove.config;
  */
 public class AppConstants {
 	
-	public static final String BASE_URL = "http://119.23.144.11/TanLoveServer/";
+	public static final String BASE_URL = "http://39.108.244.221/TanLoveServer/";
 //	public static final String BASE_URL = "http://192.168.1.101/TanLoveServer/";
 
 	/**
