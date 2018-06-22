@@ -141,7 +141,7 @@ public class VipCenterActivity extends BaseActivity {
 						new GetPayResultTask().request();
 					} else {
 						// 该笔订单真实的支付结果，需要依赖服务端的异步通知。
-						ToastUtil.showMessage(R.string.pay_ali_failure);
+						ToastUtil.showMessage(R.string.pay_failure);
 					}
 					break;
 				}
@@ -391,9 +391,19 @@ public class VipCenterActivity extends BaseActivity {
 		@Override
 		public void onItemClick(View view, int position) {
 			MemberBuy memberBuy = mAdapter.getItem(position);
-			showPayDialog(memberBuy);
+			choicePayWay(memberBuy);
 		}
 	};
+
+	private void choicePayWay(MemberBuy memberBuy) {
+		if (memberBuy.isShowAliPay && memberBuy.isShowWePay) {
+			showPayDialog(memberBuy);
+		} else if (memberBuy.isShowAliPay) {
+			new GetAliPayOrderInfoTask().request(memberBuy.id, AppConstants.ALI_PAY_PLATFORM);
+		} else if (memberBuy.isShowWePay) {
+			new CreateOrderTask().request(memberBuy.id, AppConstants.WX_PAY_PLATFORM);
+		}
+	}
 
 	private void showPayDialog(final MemberBuy memberBuy) {
 		mMemberBuy = memberBuy;
