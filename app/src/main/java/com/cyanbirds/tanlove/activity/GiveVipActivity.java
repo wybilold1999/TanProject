@@ -3,7 +3,6 @@ package com.cyanbirds.tanlove.activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.text.TextUtils;
 import android.view.View;
 
 import com.cyanbirds.tanlove.R;
@@ -17,7 +16,6 @@ import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
 import com.cyanbirds.tanlove.utils.ToastUtil;
-import com.google.gson.Gson;
 import com.umeng.analytics.MobclickAgent;
 
 import java.util.List;

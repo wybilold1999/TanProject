@@ -21,20 +21,20 @@ public class DaoMaster extends AbstractDaoMaster {
 
     /** Creates underlying database table using DAOs. */
     public static void createAllTables(Database db, boolean ifNotExists) {
-        ConversationDao.createTable(db, ifNotExists);
         DynamicDao.createTable(db, ifNotExists);
-        GoldDao.createTable(db, ifNotExists);
-        IMessageDao.createTable(db, ifNotExists);
+        ConversationDao.createTable(db, ifNotExists);
         NameListDao.createTable(db, ifNotExists);
+        IMessageDao.createTable(db, ifNotExists);
+        GoldDao.createTable(db, ifNotExists);
     }
 
     /** Drops underlying database table using DAOs. */
     public static void dropAllTables(Database db, boolean ifExists) {
-        ConversationDao.dropTable(db, ifExists);
         DynamicDao.dropTable(db, ifExists);
-        GoldDao.dropTable(db, ifExists);
-        IMessageDao.dropTable(db, ifExists);
+        ConversationDao.dropTable(db, ifExists);
         NameListDao.dropTable(db, ifExists);
+        IMessageDao.dropTable(db, ifExists);
+        GoldDao.dropTable(db, ifExists);
     }
 
     /**
@@ -53,11 +53,11 @@ public class DaoMaster extends AbstractDaoMaster {
 
     public DaoMaster(Database db) {
         super(db, SCHEMA_VERSION);
-        registerDaoClass(ConversationDao.class);
         registerDaoClass(DynamicDao.class);
-        registerDaoClass(GoldDao.class);
-        registerDaoClass(IMessageDao.class);
+        registerDaoClass(ConversationDao.class);
         registerDaoClass(NameListDao.class);
+        registerDaoClass(IMessageDao.class);
+        registerDaoClass(GoldDao.class);
     }
 
     public DaoSession newSession() {

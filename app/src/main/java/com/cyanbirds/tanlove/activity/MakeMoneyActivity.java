@@ -19,7 +19,6 @@ import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.eventtype.MakeMoneyEvent;
 import com.cyanbirds.tanlove.eventtype.SnackBarEvent;
 import com.cyanbirds.tanlove.fragment.ClickBusinessFragment;
-import com.cyanbirds.tanlove.fragment.DownloadAppFragment;
 import com.cyanbirds.tanlove.fragment.DownloadBanlanceFragment;
 import com.cyanbirds.tanlove.fragment.DownloadPayFragment;
 import com.umeng.analytics.MobclickAgent;

@@ -15,7 +15,6 @@ import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.adapter.AttentionMeAdapter;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.FollowModel;
-import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.FollowListRequest;
 import com.cyanbirds.tanlove.ui.widget.CircularProgress;
 import com.cyanbirds.tanlove.ui.widget.DividerItemDecoration;
