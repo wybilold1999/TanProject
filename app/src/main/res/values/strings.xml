@@ -61,6 +61,7 @@
     <string name="regist_params_error">注册参数错误，请检查</string>
     <string name="dynamic_content_hint">表达一下此刻的心情吧...</string>
     <string name="real_name">真实姓名</string>
+    <string name="mobile">联系电话</string>
     <string name="input_real_name">请输入您的真实姓名</string>
     <string name="input_id_card">请输入您的身份证号</string>
     <string name="error_id_card">您输入的身份证号不正确，请重新输入</string>

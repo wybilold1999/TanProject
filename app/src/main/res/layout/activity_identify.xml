@@ -45,7 +45,7 @@
 						android:id="@+id/real_name"
 						android:layout_width="match_parent"
 						android:layout_height="wrap_content"
-						android:hint="@string/real_name"
+						android:hint="@string/mobile"
 						android:maxLines="1"
 						android:singleLine="true"
 						android:textSize="16sp"

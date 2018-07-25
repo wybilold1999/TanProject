@@ -20,6 +20,7 @@ import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.GetIdentifyInfoRequest;
 import com.cyanbirds.tanlove.net.request.OSSImagUploadRequest;
 import com.cyanbirds.tanlove.net.request.SubmitIdentifyRequest;
+import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.FileUtils;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
 import com.cyanbirds.tanlove.utils.ToastUtil;
@@ -172,9 +173,13 @@ public class IdentifyActivity extends BaseActivity {
 		String message = "";
 		boolean bool = true;
 		if (TextUtils.isEmpty(mRealName.getText().toString())) {
-			message = getResources().getString(R.string.input_real_name);
+			message = getResources().getString(R.string.input_phone);
 			bool = false;
-		} else if (TextUtils.isEmpty(mIdentifyId.getText().toString())) {
+		} else if (!CheckUtil.isMobileNO(mRealName.getText().toString())) {
+			message = getResources().getString(
+					R.string.input_phone_number_error);
+			bool = false;
+		}  else if (TextUtils.isEmpty(mIdentifyId.getText().toString())) {
 			message = getResources().getString(R.string.input_id_card);
 			bool = false;
 		} else {
