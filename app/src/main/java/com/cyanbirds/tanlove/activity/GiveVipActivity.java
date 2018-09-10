@@ -16,6 +16,7 @@ import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
 import com.cyanbirds.tanlove.utils.ToastUtil;
+import com.cyanbirds.tanlove.utils.Utils;
 import com.umeng.analytics.MobclickAgent;
 
 import java.util.List;
@@ -95,7 +96,7 @@ public class GiveVipActivity extends BaseActivity {
         Intent intent = new Intent();
         switch (view.getId()) {
             case R.id.skip_market:
-                AppManager.goToMarket(this, CheckUtil.getAppMetaData(this, "UMENG_CHANNEL"));
+                Utils.goToMarket(this, CheckUtil.getAppMetaData(this, "UMENG_CHANNEL"));
                 break;
             case R.id.upload_img:
                 intent.setClass(this, PhotoChoserActivity.class);

@@ -1,12 +1,8 @@
 package com.cyanbirds.tanlove.activity;
 
 import android.Manifest;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
-import android.support.v4.app.ActivityCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.View;
@@ -15,7 +11,6 @@ import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
-import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.ValueKey;
@@ -25,6 +20,9 @@ import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.GetCityInfoRequest;
 import com.cyanbirds.tanlove.net.request.UploadCityInfoRequest;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
+import com.cyanbirds.tanlove.utils.RxBus;
+import com.cyanbirds.tanlove.utils.Utils;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.umeng.analytics.MobclickAgent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -49,6 +47,7 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
 
     private final int REQUEST_LOCATION_PERMISSION = 1000;
     private boolean isSecondAccess = false;
+    private RxPermissions rxPermissions;
 
     private AMapLocationClientOption mLocationOption;
     private AMapLocationClient mlocationClient;
@@ -66,7 +65,7 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
         setupViews();
         new GetCityInfoTask().request();
         initLocationClient();
-        AppManager.requestLocationPermission(this);
+        rxPermissions = new RxPermissions(this);
         requestLocationPermission();
     }
 
@@ -100,7 +99,8 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
             mCurrrentCity = cityInfo.city;
             PreferencesUtils.setCurrentCity(EntranceActivity.this, mCurrrentCity);
             PreferencesUtils.setCurrentProvince(EntranceActivity.this, cityInfo.province);
-            EventBus.getDefault().post(new LocationEvent(mCurrrentCity));
+//            EventBus.getDefault().post(new LocationEvent(mCurrrentCity));
+            RxBus.getInstance().post(LoginActivity_bak.class, new LocationEvent(mCurrrentCity));
         }
 
         @Override
@@ -135,7 +135,8 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
             mCurrrentCity = aMapLocation.getCity();
             PreferencesUtils.setCurrentCity(this, mCurrrentCity);
             PreferencesUtils.setCurrentProvince(EntranceActivity.this, aMapLocation.getProvince());
-            EventBus.getDefault().post(new LocationEvent(mCurrrentCity));
+//            EventBus.getDefault().post(new LocationEvent(mCurrrentCity));
+            RxBus.getInstance().post(LoginActivity_bak.class, new LocationEvent(mCurrrentCity));
             new UploadCityInfoRequest().request(aMapLocation.getCity(), String.valueOf(aMapLocation.getLatitude()),
                     String.valueOf(aMapLocation.getLongitude()));
         } else {
@@ -164,7 +165,7 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
         Intent intent = new Intent();
         switch (view.getId()) {
             case R.id.login:
-                intent.setClass(this, LoginActivity.class);
+                intent.setClass(this, LoginActivity_bak.class);
                 if (!TextUtils.isEmpty(AppManager.getClientUser().mobile)) {
                     intent.putExtra(ValueKey.PHONE_NUMBER, AppManager.getClientUser().mobile);
                 }
@@ -196,48 +197,42 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
         MobclickAgent.onPause(this);
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        // 拒绝授权
-        if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
-            // 勾选了不再提示
-            if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION) &&
-                    !ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-            } else {
-                if (!isSecondAccess) {
-                    showAccessLocationDialog();
-                }
-            }
-        }
-    }
-
     private void requestLocationPermission() {
-        PackageManager pkgManager = CSApplication.getInstance().getPackageManager();
-        boolean ACCESS_COARSE_LOCATION =
-                pkgManager.checkPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION, getPackageName()) == PackageManager.PERMISSION_GRANTED;
-        boolean ACCESS_FINE_LOCATION =
-                pkgManager.checkPermission(Manifest.permission.ACCESS_FINE_LOCATION, getPackageName()) == PackageManager.PERMISSION_GRANTED;
-        if (Build.VERSION.SDK_INT >= 23 && !ACCESS_COARSE_LOCATION || !ACCESS_FINE_LOCATION) {
-            //请求权限
-            ActivityCompat.requestPermissions(this, new String[] {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
-                    REQUEST_LOCATION_PERMISSION);
-        }
+        rxPermissions.requestEachCombined(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+                .subscribe(permission -> {// will emit 1 Permission object
+                    if (permission.granted) {
+                        // All permissions are granted !
+                    } else if (permission.shouldShowRequestPermissionRationale) {
+                        // At least one denied permission without ask never again
+                    } else {
+                        // At least one denied permission with ask never again
+                        // Need to go to the settings
+                        if (!isSecondAccess) {
+                            showAccessLocationDialog();
+                        }
+                    }
+                }, throwable -> {
+
+                });
     }
 
     private void showAccessLocationDialog() {
+        isSecondAccess = true;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(R.string.access_location);
-        builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.dismiss();
-                isSecondAccess = true;
-                if (Build.VERSION.SDK_INT >= 23) {
-                    ActivityCompat.requestPermissions(EntranceActivity.this, new String[]{Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
-                            REQUEST_LOCATION_PERMISSION);
-                }
-            }
+        builder.setPositiveButton(R.string.ok, (dialog, i) -> {
+            dialog.dismiss();
+            Utils.goToSetting(EntranceActivity.this, REQUEST_LOCATION_PERMISSION);
         });
         builder.show();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_LOCATION_PERMISSION) {
+            isSecondAccess = false;
+            requestLocationPermission();
+        }
     }
 }

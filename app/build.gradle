@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId "com.cyanbirds.tanlove"
         minSdkVersion 15
-        targetSdkVersion 22
+        targetSdkVersion 27
         versionCode 58
         versionName "1.6.8"
         flavorDimensions "58"
@@ -96,7 +96,6 @@ android {
         sougou {}
         uc {}
         jinli {}
-        youyi {}
 
 
         productFlavors.all { flavor ->
@@ -130,13 +129,6 @@ android {
                 outputFileName = output.outputFile.name.replace(sourceFile, replaceFile)
                 //遗留问题：如何获取当前module的name，如CodeBooke这个名字怎么获取到
             }
-
-            // 删除unaligned apk
-            /*if (output.zipAlign != null) {
-                output.zipAlign.doLast {
-                    output.zipAlign.inputFile.delete()
-                }
-            }*/
         }
     }
     //=================打出的包进行重命名结束========================
@@ -161,6 +153,7 @@ dependencies {
     //rx
     implementation "io.reactivex.rxjava2:rxjava:2.2.1"
     implementation 'io.reactivex.rxjava2:rxandroid:2.1.0'
+    implementation 'com.github.tbruyelle:rxpermissions:0.10.2'
     // AutoDispose
     implementation 'com.uber.autodispose:autodispose-android:1.0.0-RC2'
     implementation 'com.uber.autodispose:autodispose-android:1.0.0-RC2'
@@ -172,6 +165,8 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:3.11.0'
     implementation 'com.squareup.okhttp3:logging-interceptor:3.11.0'
     implementation 'com.google.code.gson:gson:2.8.5'
+    // 持久化 Cookie
+    implementation 'com.github.franmontiel:PersistentCookieJar:v1.0.1'
 
     implementation 'org.greenrobot:greendao:3.1.1'
     implementation 'com.github.medyo:fancybuttons:1.5@aar'

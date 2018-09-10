@@ -3,12 +3,10 @@ package com.cyanbirds.tanlove.activity;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
@@ -72,8 +70,10 @@ import com.cyanbirds.tanlove.utils.MsgUtil;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.PushMsgUtil;
 import com.cyanbirds.tanlove.utils.ToastUtil;
+import com.cyanbirds.tanlove.utils.Utils;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.igexin.sdk.PushManager;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.tencent.android.tpush.XGPushManager;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;
 import com.umeng.analytics.MobclickAgent;
@@ -97,7 +97,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	private BottomNavigationView bottomNavigationView;
 	private ClientConfiguration mOSSConf;
 
-	private static final int REQUEST_PERMISSION = 0;
 	private final int REQUEST_LOCATION_PERMISSION = 1000;
 	private final int REQUEST_PERMISSION_SETTING = 10001;
 
@@ -116,6 +115,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 
 	private Badge mBadgeView;
 	private QBadgeView mQBadgeView;
+	private RxPermissions rxPermissions;
 
 	private static Handler mHandler = new Handler();
 
@@ -133,50 +133,34 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		}
 		updateConversationUnRead();
 
-		AppManager.getExecutorService().execute(new Runnable() {
-			@Override
-			public void run() {
-				initLocationClient();
+		rxPermissions = new RxPermissions(this);
+		requestLocationPermission();
 
-				if (AppManager.getClientUser().isShowVip) {
-					/**
-					 * 注册小米推送
-					 */
-					MiPushClient.registerPush(MainActivity.this, AppConstants.MI_PUSH_APP_ID, AppConstants.MI_PUSH_APP_KEY);
+		AppManager.getExecutorService().execute(() -> {
+			initLocationClient();
 
-					//个推
-					initGeTuiPush();
+			if (AppManager.getClientUser().isShowVip) {
+				/**
+				 * 注册小米推送
+				 */
+				MiPushClient.registerPush(MainActivity.this, AppConstants.MI_PUSH_APP_ID, AppConstants.MI_PUSH_APP_KEY);
 
-					XGPushManager.registerPush(getApplicationContext());
+				//个推
+				initGeTuiPush();
 
-					loadData();
+				XGPushManager.registerPush(getApplicationContext());
 
-					initFareGetTime();
-				}
+				loadData();
+
+				initFareGetTime();
+
 			}
 		});
 
 		if (AppManager.getClientUser().isShowVip) {
-			mHandler.postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					new GetLoveFormeListTask().request(1, 1);
-				}
-			}, 9000 * 10);
-
-			mHandler.postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					new MyGiftListTask().request(1, 1);
-				}
-			}, 5000 * 10);
-
-			mHandler.postDelayed(new Runnable() {
-				@Override
-				public void run() {
-					new FollowListTask().request("followFormeList", 1, 1);
-				}
-			}, 1500 * 10);
+			mHandler.postDelayed(() -> new GetLoveFormeListTask().request(1, 1), 9000 * 10);
+			mHandler.postDelayed(() -> new MyGiftListTask().request(1, 1), 5000 * 10);
+			mHandler.postDelayed(() -> new FollowListTask().request("followFormeList", 1, 1), 1500 * 10);
 		} else {
 			SDKCoreHelper.init(CSApplication.getInstance(), ECInitParams.LoginMode.FORCE_LOGIN);
 		}
@@ -636,72 +620,32 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		}
 	}
 
-	@Override
-	public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults) {
-		if (requestCode == REQUEST_PERMISSION) {
-			// 拒绝授权
-			if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
-				// 勾选了不再提示
-				if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.READ_PHONE_STATE)) {
-//					showOpenLocationDialog();
-				} else {
-					if (!isSecondRead) {
-						showReadPhoneStateDialog();
+	private void requestLocationPermission() {
+		rxPermissions.requestEach(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+				.subscribe(permission -> {
+					if (permission.granted) {
+						// `permission.name` is granted !
+					} else if (permission.shouldShowRequestPermissionRationale) {
+						// Denied permission without ask never again
+					} else {
+						// Denied permission with ask never again
+						// Need to go to the settings
+						if (!isSecondAccess) {
+							showAccessLocationDialog();
+						}
 					}
-				}
-			}
-		} else if (requestCode == REQUEST_LOCATION_PERMISSION) {
-			// 拒绝授权
-			if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
-				// 勾选了不再提示
-				if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_COARSE_LOCATION) &&
-						!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)) {
-					showOpenLocationDialog();
-				} else {
-					if (!isSecondAccess) {
-						showAccessLocationDialog();
-					}
-				}
-			} else {
-				initLocationClient();
-			}
-		} else {
-			super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-		}
+				}, throwable -> {
+
+				});
 	}
 
-	private void showOpenLocationDialog(){
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(R.string.open_location);
-		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-				Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-				Uri uri = Uri.fromParts("package", getPackageName(), null);
-				intent.setData(uri);
-				startActivityForResult(intent, REQUEST_PERMISSION_SETTING);
-
-			}
-		});
-		builder.show();
-	}
-
-
-	private void showAccessLocationDialog(){
+	private void showAccessLocationDialog() {
+		isSecondAccess = true;
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(R.string.access_location);
-		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-				isSecondAccess = true;
-				if (Build.VERSION.SDK_INT >= 23) {
-					ActivityCompat.requestPermissions(MainActivity.this, new String[] {android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION},
-							REQUEST_LOCATION_PERMISSION);
-				}
-
-			}
+		builder.setPositiveButton(R.string.ok, (dialog, i) -> {
+			dialog.dismiss();
+			Utils.goToSetting(MainActivity.this, REQUEST_LOCATION_PERMISSION);
 		});
 		builder.show();
 	}
@@ -750,8 +694,9 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
-		if (requestCode == REQUEST_PERMISSION_SETTING) {
-			initLocationClient();
+		if (requestCode == REQUEST_LOCATION_PERMISSION) {
+			isSecondAccess = false;
+			requestLocationPermission();
 		}
 	}
 

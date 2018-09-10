@@ -208,6 +208,11 @@
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:label="@string/login"
             android:screenOrientation="portrait"/>
+        <activity
+            android:name=".activity.LoginActivity_bak"
+            android:configChanges="keyboard|keyboardHidden|orientation"
+            android:label="@string/login"
+            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".activity.MainActivity"

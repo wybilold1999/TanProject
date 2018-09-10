@@ -1,5 +1,6 @@
 package com.cyanbirds.tanlove.activity.base;
 
+import android.arch.lifecycle.Lifecycle;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
@@ -10,6 +11,9 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import com.cyanbirds.tanlove.R;
+import com.uber.autodispose.AutoDispose;
+import com.uber.autodispose.AutoDisposeConverter;
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
 
 
 /**
@@ -20,7 +24,9 @@ import com.cyanbirds.tanlove.R;
  * @Date:2015年5月4日下午5:17:01
  *
  */
-public class BaseActivity extends AppCompatActivity {
+public class BaseActivity<T extends IBasePresenter> extends AppCompatActivity implements IBaseView<T> {
+
+	protected T presenter;
 
 	private Toolbar mActionBarToolbar;
 
@@ -33,6 +39,7 @@ public class BaseActivity extends AppCompatActivity {
 		if (ab != null) {
 			ab.setDisplayHomeAsUpEnabled(true);
 		}
+		setPresenter(presenter);
 	}
 
 	@Override
@@ -103,5 +110,31 @@ public class BaseActivity extends AppCompatActivity {
 	public static void exitApp() {
 		finishAll();
 //		System.exit(0);
+	}
+
+	@Override
+	public void onShowLoading() {
+
+	}
+
+	@Override
+	public void onHideLoading() {
+
+	}
+
+	@Override
+	public void onShowNetError() {
+
+	}
+
+	@Override
+	public void setPresenter(T presenter) {
+
+	}
+
+	@Override
+	public <X> AutoDisposeConverter<X> bindAutoDispose() {
+		return AutoDispose.autoDisposable(AndroidLifecycleScopeProvider
+				.from(this, Lifecycle.Event.ON_DESTROY));
 	}
 }

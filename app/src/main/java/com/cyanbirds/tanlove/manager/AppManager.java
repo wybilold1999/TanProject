@@ -433,50 +433,6 @@ public class AppManager {
 		return true;
 	}
 
-	public static void goToMarket(Context context, String channel) {
-		/**
-		 * 根据渠道跳转到不同的应用市场更新APP
-		 */
-		if ("sanxing".equals(channel)) {
-			Uri uri = Uri.parse("http://www.samsungapps.com/appquery/appDetail.as?appId=" + pkgName);
-			Intent goToMarket = new Intent();
-			goToMarket.setClassName("com.sec.android.app.samsungapps", "com.sec.android.app.samsungapps.Main");
-			goToMarket.setData(uri);
-			try {
-				context.startActivity(goToMarket);
-			} catch (ActivityNotFoundException e) {
-				e.printStackTrace();
-			}
-		} else if ("leshi".equals(channel)) {
-			Intent intent = new Intent();
-			intent.setClassName("com.letv.app.appstore", "com.letv.app.appstore.appmodule.details.DetailsActivity");
-			intent.setAction("com.letv.app.appstore.appdetailactivity");
-			intent.putExtra("packageName", pkgName);
-			context.startActivity(intent);
-		} else {
-			Uri uri = Uri.parse("market://details?id=" + pkgName);
-			Intent goToMarket = new Intent(Intent.ACTION_VIEW, uri);
-			try {
-				context.startActivity(goToMarket);
-			} catch (ActivityNotFoundException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	public static void requestLocationPermission(Activity activity) {
-		PackageManager pkgManager = CSApplication.getInstance().getPackageManager();
-		boolean ACCESS_COARSE_LOCATION =
-				pkgManager.checkPermission(android.Manifest.permission.ACCESS_COARSE_LOCATION, getPackageName()) == PackageManager.PERMISSION_GRANTED;
-		boolean ACCESS_FINE_LOCATION =
-				pkgManager.checkPermission(Manifest.permission.ACCESS_FINE_LOCATION, getPackageName()) == PackageManager.PERMISSION_GRANTED;
-		if (Build.VERSION.SDK_INT >= 23 && !ACCESS_COARSE_LOCATION || !ACCESS_FINE_LOCATION) {
-			//请求权限
-			ActivityCompat.requestPermissions(activity, new String[] {Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION},
-					REQUEST_LOCATION_PERMISSION);
-		}
-	}
-
 	public static boolean checkPermission(Activity activity, String permission, int flag) {
 		boolean isHasPermission = false;
 		if (Build.VERSION.SDK_INT >= 23) {
