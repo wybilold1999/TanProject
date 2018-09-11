@@ -18,19 +18,21 @@ import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.eventtype.LocationEvent;
 import com.cyanbirds.tanlove.eventtype.WeinXinEvent;
-import com.cyanbirds.tanlove.helper.IMChattingHelper;
 import com.cyanbirds.tanlove.manager.AppManager;
-import com.cyanbirds.tanlove.net.request.CheckIsRegisterByPhoneRequest;
+import com.cyanbirds.tanlove.net.IUserApi;
+import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 import com.cyanbirds.tanlove.net.request.DownloadFileRequest;
-import com.cyanbirds.tanlove.net.request.QqLoginRequest;
-import com.cyanbirds.tanlove.net.request.WXLoginRequest;
+import com.cyanbirds.tanlove.presenter.UserLoginPresenterImpl;
 import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
+import com.cyanbirds.tanlove.utils.JsonUtils;
 import com.cyanbirds.tanlove.utils.Md5Util;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
+import com.cyanbirds.tanlove.utils.RxBus;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.cyanbirds.tanlove.utils.Util;
+import com.cyanbirds.tanlove.view.IUserLogin;
 import com.tencent.connect.UserInfo;
 import com.tencent.connect.common.Constants;
 import com.tencent.mm.sdk.modelmsg.SendAuth;
@@ -39,20 +41,20 @@ import com.tencent.tauth.Tencent;
 import com.tencent.tauth.UiError;
 import com.umeng.analytics.MobclickAgent;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONObject;
 
 import java.io.File;
 
 import cn.smssdk.SMSSDK;
+import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import mehdi.sakout.fancybuttons.FancyButton;
 
 /**
  * Created by Administrator on 2016/4/23.
  */
-public class RegisterActivity extends BaseActivity implements View.OnClickListener{
+public class RegisterActivity extends BaseActivity<IUserLogin.Presenter> implements View.OnClickListener, IUserLogin.View{
 
     EditText phoneNum;
     FancyButton next;
@@ -60,7 +62,6 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
     ImageView weiXinLogin;
     ImageView mSelectMan;
     ImageView mSelectLady;
-    ImageView xmLogin;
 
     /**
      * 相册返回
@@ -76,15 +77,15 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
     private String channelId;
     private boolean activityIsRunning;
     private String mCurrrentCity;//定位到的城市
-    private String curLat;
-    private String curLon;
+
+    private Observable<?> observable;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
-        EventBus.getDefault().register(this);
+        rxBusSub();
         Toolbar toolbar = getActionBarToolbar();
         if (toolbar != null) {
             toolbar.setNavigationIcon(R.mipmap.ic_up);
@@ -95,20 +96,18 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
 
         channelId = CheckUtil.getAppMetaData(this, "UMENG_CHANNEL");
         mCurrrentCity = getIntent().getStringExtra(ValueKey.LOCATION);
-        curLat = getIntent().getStringExtra(ValueKey.LATITUDE);
-        curLon = getIntent().getStringExtra(ValueKey.LONGITUDE);
 
         setupView();
         setupEvent();
     }
 
     private void setupView() {
-        phoneNum = (EditText) findViewById(R.id.phone_num);
-        next = (FancyButton) findViewById(R.id.next);
-        weiXinLogin = (ImageView) findViewById(R.id.weixin_login);
-        qqLogin = (ImageView) findViewById(R.id.qq_login);
-        mSelectMan = (ImageView) findViewById(R.id.select_man);
-        mSelectLady = (ImageView) findViewById(R.id.select_lady);
+        phoneNum = findViewById(R.id.phone_num);
+        next = findViewById(R.id.next);
+        weiXinLogin = findViewById(R.id.weixin_login);
+        qqLogin = findViewById(R.id.qq_login);
+        mSelectMan = findViewById(R.id.select_man);
+        mSelectLady = findViewById(R.id.select_lady);
 
     }
 
@@ -126,8 +125,7 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
             case R.id.next:
                 if(checkInput()){
                     ProgressDialogUtils.getInstance(this).show(R.string.dialog_request_sms_code);
-                    new CheckPhoneIsRegisterTask().request(
-                            phoneNum.getText().toString().trim());
+                    checkPhoneIsRegister();
                 }
                 break;
             case R.id.portrait :
@@ -160,77 +158,82 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
         }
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void weiXinLogin(WeinXinEvent event) {
+    /**
+     * rx订阅
+     */
+    private void rxBusSub() {
+        observable = RxBus.getInstance().register(AppConstants.CITY_WE_CHAT_RESP_CODE);
+        observable.subscribe(o -> {
+            if (o instanceof LocationEvent) {
+                LocationEvent event = (LocationEvent) o;
+                mCurrrentCity = event.city;
+            } else {
+                WeinXinEvent event = (WeinXinEvent) o;
+                onShowLoading();
+                presenter.onWXLogin(event.code, channelId, mCurrrentCity);
+            }
+        });
+    }
+
+    @Override
+    public void onShowLoading() {
         ProgressDialogUtils.getInstance(RegisterActivity.this).show(R.string.dialog_request_login);
-        new WXLoginTask().request(event.code, channelId, mCurrrentCity);
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void getCity(LocationEvent event) {
-        mCurrrentCity = event.city;
+    @Override
+    public void onHideLoading() {
+        ProgressDialogUtils.getInstance(RegisterActivity.this).dismiss();
     }
-    
-    class WXLoginTask extends WXLoginRequest {
-        @Override
-        public void onPostExecute(ClientUser clientUser) {
-            ProgressDialogUtils.getInstance(RegisterActivity.this).dismiss();
-            MobclickAgent.onProfileSignIn(String.valueOf(AppManager
-                    .getClientUser().userId));
-            File faceLocalFile = new File(FileAccessorUtils.FACE_IMAGE,
+
+    @Override
+    public void setPresenter(IUserLogin.Presenter presenter) {
+        if (presenter == null) {
+            this.presenter = new UserLoginPresenterImpl(this);
+        }
+    }
+
+    @Override
+    public void loginSuccess(ClientUser clientUser) {
+        onHideLoading();
+        File faceLocalFile = new File(FileAccessorUtils.FACE_IMAGE,
+                Md5Util.md5(clientUser.face_url) + ".jpg");
+        if(!faceLocalFile.exists()
+                && !TextUtils.isEmpty(clientUser.face_url)){
+            new DownloadPortraitTask().request(clientUser.face_url,
+                    FileAccessorUtils.FACE_IMAGE,
                     Md5Util.md5(clientUser.face_url) + ".jpg");
-            if(!faceLocalFile.exists()
-                    && !TextUtils.isEmpty(clientUser.face_url)){
-                new DownloadPortraitTask().request(clientUser.face_url,
-                        FileAccessorUtils.FACE_IMAGE,
-                        Md5Util.md5(clientUser.face_url) + ".jpg");
-            } else {
-                clientUser.face_local = faceLocalFile.getAbsolutePath();
-            }
-            clientUser.currentCity = mCurrrentCity;
-            clientUser.latitude = curLat;
-            clientUser.longitude = curLon;
-            AppManager.setClientUser(clientUser);
-            AppManager.saveUserInfo();
-            AppManager.getClientUser().loginTime = System.currentTimeMillis();
-            PreferencesUtils.setLoginTime(RegisterActivity.this, System.currentTimeMillis());
-            IMChattingHelper.getInstance().sendInitLoginMsg();
-            Intent intent = new Intent();
-            intent.setClass(RegisterActivity.this, MainActivity.class);
-            startActivity(intent);
-            finishAll();
         }
-        
-        @Override
-        public void onErrorExecute(String error) {
-            ProgressDialogUtils.getInstance(RegisterActivity.this).dismiss();
-            ToastUtil.showMessage(error);
-        }
+
+        Intent intent = new Intent();
+        intent.setClass(RegisterActivity.this, MainActivity.class);
+        startActivity(intent);
+        finishAll();
     }
 
-    class CheckPhoneIsRegisterTask extends CheckIsRegisterByPhoneRequest {
-        @Override
-        public void onPostExecute(Boolean s) {
-            if(s){
-                ToastUtil.showMessage(R.string.phone_already_register);
-            } else {
-                //获取验证码
-                String phone_num = phoneNum.getText().toString().trim();
-                mClientUser.mobile = phone_num;
-                mClientUser.currentCity = mCurrrentCity;
-                SMSSDK.getVerificationCode("86", phone_num);
-                Intent intent = new Intent(RegisterActivity.this, RegisterCaptchaActivity.class);
-                intent.putExtra(ValueKey.PHONE_NUMBER, phone_num);
-                intent.putExtra(ValueKey.INPUT_PHONE_TYPE, 0);
-                intent.putExtra(ValueKey.USER, mClientUser);
-                startActivity(intent);
-                ProgressDialogUtils.getInstance(RegisterActivity.this).dismiss();
-            }
-        }
-
-        @Override
-        public void onErrorExecute(String error) {
-        }
+    private void checkPhoneIsRegister() {
+        RetrofitFactory.getRetrofit().create(IUserApi.class)
+                .checkIsRegister(phoneNum.getText().toString().trim())
+                .subscribeOn(Schedulers.io())
+                .map(responseBody -> JsonUtils.parseCheckIsRegister(responseBody.string()))
+                .observeOn(AndroidSchedulers.mainThread())
+                .as(this.bindAutoDispose())
+                .subscribe(aBoolean -> {
+                    onHideLoading();
+                    if(aBoolean){
+                        ToastUtil.showMessage(R.string.phone_already_register);
+                    } else {
+                        //获取验证码
+                        String phone_num = phoneNum.getText().toString().trim();
+                        mClientUser.mobile = phone_num;
+                        mClientUser.currentCity = mCurrrentCity;
+                        SMSSDK.getVerificationCode("86", phone_num);
+                        Intent intent = new Intent(RegisterActivity.this, RegisterCaptchaActivity.class);
+                        intent.putExtra(ValueKey.PHONE_NUMBER, phone_num);
+                        intent.putExtra(ValueKey.INPUT_PHONE_TYPE, 0);
+                        intent.putExtra(ValueKey.USER, mClientUser);
+                        startActivity(intent);
+                    }
+                }, throwable -> onShowNetError());
     }
 
     /**
@@ -305,9 +308,9 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
                 @Override
                 public void onComplete(final Object response) {
                     if (activityIsRunning) {
-                        ProgressDialogUtils.getInstance(RegisterActivity.this).show(R.string.dialog_request_login);
+                        onShowLoading();
                     }
-                    new QqLoginTask().request(token, openId, channelId, mCurrrentCity);
+                    presenter.onQQLogin(token, openId, channelId, mCurrrentCity);
                 }
 
                 @Override
@@ -318,39 +321,6 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
             mInfo = new UserInfo(this, mTencent.getQQToken());
             mInfo.getUserInfo(listener);
         } else {
-        }
-    }
-
-    class QqLoginTask extends QqLoginRequest {
-        @Override
-        public void onPostExecute(ClientUser clientUser) {
-            ProgressDialogUtils.getInstance(RegisterActivity.this).dismiss();
-            File faceLocalFile = new File(FileAccessorUtils.FACE_IMAGE,
-                    Md5Util.md5(clientUser.face_url) + ".jpg");
-            if(!faceLocalFile.exists()
-                    && !TextUtils.isEmpty(clientUser.face_url)){
-                new DownloadPortraitTask().request(clientUser.face_url,
-                        FileAccessorUtils.FACE_IMAGE,
-                        Md5Util.md5(clientUser.face_url) + ".jpg");
-            } else {
-                clientUser.face_local = faceLocalFile.getAbsolutePath();
-            }
-            clientUser.currentCity = mCurrrentCity;
-            clientUser.latitude = curLat;
-            clientUser.longitude = curLon;
-            AppManager.setClientUser(clientUser);
-            AppManager.saveUserInfo();
-            AppManager.getClientUser().loginTime = System.currentTimeMillis();
-            PreferencesUtils.setLoginTime(RegisterActivity.this, System.currentTimeMillis());
-            IMChattingHelper.getInstance().sendInitLoginMsg();
-            Intent intent = new Intent(RegisterActivity.this, MainActivity.class);
-            startActivity(intent);
-            finishAll();
-        }
-
-        @Override
-        public void onErrorExecute(String error) {
-            ProgressDialogUtils.getInstance(RegisterActivity.this).dismiss();
         }
     }
 
@@ -456,11 +426,5 @@ public class RegisterActivity extends BaseActivity implements View.OnClickListen
     protected void onStop() {
         super.onStop();
         ProgressDialogUtils.getInstance(this).dismiss();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
     }
 }

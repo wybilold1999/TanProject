@@ -5,8 +5,10 @@ import android.support.v4.util.ArrayMap;
 import com.cyanbirds.tanlove.entity.AllKeys;
 
 import io.reactivex.Observable;
+import okhttp3.Response;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.http.Field;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -32,5 +34,13 @@ public interface IUserApi {
      * @return
      */
     @GET("user/getIdKeys")
-    Observable<AllKeys> getIdKeys();
+    Observable<ResponseBody> getIdKeys();
+
+    @FormUrlEncoded
+    @POST("user/checkIsRegister")
+    Observable<ResponseBody> checkIsRegister(@Field("phone") String phone);
+
+    @FormUrlEncoded
+    @POST("captch/smsCode")
+    Observable<ResponseBody> checkSmsCode(@Header("token") String token, @FieldMap ArrayMap<String, String> params);
 }

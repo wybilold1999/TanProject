@@ -15,4 +15,12 @@ public interface IUserLogin {
         void onWXLogin(String code, String channelId, String city);
         void onQQLogin(String token, String openId, String channelId, String city);
     }
+
+    interface CheckSmsCodeView extends IBaseView<CheckSmsCodePresenter> {
+        void checkSmsCode(int checkCode);
+    }
+
+    interface CheckSmsCodePresenter extends IBasePresenter {
+        void checkSmsCode(String code, String phoneNum, int mPhoneType);
+    }
 }

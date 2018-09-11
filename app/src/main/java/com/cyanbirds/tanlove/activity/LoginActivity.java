@@ -17,20 +17,19 @@ import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.eventtype.LocationEvent;
 import com.cyanbirds.tanlove.eventtype.WeinXinEvent;
-import com.cyanbirds.tanlove.helper.IMChattingHelper;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.DownloadFileRequest;
-import com.cyanbirds.tanlove.net.request.QqLoginRequest;
-import com.cyanbirds.tanlove.net.request.UserLoginRequest;
-import com.cyanbirds.tanlove.net.request.WXLoginRequest;
+import com.cyanbirds.tanlove.presenter.UserLoginPresenterImpl;
 import com.cyanbirds.tanlove.utils.AESEncryptorUtil;
 import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.cyanbirds.tanlove.utils.Md5Util;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
+import com.cyanbirds.tanlove.utils.RxBus;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.cyanbirds.tanlove.utils.Util;
+import com.cyanbirds.tanlove.view.IUserLogin;
 import com.tencent.connect.UserInfo;
 import com.tencent.connect.common.Constants;
 import com.tencent.mm.sdk.modelmsg.SendAuth;
@@ -40,18 +39,17 @@ import com.tencent.tauth.UiError;
 import com.umeng.analytics.MobclickAgent;
 
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 import org.json.JSONObject;
 
 import java.io.File;
 
+import io.reactivex.Observable;
 import mehdi.sakout.fancybuttons.FancyButton;
 
 /**
  * Created by Administrator on 2016/4/23.
  */
-public class LoginActivity extends BaseActivity implements View.OnClickListener{
+public class LoginActivity extends BaseActivity<IUserLogin.Presenter> implements View.OnClickListener, IUserLogin.View{
     EditText loginAccount;
     EditText loginPwd;
     FancyButton btnLogin;
@@ -68,14 +66,14 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
     private String channelId;
     private boolean activityIsRunning;
     private String mCurrrentCity;//定位到的城市
-    private String curLat;
-    private String curLon;
+
+    private Observable<?> observable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-        EventBus.getDefault().register(this);
+        rxBusSub();
         Toolbar toolbar = getActionBarToolbar();
         if (toolbar != null) {
             toolbar.setNavigationIcon(R.mipmap.ic_up);
@@ -113,8 +111,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
             loginAccount.setSelection(mPhoneNum.length());
         }
         mCurrrentCity = getIntent().getStringExtra(ValueKey.LOCATION);
-        curLat = getIntent().getStringExtra(ValueKey.LATITUDE);
-        curLon = getIntent().getStringExtra(ValueKey.LONGITUDE);
     }
 
     @Override
@@ -125,14 +121,14 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                 if(checkInput()){
                     String cryptLoginPwd = AESEncryptorUtil.crypt(loginPwd.getText().toString().trim(),
                             AppConstants.SECURITY_KEY);
-                    ProgressDialogUtils.getInstance(this).show(R.string.dialog_request_login);
-                    new UserLoginTask().request(loginAccount.getText().toString().trim(),
+                    onShowLoading();
+                    presenter.onUserLogin(loginAccount.getText().toString().trim(),
                             cryptLoginPwd, mCurrrentCity);
                 }
                 break;
             case R.id.forget_pwd:
                 //0=注册1=找回密码2=验证绑定手机
-                intent.setClass(this, FindPwdActivity.class);
+                intent.setClass(this, FindPasswordActivity.class);
                 intent.putExtra(ValueKey.LOCATION, mCurrrentCity);
                 intent.putExtra(ValueKey.INPUT_PHONE_TYPE, 1);
                 startActivity(intent);
@@ -158,89 +154,61 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
         }
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void getCity(LocationEvent event) {
-        mCurrrentCity = event.city;
+    /**
+     * rx订阅
+     */
+    private void rxBusSub() {
+        observable = RxBus.getInstance().register(AppConstants.CITY_WE_CHAT_RESP_CODE);
+        observable.subscribe(o -> {
+            if (o instanceof LocationEvent) {
+                LocationEvent event = (LocationEvent) o;
+                mCurrrentCity = event.city;
+            } else {
+                WeinXinEvent event = (WeinXinEvent) o;
+                onShowLoading();
+                presenter.onWXLogin(event.code, channelId, mCurrrentCity);
+            }
+        });
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void weiXinLogin(WeinXinEvent event) {
+    @Override
+    public void onShowLoading() {
         ProgressDialogUtils.getInstance(LoginActivity.this).show(R.string.dialog_request_login);
-        new WXLoginTask().request(event.code, channelId, mCurrrentCity);
     }
 
-    class WXLoginTask extends WXLoginRequest {
-        @Override
-        public void onPostExecute(ClientUser clientUser) {
-            ProgressDialogUtils.getInstance(LoginActivity.this).dismiss();
-            MobclickAgent.onProfileSignIn(String.valueOf(AppManager
-                    .getClientUser().userId));
-            File faceLocalFile = new File(FileAccessorUtils.FACE_IMAGE,
-                    Md5Util.md5(clientUser.face_url) + ".jpg");
-            if(!faceLocalFile.exists()
-                    && !TextUtils.isEmpty(clientUser.face_url)){
-                new DownloadPortraitTask().request(clientUser.face_url,
-                        FileAccessorUtils.FACE_IMAGE,
-                        Md5Util.md5(clientUser.face_url) + ".jpg");
-            } else {
-                clientUser.face_local = faceLocalFile.getAbsolutePath();
-            }
-            clientUser.currentCity = mCurrrentCity;
-            clientUser.latitude = curLat;
-            clientUser.longitude = curLon;
-            AppManager.setClientUser(clientUser);
-            AppManager.saveUserInfo();
-            AppManager.getClientUser().loginTime = System.currentTimeMillis();
-            PreferencesUtils.setLoginTime(LoginActivity.this, System.currentTimeMillis());
-            IMChattingHelper.getInstance().sendInitLoginMsg();
-            Intent intent = new Intent();
-            intent.setClass(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
-            finishAll();
-        }
-
-        @Override
-        public void onErrorExecute(String error) {
-            ProgressDialogUtils.getInstance(LoginActivity.this).dismiss();
-            ToastUtil.showMessage(error);
-        }
+    @Override
+    public void onHideLoading() {
+        ProgressDialogUtils.getInstance(LoginActivity.this).dismiss();
     }
 
-    class UserLoginTask extends UserLoginRequest {
-        @Override
-        public void onPostExecute(ClientUser clientUser) {
-            ProgressDialogUtils.getInstance(LoginActivity.this).dismiss();
-            hideSoftKeyboard();
-            MobclickAgent.onProfileSignIn(String.valueOf(AppManager
-                    .getClientUser().userId));
-            File faceLocalFile = new File(FileAccessorUtils.FACE_IMAGE,
+    @Override
+    public void onShowNetError() {
+        onHideLoading();
+        ToastUtil.showMessage(R.string.network_requests_error);
+    }
+
+    @Override
+    public void loginSuccess(ClientUser clientUser) {
+        onHideLoading();
+        File faceLocalFile = new File(FileAccessorUtils.FACE_IMAGE,
+                Md5Util.md5(clientUser.face_url) + ".jpg");
+        if(!faceLocalFile.exists()
+                && !TextUtils.isEmpty(clientUser.face_url)){
+            new DownloadPortraitTask().request(clientUser.face_url,
+                    FileAccessorUtils.FACE_IMAGE,
                     Md5Util.md5(clientUser.face_url) + ".jpg");
-            if(!faceLocalFile.exists()
-                    && !TextUtils.isEmpty(clientUser.face_url)){
-                new DownloadPortraitTask().request(clientUser.face_url,
-                        FileAccessorUtils.FACE_IMAGE,
-                        Md5Util.md5(clientUser.face_url) + ".jpg");
-            } else {
-                clientUser.face_local = faceLocalFile.getAbsolutePath();
-            }
-            clientUser.currentCity = mCurrrentCity;
-            clientUser.latitude = curLat;
-            clientUser.longitude = curLon;
-            AppManager.setClientUser(clientUser);
-            AppManager.saveUserInfo();
-            AppManager.getClientUser().loginTime = System.currentTimeMillis();
-            PreferencesUtils.setLoginTime(LoginActivity.this, System.currentTimeMillis());
-            IMChattingHelper.getInstance().sendInitLoginMsg();
-            Intent intent = new Intent();
-            intent.setClass(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
-            finishAll();
         }
 
-        @Override
-        public void onErrorExecute(String error) {
-            ProgressDialogUtils.getInstance(LoginActivity.this).dismiss();
-            ToastUtil.showMessage(error);
+        Intent intent = new Intent();
+        intent.setClass(LoginActivity.this, MainActivity.class);
+        startActivity(intent);
+        finishAll();
+    }
+
+    @Override
+    public void setPresenter(IUserLogin.Presenter presenter) {
+        if (presenter == null) {
+            this.presenter = new UserLoginPresenterImpl(this);
         }
     }
 
@@ -307,9 +275,9 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
                 @Override
                 public void onComplete(final Object response) {
                     if (activityIsRunning) {
-                        ProgressDialogUtils.getInstance(LoginActivity.this).show(R.string.dialog_request_login);
+                        onShowLoading();
                     }
-                    new QqLoginTask().request(token, openId, channelId, mCurrrentCity);
+                    presenter.onQQLogin(token, openId, channelId, mCurrrentCity);
                 }
 
                 @Override
@@ -320,41 +288,6 @@ public class LoginActivity extends BaseActivity implements View.OnClickListener{
             mInfo = new UserInfo(this, mTencent.getQQToken());
             mInfo.getUserInfo(listener);
         } else {
-        }
-    }
-
-    class QqLoginTask extends QqLoginRequest {
-        @Override
-        public void onPostExecute(ClientUser clientUser) {
-            ProgressDialogUtils.getInstance(LoginActivity.this).dismiss();
-            MobclickAgent.onProfileSignIn(String.valueOf(AppManager
-                    .getClientUser().userId));
-            File faceLocalFile = new File(FileAccessorUtils.FACE_IMAGE,
-                    Md5Util.md5(clientUser.face_url) + ".jpg");
-            if(!faceLocalFile.exists()
-                    && !TextUtils.isEmpty(clientUser.face_url)){
-                new DownloadPortraitTask().request(clientUser.face_url,
-                        FileAccessorUtils.FACE_IMAGE,
-                        Md5Util.md5(clientUser.face_url) + ".jpg");
-            } else {
-                clientUser.face_local = faceLocalFile.getAbsolutePath();
-            }
-            clientUser.currentCity = mCurrrentCity;
-            clientUser.latitude = curLat;
-            clientUser.longitude = curLon;
-            AppManager.setClientUser(clientUser);
-            AppManager.saveUserInfo();
-            AppManager.getClientUser().loginTime = System.currentTimeMillis();
-            PreferencesUtils.setLoginTime(LoginActivity.this, System.currentTimeMillis());
-            IMChattingHelper.getInstance().sendInitLoginMsg();
-            Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-            startActivity(intent);
-            finishAll();
-        }
-
-        @Override
-        public void onErrorExecute(String error) {
-            ProgressDialogUtils.getInstance(LoginActivity.this).dismiss();
         }
     }
 

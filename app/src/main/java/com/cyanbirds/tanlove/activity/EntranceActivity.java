@@ -162,7 +162,7 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
         Intent intent = new Intent();
         switch (view.getId()) {
             case R.id.login:
-                intent.setClass(this, LoginActivity_bak.class);
+                intent.setClass(this, LoginActivity.class);
                 if (!TextUtils.isEmpty(AppManager.getClientUser().mobile)) {
                     intent.putExtra(ValueKey.PHONE_NUMBER, AppManager.getClientUser().mobile);
                 }

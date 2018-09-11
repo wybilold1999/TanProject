@@ -11,6 +11,7 @@ import android.view.View;
 import android.view.inputmethod.InputMethodManager;
 
 import com.cyanbirds.tanlove.R;
+import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.uber.autodispose.AutoDispose;
 import com.uber.autodispose.AutoDisposeConverter;
 import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
@@ -124,7 +125,8 @@ public class BaseActivity<T extends IBasePresenter> extends AppCompatActivity im
 
 	@Override
 	public void onShowNetError() {
-
+		onHideLoading();
+		ToastUtil.showMessage(R.string.network_requests_error);
 	}
 
 	@Override

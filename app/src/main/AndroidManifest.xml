@@ -208,11 +208,6 @@
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:label="@string/login"
             android:screenOrientation="portrait"/>
-        <activity
-            android:name=".activity.LoginActivity_bak"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:label="@string/login"
-            android:screenOrientation="portrait"/>
 
         <activity
             android:name=".activity.MainActivity"
@@ -313,7 +308,7 @@
             android:label="@string/register_submit"
             android:screenOrientation="portrait"/>
         <activity
-            android:name=".activity.FindPwdActivity"
+            android:name=".activity.FindPasswordActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:label="@string/find_pwd"
             android:screenOrientation="portrait"/>

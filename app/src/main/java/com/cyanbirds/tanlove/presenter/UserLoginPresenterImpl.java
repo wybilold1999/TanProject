@@ -9,36 +9,22 @@ import com.cyanbirds.tanlove.helper.IMChattingHelper;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.IUserApi;
 import com.cyanbirds.tanlove.net.base.RetrofitFactory;
-import com.cyanbirds.tanlove.utils.AESOperator;
 import com.cyanbirds.tanlove.utils.CheckUtil;
+import com.cyanbirds.tanlove.utils.JsonUtils;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.view.IUserLogin;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
 import com.umeng.analytics.MobclickAgent;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-import static com.cyanbirds.tanlove.utils.JsonUtils.parseJson;
-
-public class UserLoginPresenter implements IUserLogin.Presenter{
+public class UserLoginPresenterImpl implements IUserLogin.Presenter{
 
     private IUserLogin.View view;
 
-    public UserLoginPresenter(IUserLogin.View view) {
+    public UserLoginPresenterImpl(IUserLogin.View view) {
         this.view = view;
-    }
-
-    @Override
-    public void doShowNetError() {
-
-    }
-
-    @Override
-    public void doLoadNoMore() {
-
     }
 
     @Override
@@ -64,7 +50,7 @@ public class UserLoginPresenter implements IUserLogin.Presenter{
                 .userLogin(AppManager.getClientUser().sessionId, params)
                 .subscribeOn(Schedulers.io())
                 .flatMap(responseBody -> {
-                    ClientUser clientUser = parseJson(responseBody.string());
+                    ClientUser clientUser = JsonUtils.parseClientUser(responseBody.string());
                     return Observable.just(clientUser);
                 })
                 .doOnNext(clientUser -> {
@@ -113,7 +99,7 @@ public class UserLoginPresenter implements IUserLogin.Presenter{
                 .wxLogin(AppManager.getClientUser().sessionId, params)
                 .subscribeOn(Schedulers.io())
                 .flatMap(responseBody -> {
-                    ClientUser clientUser = parseJson(responseBody.string());
+                    ClientUser clientUser = JsonUtils.parseClientUser(responseBody.string());
                     return Observable.just(clientUser);
                 })
                 .doOnNext(clientUser -> {
@@ -163,7 +149,7 @@ public class UserLoginPresenter implements IUserLogin.Presenter{
                 .qqLogin(AppManager.getClientUser().sessionId, params)
                 .subscribeOn(Schedulers.io())
                 .flatMap(responseBody -> {
-                    ClientUser clientUser = parseJson(responseBody.string());
+                    ClientUser clientUser = JsonUtils.parseClientUser(responseBody.string());
                     return Observable.just(clientUser);
                 })
                 .doOnNext(clientUser -> {

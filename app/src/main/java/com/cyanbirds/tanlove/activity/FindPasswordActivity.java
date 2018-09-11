@@ -11,8 +11,11 @@ import android.widget.TextView;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.ValueKey;
+import com.cyanbirds.tanlove.net.IUserApi;
+import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 import com.cyanbirds.tanlove.net.request.CheckIsRegisterByPhoneRequest;
 import com.cyanbirds.tanlove.utils.CheckUtil;
+import com.cyanbirds.tanlove.utils.JsonUtils;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.umeng.analytics.MobclickAgent;
 
@@ -20,12 +23,11 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.smssdk.SMSSDK;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import mehdi.sakout.fancybuttons.FancyButton;
 
-/**
- * Created by Administrator on 2016/4/26.
- */
-public class FindPwdActivity extends BaseActivity {
+public class FindPasswordActivity extends BaseActivity {
     @BindView(R.id.tips)
     TextView mTips;
     @BindView(R.id.phone_num)
@@ -47,29 +49,21 @@ public class FindPwdActivity extends BaseActivity {
         }
         mInputPhoneType = getIntent().getIntExtra(ValueKey.INPUT_PHONE_TYPE, -1);
         mCurrrentCity = getIntent().getStringExtra(ValueKey.LOCATION);
-        setupView();
-    }
-
-    private void setupView() {
-        if (mInputPhoneType == 2) {//绑定手机
-            mTips.setVisibility(View.INVISIBLE);
-            getSupportActionBar().setTitle(R.string.bangding_phone);
-        }
     }
 
     @OnClick(R.id.next)
     public void onClick() {
         if(checkInput()){
-            new CheckPhoneIsRegisterTask().request(phoneNum.getText().toString().trim());
+            checkPhoneIsRegister();
         }
     }
 
     class CheckPhoneIsRegisterTask extends CheckIsRegisterByPhoneRequest {
         @Override
-        public void onPostExecute(Boolean s) {
-            if(s){
+        public void onPostExecute(Boolean aBoolean) {
+            if(aBoolean){
                 SMSSDK.getVerificationCode("86", phoneNum.getText().toString().trim());
-                Intent intent = new Intent(FindPwdActivity.this, RegisterCaptchaActivity.class);
+                Intent intent = new Intent(FindPasswordActivity.this, RegisterCaptchaActivity.class);
                 intent.putExtra(ValueKey.INPUT_PHONE_TYPE, mInputPhoneType);
                 intent.putExtra(ValueKey.PHONE_NUMBER, phoneNum.getText().toString().trim());
                 intent.putExtra(ValueKey.LOCATION, mCurrrentCity);
@@ -82,7 +76,30 @@ public class FindPwdActivity extends BaseActivity {
 
         @Override
         public void onErrorExecute(String error) {
+            ToastUtil.showMessage(error);
         }
+    }
+
+    private void checkPhoneIsRegister() {
+        RetrofitFactory.getRetrofit().create(IUserApi.class)
+                .checkIsRegister(phoneNum.getText().toString().trim())
+                .subscribeOn(Schedulers.io())
+                .map(responseBody -> JsonUtils.parseCheckIsRegister(responseBody.string()))
+                .observeOn(AndroidSchedulers.mainThread())
+                .as(this.bindAutoDispose())
+                .subscribe(aBoolean -> {
+                    if(aBoolean){
+                        SMSSDK.getVerificationCode("86", phoneNum.getText().toString().trim());
+                        Intent intent = new Intent(FindPasswordActivity.this, RegisterCaptchaActivity.class);
+                        intent.putExtra(ValueKey.INPUT_PHONE_TYPE, mInputPhoneType);
+                        intent.putExtra(ValueKey.PHONE_NUMBER, phoneNum.getText().toString().trim());
+                        intent.putExtra(ValueKey.LOCATION, mCurrrentCity);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        ToastUtil.showMessage(R.string.phone_un_register);
+                    }
+                }, throwable -> onShowNetError());
     }
 
     /**
@@ -117,5 +134,4 @@ public class FindPwdActivity extends BaseActivity {
         MobclickAgent.onPageEnd(this.getClass().getName());
         MobclickAgent.onPause(this);
     }
-
 }

@@ -17,8 +17,10 @@ import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.CheckSmsCodeRequest;
 import com.cyanbirds.tanlove.net.request.UpdateUserInfoRequest;
+import com.cyanbirds.tanlove.presenter.SmsCodePresenterImpl;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
 import com.cyanbirds.tanlove.utils.ToastUtil;
+import com.cyanbirds.tanlove.view.IUserLogin;
 import com.umeng.analytics.MobclickAgent;
 
 import cn.smssdk.SMSSDK;
@@ -32,8 +34,8 @@ import mehdi.sakout.fancybuttons.FancyButton;
  * @Date:2015年5月11日下午4:14:15
  *
  */
-public class RegisterCaptchaActivity extends BaseActivity implements
-		OnClickListener {
+public class RegisterCaptchaActivity extends BaseActivity<IUserLogin.CheckSmsCodePresenter> implements
+		OnClickListener, IUserLogin.CheckSmsCodeView{
 
 	private EditText mSmsCode;
 	private FancyButton mNext;
@@ -117,7 +119,8 @@ public class RegisterCaptchaActivity extends BaseActivity implements
 			if (checkInput()) {
 				//验证 验证码
 				ProgressDialogUtils.getInstance(this).show(R.string.dialog_request_sms_check);
-				new CheckSmsCodeTask().request(mSmsCode.getText().toString().trim(), mPhone, mPhoneType);
+				presenter.checkSmsCode(mSmsCode.getText().toString().trim(), mPhone, mPhoneType);
+//				new CheckSmsCodeTask().request(mSmsCode.getText().toString().trim(), mPhone, mPhoneType);
 			}
 			break;
 		case R.id.count_timer:
@@ -128,6 +131,40 @@ public class RegisterCaptchaActivity extends BaseActivity implements
 			SMSSDK.getVerificationCode("86", mPhone);
 			timer.start();
 			break;
+		}
+	}
+
+	@Override
+	public void setPresenter(IUserLogin.CheckSmsCodePresenter presenter) {
+		if (presenter == null) {
+			this.presenter = new SmsCodePresenterImpl(this);
+		}
+	}
+
+	@Override
+	public void checkSmsCode(int checkCode) {
+		ProgressDialogUtils.getInstance(RegisterCaptchaActivity.this).dismiss();
+		if (checkCode == 200) {
+			Intent intent = new Intent();
+			if(mPhoneType == 0){//注册
+				intent.setClass(RegisterCaptchaActivity.this, RegisterSubmitActivity.class);
+				intent.putExtra(ValueKey.USER, mClientUser);
+				startActivity(intent);
+			} else if(mPhoneType == 1){//找回密码
+				intent.setClass(RegisterCaptchaActivity.this, InputNewPwdActivity.class);
+				intent.putExtra(ValueKey.SMS_CODE, mSmsCode.getText().toString().trim());
+				intent.putExtra(ValueKey.PHONE_NUMBER, mPhone);
+				intent.putExtra(ValueKey.LOCATION, mCurrrentCity);
+				startActivity(intent);
+			} else {
+				AppManager.getClientUser().isCheckPhone = true;
+				AppManager.getClientUser().mobile = mPhone;
+				AppManager.setClientUser(AppManager.getClientUser());
+				AppManager.saveUserInfo();
+				new UpdateUserInfoTask().request(AppManager.getClientUser());
+			}
+		} else {
+			ToastUtil.showMessage("验证失败");
 		}
 	}
 

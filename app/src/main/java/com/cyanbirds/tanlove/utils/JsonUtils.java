@@ -1,13 +1,19 @@
 package com.cyanbirds.tanlove.utils;
 
+import android.text.TextUtils;
+
+import com.cyanbirds.tanlove.CSApplication;
+import com.cyanbirds.tanlove.R;
+import com.cyanbirds.tanlove.entity.AllKeys;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.manager.AppManager;
+import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 public class JsonUtils {
 
-    public static ClientUser parseJson(String json){
+    public static ClientUser parseClientUser(String json){
         try {
             String decrptData = AESOperator.getInstance().decrypt(json);
             JsonObject obj = new JsonParser().parse(decrptData).getAsJsonObject();
@@ -68,5 +74,33 @@ public class JsonUtils {
         } catch (Exception e) {
         }
         return null;
+    }
+
+    public static AllKeys parseJsonIdKeys(String json){
+        try {
+            String decryptData = AESOperator.getInstance().decrypt(json);
+            if (!TextUtils.isEmpty(decryptData)) {
+                Gson gson = new Gson();
+                AllKeys keys = gson.fromJson(decryptData, AllKeys.class);
+                return keys;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public static boolean parseCheckIsRegister(String json) {
+        try {
+            JsonObject obj = new JsonParser().parse(json).getAsJsonObject();
+            int code = obj.get("code").getAsInt();
+            if (code != 0) {
+                return false;
+            }
+            boolean isRegister = obj.get("data").getAsBoolean();
+            return isRegister;
+        } catch (Exception e) {
+        }
+        return false;
     }
 }

@@ -105,6 +105,7 @@ public class LauncherActivity extends AppCompatActivity {
         RetrofitFactory.getRetrofit().create(IUserApi.class)
                 .getIdKeys()
                 .subscribeOn(Schedulers.io())
+                .map(responseBody -> JsonUtils.parseJsonIdKeys(responseBody.string()))
                 .doOnNext(allKeys -> {
                     AppConstants.WEIXIN_ID = allKeys.weChatId;
                     AppConstants.WEIXIN_PAY_ID = allKeys.weChatPayId;
@@ -191,7 +192,7 @@ public class LauncherActivity extends AppCompatActivity {
                         .userLogin(AppManager.getClientUser().sessionId, params)
                         .subscribeOn(Schedulers.io())
                         .flatMap(responseBody -> {
-                            ClientUser clientUser = JsonUtils.parseJson(responseBody.string());
+                            ClientUser clientUser = JsonUtils.parseClientUser(responseBody.string());
                             return Observable.just(clientUser);
                         })
                         .doOnNext(clientUser -> {
