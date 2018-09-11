@@ -1,6 +1,7 @@
 package com.cyanbirds.tanlove.net.request;
 
 
+import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.listener.FileProgressListener;
 import com.cyanbirds.tanlove.listener.NetFileDownloadListener;
 import com.cyanbirds.tanlove.net.base.ResultPostExecute;
@@ -62,6 +63,7 @@ public class DownloadApkFileRequest extends ResultPostExecute<String> {
      */
     public void request(String url, final String savePath, String fileName) {
         final File file = new File(savePath, fileName);
+        FileDownloader.setup(CSApplication.getInstance());
         FileDownloader.getImpl().create(url)
                 .setPath(file.getAbsolutePath())
                 .setListener(new NetFileDownloadListener(){

@@ -75,7 +75,6 @@ import com.facebook.drawee.view.SimpleDraweeView;
 import com.igexin.sdk.PushManager;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.tencent.android.tpush.XGPushManager;
-import com.tencent.mm.sdk.openapi.WXAPIFactory;
 import com.umeng.analytics.MobclickAgent;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.yuntongxun.ecsdk.ECInitParams;
@@ -171,13 +170,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 			//约我的
 			new GetAppointmeListTask().request(1, 1, AppManager.getClientUser().userId, 1);
 		}
-		registerWeiXin();
-	}
-
-	private void registerWeiXin() {
-		// 通过WXAPIFactory工厂，获取IWXAPI的实例
-		AppManager.setIWX_PAY_API(WXAPIFactory.createWXAPI(this, AppConstants.WEIXIN_PAY_ID, true));
-		AppManager.getIWX_PAY_API().registerApp(AppConstants.WEIXIN_PAY_ID);
 	}
 
 	/**

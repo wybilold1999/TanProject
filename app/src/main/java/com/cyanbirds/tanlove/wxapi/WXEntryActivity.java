@@ -6,6 +6,7 @@ import android.os.Bundle;
 
 import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;
+import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.eventtype.WeinXinEvent;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.utils.RxBus;
@@ -70,7 +71,8 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
 		switch (resp.errCode) {
 			case BaseResp.ErrCode.ERR_OK:
 				result = R.string.errcode_success;
-				EventBus.getDefault().post(new WeinXinEvent(sendResp.code));
+//				EventBus.getDefault().post(new WeinXinEvent(sendResp.code));
+				RxBus.getInstance().post(AppConstants.CITY_WE_CHAT_RESP_CODE, new WeinXinEvent(sendResp.code));
 				break;
 			case BaseResp.ErrCode.ERR_USER_CANCEL:
 				result = R.string.errcode_cancel;

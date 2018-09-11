@@ -1,5 +1,6 @@
 package com.cyanbirds.tanlove.net.request;
 
+import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.entity.IMessage;
 import com.cyanbirds.tanlove.listener.FileProgressListener;
 import com.cyanbirds.tanlove.listener.NetFileDownloadListener;
@@ -82,6 +83,7 @@ public class DownloadImageRequest extends ResultPostExecute<File> {
 	public void request(String url, String savePath,
 						String fileName,final IMessage message) {
 		final File file = new File(savePath, fileName);
+		FileDownloader.setup(CSApplication.getInstance());
 		FileDownloader.getImpl().create(url)
 				.setPath(file.getAbsolutePath())
 				.setListener(new NetFileDownloadListener(){

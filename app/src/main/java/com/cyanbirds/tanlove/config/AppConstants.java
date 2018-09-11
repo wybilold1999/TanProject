@@ -43,7 +43,7 @@ public class AppConstants {
 	/**
 	 * 微信登录
 	 */
-	public static String WEIXIN_PAY_ID = "wx67e05e39a35f64ec";
+	public static String WEIXIN_PAY_ID = "wx8c6ebac6e0f4bd05";
 
 	/**
 	 * 短信
@@ -72,5 +72,7 @@ public class AppConstants {
 	public static int CHAT_LIMIT = 0;
 
 	public static String BUGLY_ID = "f073ac20a8";
+
+	public static String CITY_WE_CHAT_RESP_CODE = "city_we_chat_resp_code";
 
 }

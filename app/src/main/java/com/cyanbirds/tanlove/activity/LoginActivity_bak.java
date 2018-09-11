@@ -160,7 +160,7 @@ public class LoginActivity_bak extends BaseActivity<IUserLogin.Presenter> implem
      * rx订阅
      */
     private void rxBusSub() {
-        observable = RxBus.getInstance().register(LoginActivity_bak.class);
+        observable = RxBus.getInstance().register(AppConstants.CITY_WE_CHAT_RESP_CODE);
         observable.subscribe(o -> {
             if (o instanceof LocationEvent) {
                 LocationEvent event = (LocationEvent) o;

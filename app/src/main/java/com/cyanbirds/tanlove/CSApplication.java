@@ -26,8 +26,6 @@ import com.facebook.imagepipeline.listener.RequestLoggingListener;
 import com.facebook.imagepipeline.memory.PoolConfig;
 import com.facebook.imagepipeline.memory.PoolFactory;
 import com.facebook.imagepipeline.memory.PoolParams;
-import com.liulishuo.filedownloader.FileDownloader;
-import com.liulishuo.filedownloader.util.FileDownloadHelper;
 import com.mob.MobSDK;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.tencent.mm.sdk.openapi.IWXAPI;
@@ -35,8 +33,6 @@ import com.tencent.mm.sdk.openapi.WXAPIFactory;
 
 import java.util.HashSet;
 import java.util.Set;
-
-import okhttp3.OkHttpClient;
 
 import static com.cyanbirds.tanlove.config.AppConstants.BUGLY_ID;
 
@@ -75,19 +71,13 @@ public class CSApplication extends MultiDexApplication {
 
 				initFresco();
 
+				registerWeiXin();
+
 			}
 		});
 
-		registerWeiXin();
 		//初始化短信sdk
 		MobSDK.init(this);
-
-		FileDownloader.init(sApplication, new FileDownloadHelper.OkHttpClientCustomMaker() {
-			@Override
-			public OkHttpClient customMake() {
-				return RetrofitManager.getInstance().getOkHttpClient();
-			}
-		});
 
 		CrashHandler.getInstance().init(sApplication);
 
@@ -108,6 +98,9 @@ public class CSApplication extends MultiDexApplication {
 		// 通过WXAPIFactory工厂，获取IWXAPI的实例
 		api = WXAPIFactory.createWXAPI(this, AppConstants.WEIXIN_ID, true);
 		api.registerApp(AppConstants.WEIXIN_ID);
+
+		AppManager.setIWX_PAY_API(WXAPIFactory.createWXAPI(this, AppConstants.WEIXIN_PAY_ID, true));
+		AppManager.getIWX_PAY_API().registerApp(AppConstants.WEIXIN_PAY_ID);
 	}
 
 	private void initFresco() {

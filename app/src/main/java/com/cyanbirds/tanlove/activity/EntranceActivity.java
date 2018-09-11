@@ -13,6 +13,7 @@ import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
+import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.CityInfo;
 import com.cyanbirds.tanlove.eventtype.LocationEvent;
@@ -24,8 +25,6 @@ import com.cyanbirds.tanlove.utils.RxBus;
 import com.cyanbirds.tanlove.utils.Utils;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.umeng.analytics.MobclickAgent;
-
-import org.greenrobot.eventbus.EventBus;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -99,8 +98,7 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
             mCurrrentCity = cityInfo.city;
             PreferencesUtils.setCurrentCity(EntranceActivity.this, mCurrrentCity);
             PreferencesUtils.setCurrentProvince(EntranceActivity.this, cityInfo.province);
-//            EventBus.getDefault().post(new LocationEvent(mCurrrentCity));
-            RxBus.getInstance().post(LoginActivity_bak.class, new LocationEvent(mCurrrentCity));
+            RxBus.getInstance().post(AppConstants.CITY_WE_CHAT_RESP_CODE, new LocationEvent(mCurrrentCity));
         }
 
         @Override
@@ -135,8 +133,7 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
             mCurrrentCity = aMapLocation.getCity();
             PreferencesUtils.setCurrentCity(this, mCurrrentCity);
             PreferencesUtils.setCurrentProvince(EntranceActivity.this, aMapLocation.getProvince());
-//            EventBus.getDefault().post(new LocationEvent(mCurrrentCity));
-            RxBus.getInstance().post(LoginActivity_bak.class, new LocationEvent(mCurrrentCity));
+            RxBus.getInstance().post(AppConstants.CITY_WE_CHAT_RESP_CODE, new LocationEvent(mCurrrentCity));
             new UploadCityInfoRequest().request(aMapLocation.getCity(), String.valueOf(aMapLocation.getLatitude()),
                     String.valueOf(aMapLocation.getLongitude()));
         } else {
