@@ -4,18 +4,14 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
 
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.ValueKey;
-import com.cyanbirds.tanlove.net.IUserApi;
-import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 import com.cyanbirds.tanlove.net.request.CheckIsRegisterByPhoneRequest;
 import com.cyanbirds.tanlove.utils.CheckUtil;
-import com.cyanbirds.tanlove.utils.JsonUtils;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.umeng.analytics.MobclickAgent;
 
@@ -23,8 +19,6 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.smssdk.SMSSDK;
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
 import mehdi.sakout.fancybuttons.FancyButton;
 
 public class FindPasswordActivity extends BaseActivity {
@@ -54,7 +48,7 @@ public class FindPasswordActivity extends BaseActivity {
     @OnClick(R.id.next)
     public void onClick() {
         if(checkInput()){
-            checkPhoneIsRegister();
+            new CheckPhoneIsRegisterTask().request(phoneNum.getText().toString().trim());
         }
     }
 
@@ -78,28 +72,6 @@ public class FindPasswordActivity extends BaseActivity {
         public void onErrorExecute(String error) {
             ToastUtil.showMessage(error);
         }
-    }
-
-    private void checkPhoneIsRegister() {
-        RetrofitFactory.getRetrofit().create(IUserApi.class)
-                .checkIsRegister(phoneNum.getText().toString().trim())
-                .subscribeOn(Schedulers.io())
-                .map(responseBody -> JsonUtils.parseCheckIsRegister(responseBody.string()))
-                .observeOn(AndroidSchedulers.mainThread())
-                .as(this.bindAutoDispose())
-                .subscribe(aBoolean -> {
-                    if(aBoolean){
-                        SMSSDK.getVerificationCode("86", phoneNum.getText().toString().trim());
-                        Intent intent = new Intent(FindPasswordActivity.this, RegisterCaptchaActivity.class);
-                        intent.putExtra(ValueKey.INPUT_PHONE_TYPE, mInputPhoneType);
-                        intent.putExtra(ValueKey.PHONE_NUMBER, phoneNum.getText().toString().trim());
-                        intent.putExtra(ValueKey.LOCATION, mCurrrentCity);
-                        startActivity(intent);
-                        finish();
-                    } else {
-                        ToastUtil.showMessage(R.string.phone_un_register);
-                    }
-                }, throwable -> onShowNetError());
     }
 
     /**
