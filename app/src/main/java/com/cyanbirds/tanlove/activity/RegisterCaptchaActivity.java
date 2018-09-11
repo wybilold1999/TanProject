@@ -20,7 +20,7 @@ import com.cyanbirds.tanlove.net.request.UpdateUserInfoRequest;
 import com.cyanbirds.tanlove.presenter.SmsCodePresenterImpl;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
 import com.cyanbirds.tanlove.utils.ToastUtil;
-import com.cyanbirds.tanlove.view.IUserLogin;
+import com.cyanbirds.tanlove.view.IUserLoginLogOut;
 import com.umeng.analytics.MobclickAgent;
 
 import cn.smssdk.SMSSDK;
@@ -34,8 +34,8 @@ import mehdi.sakout.fancybuttons.FancyButton;
  * @Date:2015年5月11日下午4:14:15
  *
  */
-public class RegisterCaptchaActivity extends BaseActivity<IUserLogin.CheckSmsCodePresenter> implements
-		OnClickListener, IUserLogin.CheckSmsCodeView{
+public class RegisterCaptchaActivity extends BaseActivity<IUserLoginLogOut.CheckSmsCodePresenter> implements
+		OnClickListener, IUserLoginLogOut.CheckSmsCodeView{
 
 	private EditText mSmsCode;
 	private FancyButton mNext;
@@ -135,7 +135,7 @@ public class RegisterCaptchaActivity extends BaseActivity<IUserLogin.CheckSmsCod
 	}
 
 	@Override
-	public void setPresenter(IUserLogin.CheckSmsCodePresenter presenter) {
+	public void setPresenter(IUserLoginLogOut.CheckSmsCodePresenter presenter) {
 		if (presenter == null) {
 			this.presenter = new SmsCodePresenterImpl(this);
 		}

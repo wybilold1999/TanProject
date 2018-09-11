@@ -32,7 +32,7 @@ import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
 import com.cyanbirds.tanlove.utils.RxBus;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.cyanbirds.tanlove.utils.Util;
-import com.cyanbirds.tanlove.view.IUserLogin;
+import com.cyanbirds.tanlove.view.IUserLoginLogOut;
 import com.tencent.connect.UserInfo;
 import com.tencent.connect.common.Constants;
 import com.tencent.mm.sdk.modelmsg.SendAuth;
@@ -54,7 +54,7 @@ import mehdi.sakout.fancybuttons.FancyButton;
 /**
  * Created by Administrator on 2016/4/23.
  */
-public class RegisterActivity extends BaseActivity<IUserLogin.Presenter> implements View.OnClickListener, IUserLogin.View{
+public class RegisterActivity extends BaseActivity<IUserLoginLogOut.Presenter> implements View.OnClickListener, IUserLoginLogOut.View{
 
     EditText phoneNum;
     FancyButton next;
@@ -186,14 +186,14 @@ public class RegisterActivity extends BaseActivity<IUserLogin.Presenter> impleme
     }
 
     @Override
-    public void setPresenter(IUserLogin.Presenter presenter) {
+    public void setPresenter(IUserLoginLogOut.Presenter presenter) {
         if (presenter == null) {
             this.presenter = new UserLoginPresenterImpl(this);
         }
     }
 
     @Override
-    public void loginSuccess(ClientUser clientUser) {
+    public void loginLogOutSuccess(ClientUser clientUser) {
         onHideLoading();
         File faceLocalFile = new File(FileAccessorUtils.FACE_IMAGE,
                 Md5Util.md5(clientUser.face_url) + ".jpg");
@@ -219,6 +219,7 @@ public class RegisterActivity extends BaseActivity<IUserLogin.Presenter> impleme
                 .as(this.bindAutoDispose())
                 .subscribe(aBoolean -> {
                     onHideLoading();
+                    hideSoftKeyboard();
                     if(aBoolean){
                         ToastUtil.showMessage(R.string.phone_already_register);
                     } else {

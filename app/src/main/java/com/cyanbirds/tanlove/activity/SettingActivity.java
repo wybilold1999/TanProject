@@ -1,6 +1,5 @@
 package com.cyanbirds.tanlove.activity;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -11,16 +10,17 @@ import android.widget.TextView;
 
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
-import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.db.ConversationSqlManager;
 import com.cyanbirds.tanlove.db.IMessageDaoManager;
 import com.cyanbirds.tanlove.db.MyGoldDaoManager;
+import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.manager.NotificationManager;
-import com.cyanbirds.tanlove.net.request.LogoutRequest;
+import com.cyanbirds.tanlove.presenter.UserLoginPresenterImpl;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
 import com.cyanbirds.tanlove.utils.ToastUtil;
+import com.cyanbirds.tanlove.view.IUserLoginLogOut;
 import com.umeng.analytics.MobclickAgent;
 
 import butterknife.BindView;
@@ -34,7 +34,7 @@ import butterknife.OnClick;
  * @email: 395044952@qq.com
  * @description:
  */
-public class SettingActivity extends BaseActivity {
+public class SettingActivity extends BaseActivity<IUserLoginLogOut.Presenter> implements IUserLoginLogOut.View {
 
     @BindView(R.id.switch_msg)
     SwitchCompat mSwitchMsg;
@@ -165,10 +165,12 @@ public class SettingActivity extends BaseActivity {
         }
     }
 
-    class LogoutTask extends LogoutRequest {
-        @Override
-        public void onPostExecute(String s) {
-            ProgressDialogUtils.getInstance(SettingActivity.this).dismiss();
+    @Override
+    public void loginLogOutSuccess(ClientUser clientUser) {
+        ProgressDialogUtils.getInstance(SettingActivity.this).dismiss();
+        if (clientUser.age == 1) {//用age代表是否退出登录成功的返回码.1表示不成功
+            ToastUtil.showMessage(R.string.quite_faiure);
+        } else {
             MobclickAgent.onProfileSignOff();
             release();
             NotificationManager.getInstance().cancelNotification();
@@ -180,11 +182,12 @@ public class SettingActivity extends BaseActivity {
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         }
+    }
 
-        @Override
-        public void onErrorExecute(String error) {
-            ProgressDialogUtils.getInstance(SettingActivity.this).dismiss();
-            ToastUtil.showMessage(error);
+    @Override
+    public void setPresenter(IUserLoginLogOut.Presenter presenter) {
+        if (presenter == null) {
+            this.presenter = new UserLoginPresenterImpl(this);
         }
     }
 
@@ -193,23 +196,17 @@ public class SettingActivity extends BaseActivity {
      */
     private void showQuitDialog() {
         new AlertDialog.Builder(this)
-                .setItems(R.array.quit_items,
-                        new DialogInterface.OnClickListener() {
-
-                            @Override
-                            public void onClick(DialogInterface dialog,
-                                                int which) {
-                                switch (which) {
-                                    case 0:
-                                        ProgressDialogUtils.getInstance(SettingActivity.this).show(R.string.dialog_logout_tips);
-                                        new LogoutTask().request();
-                                        break;
-                                    case 1:
-                                        exitApp();
-                                        break;
-                                }
-                            }
-                        }).setTitle(R.string.quit).show();
+                .setItems(R.array.quit_items, (dialog, which) -> {
+                    switch (which) {
+                        case 0:
+                            ProgressDialogUtils.getInstance(SettingActivity.this).show(R.string.dialog_logout_tips);
+                            presenter.onLogOut();
+                            break;
+                        case 1:
+                            exitApp();
+                            break;
+                    }
+                }).setTitle(R.string.quit).show();
     }
 
 

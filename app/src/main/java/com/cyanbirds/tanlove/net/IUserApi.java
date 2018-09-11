@@ -29,6 +29,14 @@ public interface IUserApi {
     @POST("user/wechat_login")
     Observable<ResponseBody> wxLogin(@Header("token") String token, @FieldMap ArrayMap<String, String> params);
 
+    @FormUrlEncoded
+    @POST("user/register")
+    Observable<ResponseBody> userRegister(@FieldMap ArrayMap<String, String> params);
+
+    @FormUrlEncoded
+    @POST("user/logoutLogin")
+    Observable<ResponseBody> userLogout(@Header("token") String token, @FieldMap ArrayMap<String, String> params);
+
     /**
      * 获取微信登录和支付id
      * @return
@@ -43,4 +51,12 @@ public interface IUserApi {
     @FormUrlEncoded
     @POST("captch/smsCode")
     Observable<ResponseBody> checkSmsCode(@Header("token") String token, @FieldMap ArrayMap<String, String> params);
+
+    @FormUrlEncoded
+    @POST("user/newPasswordSetting")
+    Observable<ResponseBody> findPwd(@Header("token") String token, @FieldMap ArrayMap<String, String> params);
+
+    @FormUrlEncoded
+    @POST("user/updatePassword")
+    Observable<ResponseBody> modifyPwd(@Header("token") String token, @Field("newPassword") String newPassword);
 }

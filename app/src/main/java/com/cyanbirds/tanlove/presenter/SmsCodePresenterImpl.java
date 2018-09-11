@@ -5,18 +5,18 @@ import android.support.v4.util.ArrayMap;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.IUserApi;
 import com.cyanbirds.tanlove.net.base.RetrofitFactory;
-import com.cyanbirds.tanlove.view.IUserLogin;
+import com.cyanbirds.tanlove.view.IUserLoginLogOut;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-public class SmsCodePresenterImpl implements IUserLogin.CheckSmsCodePresenter {
+public class SmsCodePresenterImpl implements IUserLoginLogOut.CheckSmsCodePresenter {
 
-    private IUserLogin.CheckSmsCodeView checkSmsCodeView;
+    private IUserLoginLogOut.CheckSmsCodeView checkSmsCodeView;
 
-    public SmsCodePresenterImpl(IUserLogin.CheckSmsCodeView view) {
+    public SmsCodePresenterImpl(IUserLoginLogOut.CheckSmsCodeView view) {
         this.checkSmsCodeView = view;
     }
 

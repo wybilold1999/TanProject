@@ -4,6 +4,7 @@ import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
 import com.cyanbirds.tanlove.CSApplication;
+import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.helper.IMChattingHelper;
 import com.cyanbirds.tanlove.manager.AppManager;
@@ -12,18 +13,20 @@ import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.JsonUtils;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
-import com.cyanbirds.tanlove.view.IUserLogin;
+import com.cyanbirds.tanlove.view.IUserLoginLogOut;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.umeng.analytics.MobclickAgent;
 
 import io.reactivex.Observable;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 
-public class UserLoginPresenterImpl implements IUserLogin.Presenter{
+public class UserLoginPresenterImpl implements IUserLoginLogOut.Presenter{
 
-    private IUserLogin.View view;
+    private IUserLoginLogOut.View view;
 
-    public UserLoginPresenterImpl(IUserLogin.View view) {
+    public UserLoginPresenterImpl(IUserLoginLogOut.View view) {
         this.view = view;
     }
 
@@ -70,7 +73,7 @@ public class UserLoginPresenterImpl implements IUserLogin.Presenter{
                     if (clientUser == null) {
                         view.onShowNetError();
                     } else {
-                        view.loginSuccess(clientUser);
+                        view.loginLogOutSuccess(clientUser);
                     }
                 }, throwable -> view.onShowNetError());
 
@@ -119,7 +122,7 @@ public class UserLoginPresenterImpl implements IUserLogin.Presenter{
                     if (clientUser == null) {
                         view.onShowNetError();
                     } else {
-                        view.loginSuccess(clientUser);
+                        view.loginLogOutSuccess(clientUser);
                     }
                 }, throwable -> view.onShowNetError());
 
@@ -169,9 +172,86 @@ public class UserLoginPresenterImpl implements IUserLogin.Presenter{
                     if (clientUser == null) {
                         view.onShowNetError();
                     } else {
-                        view.loginSuccess(clientUser);
+                        view.loginLogOutSuccess(clientUser);
                     }
                 }, throwable -> view.onShowNetError());
     }
 
+    @Override
+    public void onRegist(ClientUser clientUser, String channel) {
+        ArrayMap<String, String> params = new ArrayMap<>();
+        params.put("upwd", clientUser.userPwd);
+        params.put("nickname", clientUser.user_name);
+        params.put("phone", clientUser.mobile);
+        params.put("sex", "男".equals(clientUser.sex) ? "1" : "0");
+        params.put("age", String.valueOf(clientUser.age));
+        params.put("channel", channel);
+        params.put("regDeviceName", AppManager.getDeviceName());
+        params.put("regVersion", String.valueOf(AppManager.getVersionCode()));
+        params.put("regPlatform", "phone");
+        params.put("reg_the_way", "0");
+        params.put("regSystemVersion", AppManager.getDeviceSystemVersion());
+        params.put("deviceId", AppManager.getDeviceId());
+        if (!TextUtils.isEmpty(clientUser.currentCity)) {
+            params.put("currentCity", clientUser.currentCity);
+        } else {
+            params.put("currentCity", "");
+        }
+        params.put("province", PreferencesUtils.getCurrentProvince(CSApplication.getInstance()));
+        params.put("latitude", PreferencesUtils.getLatitude(CSApplication.getInstance()));
+        params.put("longitude", PreferencesUtils.getLongitude(CSApplication.getInstance()));
+        RetrofitFactory.getRetrofit().create(IUserApi.class)
+                .userRegister(params)
+                .subscribeOn(Schedulers.io())
+                .flatMap(responseBody -> {
+                    ClientUser user = JsonUtils.parseClientUser(responseBody.string());
+                    return Observable.just(user);
+                })
+                .doOnNext(user -> {
+                    MobclickAgent.onProfileSignIn(String.valueOf(user.userId));
+                    user.currentCity = clientUser.currentCity;
+                    user.latitude = PreferencesUtils.getLatitude(CSApplication.getInstance());
+                    user.longitude = PreferencesUtils.getLongitude(CSApplication.getInstance());
+                    AppManager.setClientUser(user);
+                    AppManager.saveUserInfo();
+                    AppManager.getClientUser().loginTime = System.currentTimeMillis();
+                    PreferencesUtils.setLoginTime(CSApplication.getInstance(), System.currentTimeMillis());
+                    IMChattingHelper.getInstance().sendInitLoginMsg();
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .as(view.bindAutoDispose())
+                .subscribe(user -> {
+                    if (user == null) {
+                        view.onShowNetError();
+                    } else {
+                        view.loginLogOutSuccess(user);
+                    }
+                }, throwable -> view.onShowNetError());
+    }
+
+    @Override
+    public void onLogOut() {
+        ArrayMap<String, String> params = new ArrayMap<>();
+        params.put("deviceName", AppManager.getDeviceName());
+        params.put("appVersion", String.valueOf(AppManager.getVersionCode()));
+        params.put("systemVersion", AppManager.getDeviceSystemVersion());
+        params.put("deviceId", AppManager.getDeviceId());
+        RetrofitFactory.getRetrofit().create(IUserApi.class)
+                .userLogout(AppManager.getClientUser().sessionId, params)
+                .subscribeOn(Schedulers.io())
+                .map(responseBody -> {
+                    ClientUser clientUser = new ClientUser();
+                    JsonObject obj = new JsonParser().parse(responseBody.string()).getAsJsonObject();
+                    int code = obj.get("code").getAsInt();
+                    if (code == 1) {
+                        clientUser.age = 1;//用age代表code
+                    } else {
+                        clientUser.age = 0;
+                    }
+                    return clientUser;
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .as(view.bindAutoDispose())
+                .subscribe(clientUser -> view.loginLogOutSuccess(clientUser),throwable -> view.onShowNetError());
+    }
 }

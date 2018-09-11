@@ -13,14 +13,12 @@ import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.ClientUser;
-import com.cyanbirds.tanlove.helper.IMChattingHelper;
-import com.cyanbirds.tanlove.manager.AppManager;
-import com.cyanbirds.tanlove.net.request.RegisterRequest;
+import com.cyanbirds.tanlove.presenter.UserLoginPresenterImpl;
 import com.cyanbirds.tanlove.utils.AESEncryptorUtil;
 import com.cyanbirds.tanlove.utils.CheckUtil;
-import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
 import com.cyanbirds.tanlove.utils.ToastUtil;
+import com.cyanbirds.tanlove.view.IUserLoginLogOut;
 import com.umeng.analytics.MobclickAgent;
 
 import mehdi.sakout.fancybuttons.FancyButton;
@@ -32,8 +30,8 @@ import mehdi.sakout.fancybuttons.FancyButton;
  * @Date:2015年5月12日上午11:43:42
  *
  */
-public class RegisterSubmitActivity extends BaseActivity implements
-		OnClickListener {
+public class RegisterSubmitActivity extends BaseActivity<IUserLoginLogOut.Presenter> implements
+		OnClickListener,IUserLoginLogOut.View {
 
 	private EditText mNickname;
 	private EditText mPassword;
@@ -91,36 +89,26 @@ public class RegisterSubmitActivity extends BaseActivity implements
 				String securityPwd = AESEncryptorUtil.crypt(mPassword.getText().toString().trim(),
 						AppConstants.SECURITY_KEY);
 				mClientUser.userPwd = securityPwd;
-				new RegisterTask().request(mClientUser, channelId);
 				ProgressDialogUtils.getInstance(this).show(R.string.dialog_request_register_login);
+				presenter.onRegist(mClientUser, channelId);
 			}
 			break;
 		}
 	}
 
-	class RegisterTask extends RegisterRequest {
-		@Override
-		public void onPostExecute(ClientUser clientUser) {
-			ProgressDialogUtils.getInstance(RegisterSubmitActivity.this).dismiss();
-			hideSoftKeyboard();
-			MobclickAgent.onProfileSignIn(String.valueOf(AppManager
-					.getClientUser().userId));
-			clientUser.userPwd = mClientUser.userPwd;
-			clientUser.currentCity = mClientUser.currentCity;
-			AppManager.setClientUser(clientUser);
-			AppManager.saveUserInfo();
-			AppManager.getClientUser().loginTime = System.currentTimeMillis();
-			PreferencesUtils.setLoginTime(RegisterSubmitActivity.this, System.currentTimeMillis());
-			IMChattingHelper.getInstance().sendInitLoginMsg();
-			Intent intent = new Intent(RegisterSubmitActivity.this, MainActivity.class);
-			startActivity(intent);
-			finishAll();
-		}
+	@Override
+	public void loginLogOutSuccess(ClientUser clientUser) {
+		ProgressDialogUtils.getInstance(RegisterSubmitActivity.this).dismiss();
+		hideSoftKeyboard();
+		Intent intent = new Intent(RegisterSubmitActivity.this, MainActivity.class);
+		startActivity(intent);
+		finishAll();
+	}
 
-		@Override
-		public void onErrorExecute(String error) {
-			ProgressDialogUtils.getInstance(RegisterSubmitActivity.this).dismiss();
-			ToastUtil.showMessage(error);
+	@Override
+	public void setPresenter(IUserLoginLogOut.Presenter presenter) {
+		if (presenter == null) {
+			this.presenter = new UserLoginPresenterImpl(this);
 		}
 	}
 

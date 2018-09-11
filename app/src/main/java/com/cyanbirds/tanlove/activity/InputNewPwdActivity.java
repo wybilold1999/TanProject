@@ -2,6 +2,7 @@ package com.cyanbirds.tanlove.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.util.ArrayMap;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
@@ -14,13 +15,19 @@ import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.manager.AppManager;
-import com.cyanbirds.tanlove.net.request.FindPwdRequest;
-import com.cyanbirds.tanlove.net.request.UserLoginRequest;
+import com.cyanbirds.tanlove.net.IUserApi;
+import com.cyanbirds.tanlove.net.base.RetrofitFactory;
+import com.cyanbirds.tanlove.presenter.UserLoginPresenterImpl;
 import com.cyanbirds.tanlove.utils.AESEncryptorUtil;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
 import com.cyanbirds.tanlove.utils.ToastUtil;
+import com.cyanbirds.tanlove.view.IUserLoginLogOut;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.umeng.analytics.MobclickAgent;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import mehdi.sakout.fancybuttons.FancyButton;
 
 /**
@@ -30,8 +37,8 @@ import mehdi.sakout.fancybuttons.FancyButton;
  * @Date:2015年5月12日上午11:43:42
  *
  */
-public class InputNewPwdActivity extends BaseActivity implements
-		OnClickListener {
+public class InputNewPwdActivity extends BaseActivity<IUserLoginLogOut.Presenter> implements
+		OnClickListener,IUserLoginLogOut.View {
 
 	private EditText mPassword;
 	private EditText mConfirmPassword;
@@ -40,6 +47,7 @@ public class InputNewPwdActivity extends BaseActivity implements
 	private String mPhone;
 	private String mSmsCode;
 	private String mCurrrentCity;//定位到的城市
+	private JsonObject obj;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -85,53 +93,58 @@ public class InputNewPwdActivity extends BaseActivity implements
 		switch (v.getId()) {
 			case R.id.login:
 				if (checkInput()) {
-					String cryptPwd = AESEncryptorUtil.crypt(
-							mConfirmPassword.getText().toString().trim(), AppConstants.SECURITY_KEY);
-					AppManager.getClientUser().userPwd = cryptPwd;
 					ProgressDialogUtils.getInstance(this).show(R.string.dialog_modifying);
-					new ModifyPwdTask().request(cryptPwd, mPhone, mSmsCode);
+					inputNewPwd();
 				}
 				break;
 		}
 	}
 
-	class ModifyPwdTask extends FindPwdRequest {
-		@Override
-		public void onPostExecute(String s) {
-			ProgressDialogUtils.getInstance(InputNewPwdActivity.this).dismiss();
-			ProgressDialogUtils.getInstance(InputNewPwdActivity.this).show(R.string.dialog_request_login);
-			new UserLoginTask().request(mPhone, AppManager.getClientUser().userPwd, mCurrrentCity);
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-			ProgressDialogUtils.getInstance(InputNewPwdActivity.this).dismiss();
-			ToastUtil.showMessage(error);
+	@Override
+	public void setPresenter(IUserLoginLogOut.Presenter presenter) {
+		if (presenter == null) {
+			this.presenter = new UserLoginPresenterImpl(this);
 		}
 	}
 
-	class UserLoginTask extends UserLoginRequest {
-		@Override
-		public void onPostExecute(ClientUser clientUser) {
-			ProgressDialogUtils.getInstance(InputNewPwdActivity.this).dismiss();
-			hideSoftKeyboard();
-			if(!TextUtils.isEmpty(AppManager.getClientUser().face_local)){
-				clientUser.face_local = AppManager.getClientUser().face_local;
-			}
-			clientUser.currentCity = mCurrrentCity;
-			AppManager.setClientUser(clientUser);
-			AppManager.saveUserInfo();
-			Intent intent = new Intent();
-			intent.setClass(InputNewPwdActivity.this, MainActivity.class);
-			startActivity(intent);
-			finishAll();
-		}
+	@Override
+	public void loginLogOutSuccess(ClientUser clientUser) {
+		ProgressDialogUtils.getInstance(InputNewPwdActivity.this).dismiss();
+		hideSoftKeyboard();
+		Intent intent = new Intent();
+		intent.setClass(InputNewPwdActivity.this, MainActivity.class);
+		startActivity(intent);
+		finishAll();
+	}
 
-		@Override
-		public void onErrorExecute(String error) {
-			ProgressDialogUtils.getInstance(InputNewPwdActivity.this).dismiss();
-			ToastUtil.showMessage(error);
-		}
+	private void inputNewPwd() {
+		String cryptPwd = AESEncryptorUtil.crypt(
+				mConfirmPassword.getText().toString().trim(), AppConstants.SECURITY_KEY);
+		AppManager.getClientUser().userPwd = cryptPwd;
+		ArrayMap<String, String> params = new ArrayMap<>();
+		params.put("newPassword", cryptPwd);
+		params.put("phone", mPhone);
+		params.put("smsCode", mSmsCode);
+		RetrofitFactory.getRetrofit().create(IUserApi.class)
+				.findPwd(AppManager.getClientUser().sessionId, params)
+				.subscribeOn(Schedulers.io())
+				.map(responseBody -> {
+					obj = new JsonParser().parse(responseBody.string()).getAsJsonObject();
+					int code = obj.get("code").getAsInt();
+					return code;
+				})
+				.observeOn(AndroidSchedulers.mainThread())
+				.as(this.bindAutoDispose())
+				.subscribe(integer -> {
+					if (integer == 0) {
+						ProgressDialogUtils.getInstance(InputNewPwdActivity.this).dismiss();
+						ProgressDialogUtils.getInstance(InputNewPwdActivity.this).show(R.string.dialog_request_login);
+						presenter.onUserLogin(mPhone, AppManager.getClientUser().userPwd, mCurrrentCity);
+					} else {
+						ProgressDialogUtils.getInstance(InputNewPwdActivity.this).dismiss();
+						ToastUtil.showMessage(obj.get("msg").getAsString());
+					}
+				}, throwable -> onShowNetError());
 	}
 
 	/**
