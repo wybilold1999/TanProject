@@ -75,4 +75,6 @@ public class AppConstants {
 
 	public static String CITY_WE_CHAT_RESP_CODE = "city_we_chat_resp_code";
 
+	public static String PAY_SUCCESS = "pay_success";
+
 }

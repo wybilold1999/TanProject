@@ -28,7 +28,6 @@ import com.cyanbirds.tanlove.entity.MemberBuy;
 import com.cyanbirds.tanlove.entity.PayResult;
 import com.cyanbirds.tanlove.entity.UserVipModel;
 import com.cyanbirds.tanlove.entity.WeChatPay;
-import com.cyanbirds.tanlove.eventtype.PayEvent;
 import com.cyanbirds.tanlove.helper.SDKCoreHelper;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.CreateOrderRequest;
@@ -41,15 +40,12 @@ import com.cyanbirds.tanlove.ui.widget.WrapperLinearLayoutManager;
 import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.DensityUtil;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
+import com.cyanbirds.tanlove.utils.RxBus;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.sunfusheng.marqueeview.MarqueeView;
 import com.tencent.mm.sdk.modelpay.PayReq;
 import com.umeng.analytics.MobclickAgent;
 import com.yuntongxun.ecsdk.ECInitParams;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -57,6 +53,7 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
 
 /**
  * @author Cloudsoar(wangyb)
@@ -101,6 +98,8 @@ public class VipCenterActivity extends BaseActivity {
 	private String mPref;//优惠信息
 	private MemberBuy mMemberBuy;
 	private String channel = "";
+
+	private Observable<?> observable;
 
 	@SuppressLint("HandlerLeak")
 	private Handler mHandler = new Handler() {
@@ -147,7 +146,7 @@ public class VipCenterActivity extends BaseActivity {
 			getSupportActionBar().setTitle(R.string.vip_center);
 		}
 		setupView();
-		setupEvent();
+		rxBusSub();
 		setupData();
 	}
 
@@ -164,8 +163,12 @@ public class VipCenterActivity extends BaseActivity {
 		mRecyclerView.setNestedScrollingEnabled(false);
 	}
 
-	private void setupEvent() {
-		EventBus.getDefault().register(this);
+	/**
+	 * rx订阅
+	 */
+	private void rxBusSub() {
+		observable = RxBus.getInstance().register(AppConstants.CITY_WE_CHAT_RESP_CODE);
+		observable.subscribe(o -> new GetPayResultTask().request());
 	}
 
 	private void setupData() {
@@ -319,12 +322,6 @@ public class VipCenterActivity extends BaseActivity {
 		builder.show();
 	}
 
-
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void paySuccess(PayEvent event) {
-		new GetPayResultTask().request();
-	}
-
 	/**
 	 * 获取支付成功之后用户开通了哪项服务
 	 */
@@ -426,11 +423,6 @@ public class VipCenterActivity extends BaseActivity {
 		payThread.start();
 	}
 
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		EventBus.getDefault().unregister(this);
-	}
 
 	@Override
 	protected void onResume() {

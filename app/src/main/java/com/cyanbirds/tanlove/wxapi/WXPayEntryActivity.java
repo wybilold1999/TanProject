@@ -6,8 +6,10 @@ import android.os.Bundle;
 
 import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;
+import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.eventtype.PayEvent;
 import com.cyanbirds.tanlove.manager.AppManager;
+import com.cyanbirds.tanlove.utils.RxBus;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.tencent.mm.sdk.constants.ConstantsAPI;
 import com.tencent.mm.sdk.modelbase.BaseReq;
@@ -61,7 +63,7 @@ public class WXPayEntryActivity extends Activity implements IWXAPIEventHandler {
 	public void onResp(BaseResp baseResp) {
 		if (baseResp.getType() == ConstantsAPI.COMMAND_PAY_BY_WX) {
 			if (baseResp.errCode == 0) {
-				EventBus.getDefault().post(new PayEvent());
+				RxBus.getInstance().post(AppConstants.PAY_SUCCESS, new PayEvent());
 				ToastUtil.showMessage(R.string.pay_success);
 			} else if (baseResp.errCode == -1){
 				ToastUtil.showMessage(R.string.pay_failure);
