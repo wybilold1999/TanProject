@@ -347,48 +347,6 @@
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:label="@string/yuan_fen"
             android:screenOrientation="portrait"/>
-        <activity
-            android:name=".activity.SingleVideoActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:label="@string/video_show"
-            android:screenOrientation="portrait"/>
-        <activity
-            android:name=".activity.VideoShowActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:label="@string/video_show"
-            android:screenOrientation="portrait"/>
-        <activity
-            android:name=".activity.VideoPlayActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:screenOrientation="portrait"/>
-
-        <activity
-            android:name=".activity.MakeMoneyActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:label="@string/download_make_money"
-            android:screenOrientation="portrait">
-        </activity>
-
-        <activity
-            android:name=".activity.BetweenLoversActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:label="@string/lovers_service"
-            android:screenOrientation="portrait">
-        </activity>
-
-        <activity
-            android:name=".activity.SuccessCaseActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:label="@string/success_case"
-            android:screenOrientation="portrait">
-        </activity>
-
-        <activity
-            android:name=".activity.NearPartyActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:label="@string/near_party"
-            android:screenOrientation="portrait">
-        </activity>
 
         <activity
             android:name=".activity.IdentifyActivity"
@@ -401,20 +359,6 @@
             android:name=".activity.GiftMarketActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:label="@string/gift_market"
-            android:screenOrientation="portrait">
-        </activity>
-
-        <activity
-            android:name=".activity.PartyDetailActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:label="@string/party_detail"
-            android:screenOrientation="portrait">
-        </activity>
-
-        <activity
-            android:name=".activity.RewardActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:label="@string/reward"
             android:screenOrientation="portrait">
         </activity>
 
@@ -432,14 +376,6 @@
         </activity>
 
         <activity
-            android:name=".activity.RedPacketActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:windowSoftInputMode="stateAlwaysHidden"
-            android:label="@string/send_red_packet"
-            android:screenOrientation="portrait">
-        </activity>
-
-        <activity
             android:name=".activity.PopupLoveActivity"
             android:theme="@style/myTransparent"
             android:configChanges="keyboard|keyboardHidden|orientation"
@@ -448,41 +384,10 @@
         </activity>
 
         <activity
-            android:name=".activity.MoneyPacketActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:windowSoftInputMode="stateAlwaysHidden"
-            android:label="@string/my_money"
-            android:screenOrientation="portrait">
-        </activity>
-
-        <activity
-            android:name=".activity.MoneyOutputActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:windowSoftInputMode="stateAlwaysHidden"
-            android:label="@string/money_output"
-            android:screenOrientation="portrait">
-        </activity>
-
-        <activity
             android:name=".activity.FeedBackActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:windowSoftInputMode="stateAlwaysHidden"
             android:label="@string/feed_back"
-            android:screenOrientation="portrait">
-        </activity>
-
-        <activity
-            android:name=".activity.PersonalVideoActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:label="@string/personal_info"
-            android:screenOrientation="portrait">
-        </activity>
-
-        <activity
-            android:name=".activity.VideoListActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:windowSoftInputMode="stateAlwaysHidden"
-            android:label="@string/video_show"
             android:screenOrientation="portrait">
         </activity>
 

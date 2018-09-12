@@ -71,7 +71,6 @@ public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
 		switch (resp.errCode) {
 			case BaseResp.ErrCode.ERR_OK:
 				result = R.string.errcode_success;
-//				EventBus.getDefault().post(new WeinXinEvent(sendResp.code));
 				RxBus.getInstance().post(AppConstants.CITY_WE_CHAT_RESP_CODE, new WeinXinEvent(sendResp.code));
 				break;
 			case BaseResp.ErrCode.ERR_USER_CANCEL:

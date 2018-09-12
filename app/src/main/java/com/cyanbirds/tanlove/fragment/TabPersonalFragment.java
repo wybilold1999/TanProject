@@ -3,9 +3,7 @@ package com.cyanbirds.tanlove.fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
-import android.graphics.Color;
 import android.os.Bundle;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.CardView;
@@ -35,19 +33,15 @@ import com.amap.api.services.geocoder.GeocodeSearch;
 import com.amap.api.services.geocoder.RegeocodeQuery;
 import com.amap.api.services.geocoder.RegeocodeResult;
 import com.cyanbirds.tanlove.R;
-import com.cyanbirds.tanlove.activity.MakeMoneyActivity;
-import com.cyanbirds.tanlove.activity.MyGoldActivity;
 import com.cyanbirds.tanlove.activity.VipCenterActivity;
 import com.cyanbirds.tanlove.adapter.TabPersonalPhotosAdapter;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.eventtype.UserEvent;
 import com.cyanbirds.tanlove.manager.AppManager;
-import com.cyanbirds.tanlove.net.request.UpdateGoldRequest;
 import com.cyanbirds.tanlove.ui.widget.WrapperLinearLayoutManager;
 import com.cyanbirds.tanlove.utils.StringUtil;
 import com.dl7.tag.TagLayout;
-import com.facebook.drawee.view.SimpleDraweeView;
 import com.umeng.analytics.MobclickAgent;
 
 import org.greenrobot.eventbus.EventBus;
@@ -505,50 +499,14 @@ public class TabPersonalFragment extends Fragment implements GeocodeSearch.OnGeo
 		switch (view.getId()) {
 			case R.id.check_view_wechat:
 				if (AppManager.getClientUser().is_vip) {
-					if (AppManager.getClientUser().isShowGold && AppManager.getClientUser().gold_num < 1) {
-						String tips = String.format(getResources().getString(R.string.social_id_need_gold), "微信");
-						showBuyGoldDialog(tips);
-					} else if (AppManager.getClientUser().isShowGold && AppManager.getClientUser().gold_num < 101){
-						String tips = String.format(getResources().getString(R.string.social_id_need_more_gold), "微信");
-						showBuyGoldDialog(tips);
-					} else {
-						showNoCheckDialog();
-//						mWechatId.setText(clientUser.weixin_no);
-						if (AppManager.getClientUser().isShowDownloadVip) {
-							if (!AppManager.getClientUser().is_download_vip) {
-								if (AppManager.getClientUser().isShowGold) {
-									//更新服务器上的金币数量
-									AppManager.getClientUser().gold_num -= 101;
-									new UpdateGoldTask().request(AppManager.getClientUser().gold_num, "");
-								}
-							}
-						}
-					}
+					showNoCheckDialog();
 				} else {
 					showTurnOnVipDialog("微信");
 				}
 				break;
 			case R.id.check_view_qq:
 				if (AppManager.getClientUser().is_vip) {
-					if (AppManager.getClientUser().isShowGold && AppManager.getClientUser().gold_num < 1) {
-						String tips = String.format(getResources().getString(R.string.social_id_need_gold), "QQ");
-						showBuyGoldDialog(tips);
-					} else if (AppManager.getClientUser().isShowGold && AppManager.getClientUser().gold_num < 101){
-						String tips = String.format(getResources().getString(R.string.social_id_need_more_gold), "QQ");
-						showBuyGoldDialog(tips);
-					} else {
-						showNoCheckDialog();
-//						mQqId.setText(clientUser.qq_no);
-						if (AppManager.getClientUser().isShowDownloadVip) {
-							if (!AppManager.getClientUser().is_download_vip) {
-								if (AppManager.getClientUser().isShowGold) {
-									//更新服务器上的金币数量
-									AppManager.getClientUser().gold_num -= 101;
-									new UpdateGoldTask().request(AppManager.getClientUser().gold_num, "");
-								}
-							}
-						}
-					}
+					showNoCheckDialog();
 				} else {
 					showTurnOnVipDialog("QQ");
 				}
@@ -556,34 +514,6 @@ public class TabPersonalFragment extends Fragment implements GeocodeSearch.OnGeo
 		}
 	}
 
-	/**
-	 * 不是下载赚钱会员，查看微信、QQ号时，减少金币数量
-	 */
-	class UpdateGoldTask extends UpdateGoldRequest {
-		@Override
-		public void onPostExecute(final Integer integer) {
-			if (AppManager.getClientUser().isShowDownloadVip) {
-				Snackbar.make(getActivity().findViewById(R.id.content),
-						"您还不是赚钱会员，查看该号码已消耗101枚金币", Snackbar.LENGTH_SHORT)
-						.setActionTextColor(Color.RED)
-						.setAction("开通赚钱会员", new View.OnClickListener() {
-							@Override
-							public void onClick(View v) {
-								Intent intent = new Intent(getActivity(), MakeMoneyActivity.class);
-								intent.putExtra(ValueKey.FROM_ACTIVITY, getActivity().getClass().getSimpleName());
-								startActivity(intent);
-							}
-						}).show();
-			} else {
-				Snackbar.make(getActivity().findViewById(R.id.content), "查看该号码已消耗101枚金币",
-						Snackbar.LENGTH_SHORT).show();
-			}
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-		}
-	}
 
 	private void showTurnOnVipDialog(String socialTpe) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -602,27 +532,6 @@ public class TabPersonalFragment extends Fragment implements GeocodeSearch.OnGeo
 				dialog.dismiss();
 			}
 		});
-		builder.show();
-	}
-
-	private void showBuyGoldDialog(String tips) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-		builder.setMessage(tips);
-		builder.setPositiveButton(getResources().getString(R.string.ok),
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						dialog.dismiss();
-						Intent intent = new Intent(getActivity(), MyGoldActivity.class);
-						startActivity(intent);
-					}
-				});
-		builder.setNegativeButton(getResources().getString(R.string.cancel),
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
-				});
 		builder.show();
 	}
 

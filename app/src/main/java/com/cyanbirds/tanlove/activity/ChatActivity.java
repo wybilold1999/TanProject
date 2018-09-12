@@ -3,7 +3,6 @@ package com.cyanbirds.tanlove.activity;
 import android.Manifest;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
@@ -12,7 +11,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.Message;
 import android.provider.MediaStore;
-import android.support.design.widget.Snackbar;
 import android.support.v4.content.FileProvider;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.SwipeRefreshLayout;
@@ -52,7 +50,6 @@ import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.entity.Conversation;
 import com.cyanbirds.tanlove.entity.Emoticon;
 import com.cyanbirds.tanlove.entity.IMessage;
-import com.cyanbirds.tanlove.eventtype.SnackBarEvent;
 import com.cyanbirds.tanlove.helper.IMChattingHelper;
 import com.cyanbirds.tanlove.listener.FileProgressListener;
 import com.cyanbirds.tanlove.listener.FileProgressListener.OnFileProgressChangedListener;
@@ -73,8 +70,6 @@ import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.umeng.analytics.MobclickAgent;
 
 import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.io.IOException;
@@ -100,7 +95,6 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 	private ImageView openAlbums;
 	private ImageView openEmotion;
 	private ImageView openLocation;
-	private ImageView redPacket;
 	private ImageButton mInputVoiceAndText;
 	private View mKeyboardHeightView;
 	private EditText mContentInput;
@@ -197,7 +191,6 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 		openAlbums = (ImageView) findViewById(R.id.openAlbums);
 		openEmotion = (ImageView) findViewById(R.id.openEmotion);
 		openLocation = (ImageView) findViewById(R.id.openLocation);
-		redPacket = (ImageView) findViewById(R.id.red_packet);
 		mInputVoiceAndText = (ImageButton) findViewById(R.id.tool_view_input_text);
 		mKeyboardHeightView = findViewById(R.id.keyboard_height);
 		mContentInput = (EditText) findViewById(R.id.content_input);
@@ -215,13 +208,11 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 			openCamera.setVisibility(View.GONE);
 			openAlbums.setVisibility(View.GONE);
 			openLocation.setVisibility(View.GONE);
-			redPacket.setVisibility(View.GONE);
 			openEmotion.setVisibility(View.GONE);
 		} else {
 			openCamera.setVisibility(View.VISIBLE);
 			openAlbums.setVisibility(View.VISIBLE);
 			openLocation.setVisibility(View.VISIBLE);
-			redPacket.setVisibility(View.VISIBLE);
 			openEmotion.setVisibility(View.VISIBLE);
 		}
 	}
@@ -232,7 +223,6 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 		openAlbums.setOnClickListener(this);
 		openEmotion.setOnClickListener(this);
 		openLocation.setOnClickListener(this);
-		redPacket.setOnClickListener(this);
 		mSwipeRefresh.setOnRefreshListener(this);
 		mInputVoiceAndText.setOnClickListener(this);
 		MessageStatusReportListener.getInstance().setOnMessageReportCallback(this);
@@ -293,12 +283,6 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 
 	private void setupData() {
 		rxPermissions = new RxPermissions(this);
-		if (null != AppManager.getClientUser() &&
-				AppManager.getClientUser().isShowRpt) {
-			redPacket.setVisibility(View.VISIBLE);
-		} else {
-			redPacket.setVisibility(View.GONE);
-		}
 		mClientUser = (ClientUser) getIntent().getSerializableExtra(ValueKey.USER);
 		if (mClientUser != null) {
 			mConversation = ConversationSqlManager.getInstance(this)
@@ -451,9 +435,6 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 				break;
 			case R.id.openLocation:
 				toShareLocation();
-				break;
-			case R.id.red_packet:
-				toRedPakcet();
 				break;
 			case R.id.tool_view_input_text:
 				if (AppManager.getClientUser().isShowVip) {
@@ -813,14 +794,6 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 		startActivityForResult(intent, SHARE_LOCATION_RESULT);
 	}
 
-	/**
-	 * 跳到发红包界面
-	 */
-	private void toRedPakcet() {
-		Intent intent = new Intent(this, RedPacketActivity.class);
-		startActivityForResult(intent, SEND_RED_PACKET);
-	}
-
 	@Override
 	public void onEmojiItemClick(Emoticon emoticon) {
 		int index = mContentInput.getSelectionStart();
@@ -940,22 +913,6 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 			Utils.goToSetting(this, requestCode);
 		});
 		builder.show();
-	}
-
-
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void showSnackBar(SnackBarEvent event) {
-		if (!TextUtils.isEmpty(event.content)) {
-			Snackbar.make(findViewById(R.id.message_recycler_view), event.content, Snackbar.LENGTH_LONG)
-					.setActionTextColor(Color.RED)
-					.setAction("点击查看", new OnClickListener() {
-						@Override
-						public void onClick(View v) {
-							Intent intent = new Intent(ChatActivity.this, MoneyPacketActivity.class);
-							startActivity(intent);
-						}
-					}).show();
-		}
 	}
 }
 

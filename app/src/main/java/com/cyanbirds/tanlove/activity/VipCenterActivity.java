@@ -2,9 +2,6 @@ package com.cyanbirds.tanlove.activity;
 
 import android.annotation.SuppressLint;
 import android.content.DialogInterface;
-import android.content.Intent;
-import android.graphics.Color;
-import android.lib.widget.verticalmarqueetextview.VerticalMarqueeTextView;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -15,10 +12,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
-import android.text.SpannableString;
-import android.text.Spanned;
 import android.text.TextUtils;
-import android.text.method.LinkMovementMethod;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -30,10 +24,7 @@ import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.adapter.MemberBuyAdapter;
 import com.cyanbirds.tanlove.config.AppConstants;
-import com.cyanbirds.tanlove.config.ValueKey;
-import com.cyanbirds.tanlove.db.NameListDaoManager;
 import com.cyanbirds.tanlove.entity.MemberBuy;
-import com.cyanbirds.tanlove.entity.NameList;
 import com.cyanbirds.tanlove.entity.PayResult;
 import com.cyanbirds.tanlove.entity.UserVipModel;
 import com.cyanbirds.tanlove.entity.WeChatPay;
@@ -45,7 +36,6 @@ import com.cyanbirds.tanlove.net.request.GetAliPayOrderInfoRequest;
 import com.cyanbirds.tanlove.net.request.GetMemberBuyListRequest;
 import com.cyanbirds.tanlove.net.request.GetPayResultRequest;
 import com.cyanbirds.tanlove.net.request.GetUserNameRequest;
-import com.cyanbirds.tanlove.ui.widget.CustomURLSpan;
 import com.cyanbirds.tanlove.ui.widget.DividerItemDecoration;
 import com.cyanbirds.tanlove.ui.widget.WrapperLinearLayoutManager;
 import com.cyanbirds.tanlove.utils.CheckUtil;
@@ -67,7 +57,6 @@ import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 /**
  * @author Cloudsoar(wangyb)
@@ -82,8 +71,6 @@ public class VipCenterActivity extends BaseActivity {
 	MarqueeView mMarqueeView;
 	@BindView(R.id.recyclerview)
 	RecyclerView mRecyclerView;
-	@BindView(R.id.vertical_text)
-	VerticalMarqueeTextView mVerticalText;
 	@BindView(R.id.preferential)
 	TextView mPreferential;//优惠的说明文字，可以控制什么时候显示
 	@BindView(R.id.vip_7_lay)
@@ -92,12 +79,8 @@ public class VipCenterActivity extends BaseActivity {
 	RelativeLayout mVip8Lay;
 	@BindView(R.id.scrollView)
 	NestedScrollView mScrollView;
-	@BindView(R.id.vip_9_lay)
-	RelativeLayout mVip9Lay;
 	@BindView(R.id.pref_tel_fare_lay)
 	LinearLayout mPrefTelFareLay;
-	@BindView(R.id.name_list)
-	TextView mTvNameList;
 
 	private MemberBuyAdapter mAdapter;
 
@@ -115,9 +98,7 @@ public class VipCenterActivity extends BaseActivity {
 
 	private List<Integer> array;
 
-	private final long daySpan = 24 * 60 * 60 * 1000;
 	private String mPref;//优惠信息
-	private ArrayList<String> mNameList;
 	private MemberBuy mMemberBuy;
 	private String channel = "";
 
@@ -196,22 +177,7 @@ public class VipCenterActivity extends BaseActivity {
 			mVip7Lay.setVisibility(View.GONE);
 			mVip8Lay.setVisibility(View.GONE);
 		}
-		if (AppManager.getClientUser().isShowVideo) {
-			mVip9Lay.setVisibility(View.VISIBLE);
-		} else {
-			mVip9Lay.setVisibility(View.GONE);
-		}
 		new GetMemberBuyListTask().request(NORMAL_VIP);
-	}
-
-	@OnClick({R.id.vip_9_lay})
-	public void onClick(View view) {
-		switch (view.getId()) {
-			case R.id.vip_9_lay:
-				Intent intent = new Intent(this, VideoListActivity.class);
-				startActivity(intent);
-				break;
-		}
 	}
 
 	/**
@@ -221,37 +187,12 @@ public class VipCenterActivity extends BaseActivity {
 		@Override
 		public void onPostExecute(final List<String> strings) {
 			if (strings != null && strings.size() > 0) {
-				mNameList = (ArrayList<String>) strings;
-				StringBuilder builder = new StringBuilder();
 				turnOnVipNameList = new ArrayList<>();
 				for (String name : strings) {
-					builder.append(name + " 领取了" + array.get((int) (Math.random() * array.size())) + "话费\n");
 					turnOnVipNameList.add(name + " 开通了会员，赶快去和TA聊天吧！");
 				}
-				if (null != mVerticalText) {
-					mVerticalText.setText(builder.toString());
-				}
 				mMarqueeView.startWithList(turnOnVipNameList);
-				if (!TextUtils.isEmpty(mPref) && mPref.indexOf("抽奖") != -1) {
-//					buildRewardName();
-					final int index = mPref.indexOf("次抽奖");
-					SpannableString spannableString = new SpannableString(mPref);
-					CustomURLSpan urlSpan = new CustomURLSpan("") {
-						@Override
-						public void onClick(View widget) {
-							Intent intent = new Intent(VipCenterActivity.this, RewardActivity.class);
-							intent.putStringArrayListExtra(ValueKey.DATA, mNameList);
-							intent.putExtra(ValueKey.USER, mPref);
-							VipCenterActivity.this.startActivity(intent);
-						}
-					};
-					spannableString.setSpan(urlSpan, index - 1, index + 3, Spanned.SPAN_INCLUSIVE_EXCLUSIVE);
-					mPreferential.setMovementMethod(LinkMovementMethod.getInstance());
-					mPreferential.setHighlightColor(Color.parseColor("#36969696"));
-					mPreferential.setText(spannableString);
-				} else {
-					mPreferential.setText(mPref);
-				}
+				mPreferential.setText(mPref);
 			} else {
 				setTurnOnVipUserName();
 			}
@@ -261,62 +202,6 @@ public class VipCenterActivity extends BaseActivity {
 		public void onErrorExecute(String error) {
 			setTurnOnVipUserName();
 		}
-	}
-
-	/**
-	 * 组装获奖人的名单
-	 */
-	private void buildRewardName() {
-		if (null != mNameList && mNameList.size() > 6) {
-			NameList nameList = NameListDaoManager.getInstance(VipCenterActivity.this).getNameList();
-			if (nameList != null) {
-				if (System.currentTimeMillis() > nameList.getSeeTime() + daySpan) {
-					String ar = mNameList.get((int) (Math.random() * mNameList.size()));
-					String br = mNameList.get((int) (Math.random() * mNameList.size()));
-					String cr = mNameList.get((int) (Math.random() * mNameList.size()));
-					String dr = mNameList.get((int) (Math.random() * mNameList.size()));
-					String er = mNameList.get((int) (Math.random() * mNameList.size()));
-					String fr = mNameList.get((int) (Math.random() * mNameList.size()));
-
-					mPref = mPref.replace("a", ar);
-					mPref = mPref.replace("b", br);
-					mPref = mPref.replace("c", cr);
-					mPref = mPref.replace("d", dr);
-					mPref = mPref.replace("e", er);
-					mPref = mPref.replace("f", fr);
-
-					nameList.setNamelist(mPref);
-					nameList.setSeeTime(System.currentTimeMillis());
-					NameListDaoManager.getInstance(VipCenterActivity.this).updateNameList(nameList);
-				} else {
-					String nameListString = NameListDaoManager.getInstance(VipCenterActivity.this).getNameListString();
-					mPref = nameListString;
-				}
-			} else {
-				nameList = new NameList();
-
-				String ar = mNameList.get((int) (Math.random() * mNameList.size()));
-				String br = mNameList.get((int) (Math.random() * mNameList.size()));
-				String cr = mNameList.get((int) (Math.random() * mNameList.size()));
-				String dr = mNameList.get((int) (Math.random() * mNameList.size()));
-				String er = mNameList.get((int) (Math.random() * mNameList.size()));
-				String fr = mNameList.get((int) (Math.random() * mNameList.size()));
-
-				mPref = mPref.replace("a", ar);
-				mPref = mPref.replace("b", br);
-				mPref = mPref.replace("c", cr);
-				mPref = mPref.replace("d", dr);
-				mPref = mPref.replace("e", er);
-				mPref = mPref.replace("f", fr);
-
-
-				nameList.setNamelist(mPref);
-				nameList.setSeeTime(System.currentTimeMillis());
-				NameListDaoManager.getInstance(VipCenterActivity.this).insertNameList(nameList);
-			}
-
-		}
-		mPreferential.setText(mPref);
 	}
 
 	class GetMemberBuyListTask extends GetMemberBuyListRequest {
@@ -341,13 +226,9 @@ public class VipCenterActivity extends BaseActivity {
 				}
 				if (array.size() == 0 || "oppo".equals(channel)) {//oppo渠道，不显示有什么人赠送话费
 					mPrefTelFareLay.setVisibility(View.VISIBLE);
-					mTvNameList.setVisibility(View.GONE);
-					mVerticalText.setVisibility(View.GONE);
 					PreferencesUtils.setIsHasGetFareActivity(VipCenterActivity.this, false);
 				} else {
 					mPrefTelFareLay.setVisibility(View.GONE);
-					mTvNameList.setVisibility(View.VISIBLE);
-					mVerticalText.setVisibility(View.VISIBLE);
 					PreferencesUtils.setIsHasGetFareActivity(VipCenterActivity.this, true);
 				}
 			}

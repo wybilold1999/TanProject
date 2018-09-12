@@ -26,7 +26,6 @@ import android.widget.TextView;
 import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.LocationDetailActivity;
-import com.cyanbirds.tanlove.activity.MakeMoneyActivity;
 import com.cyanbirds.tanlove.activity.MyGoldActivity;
 import com.cyanbirds.tanlove.activity.PersonalInfoActivity;
 import com.cyanbirds.tanlove.activity.PhotoViewActivity;
@@ -40,7 +39,6 @@ import com.cyanbirds.tanlove.eventtype.SnackBarEvent;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.DownloadImageRequest;
 import com.cyanbirds.tanlove.ui.widget.CircularProgress;
-import com.cyanbirds.tanlove.utils.DateUtil;
 import com.cyanbirds.tanlove.utils.DensityUtil;
 import com.cyanbirds.tanlove.utils.EmoticonUtil;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
@@ -48,7 +46,6 @@ import com.cyanbirds.tanlove.utils.ImageUtil;
 import com.cyanbirds.tanlove.utils.LinkUtil;
 import com.cyanbirds.tanlove.utils.Md5Util;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
-import com.cyanbirds.tanlove.utils.StringUtil;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.facebook.drawee.view.SimpleDraweeView;
 
@@ -448,144 +445,6 @@ public class ChatMessageAdapter extends
                 // 设置显示消息时间
                 setChatTime(voipViewHolder.chat_time, message.send_time,
                         showTimer);
-            } else if (message.msgType == IMessage.MessageType.RED_PKT) {
-                // 红包消息
-                RedViewHolder redViewHolder = (RedViewHolder) holder;
-                if (!TextUtils.isEmpty(message.content)) {
-                    redPkt = message.content.split(";");
-                    if (redPkt != null && redPkt.length == 2) {
-                        redViewHolder.message_text.setText(redPkt[0]);
-                    }
-                }
-                redViewHolder.nickname.setVisibility(View.GONE);
-                redViewHolder.message_send_fail.setVisibility(View.GONE);
-                redViewHolder.progress_bar.setVisibility(View.GONE);
-                if (message.isSend == IMessage.MessageIsSend.RECEIVING) {
-                    if(null != mConversation && !TextUtils.isEmpty(mConversation.localPortrait)){
-                        if (mConversation.localPortrait.startsWith("res")) {
-                            redViewHolder.portrait.setImageURI(Uri.parse(mConversation.localPortrait));
-                        } else {
-                            redViewHolder.portrait.setImageURI(Uri.parse("file://" + mConversation.localPortrait));
-                        }
-                    } else {
-                        mConversation = ConversationSqlManager.getInstance(mContext)
-                                .queryConversationForById(message.conversationId);
-                        if (null != mConversation) {
-                            redViewHolder.portrait.setImageURI(Uri.parse("file://" + mConversation.localPortrait));
-                        }
-                    }
-
-                    RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) redViewHolder.portrait
-                            .getLayoutParams();
-                    lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT,
-                            RelativeLayout.TRUE);
-                    lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT, 0);
-                    redViewHolder.portrait.setLayoutParams(lp);
-
-                    lp = (RelativeLayout.LayoutParams) redViewHolder.message_content
-                            .getLayoutParams();
-                    lp.addRule(RelativeLayout.RIGHT_OF, R.id.portrait);
-                    lp.addRule(RelativeLayout.LEFT_OF, 0);
-                    redViewHolder.message_content.setLayoutParams(lp);
-                    redViewHolder.redPktLay.setOnClickListener(new OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (AppManager.getClientUser().isShowTd) {
-                                if (!AppManager.getClientUser().is_download_vip) {
-                                    showVipDialog(mContext.getResources().getString(R.string.un_receive_rpt_for_no_download));
-                                } else if (AppManager.getClientUser().gold_num < 100) {
-                                    showGoldDialog(mContext.getResources().getString(R.string.no_gold_un_receive_rpt));
-                                } else if (message.isRead){
-                                    ToastUtil.showMessage(R.string.receive_pkt);
-                                } else {
-                                    float count = PreferencesUtils.getMyMoney(mContext);
-                                    float moneyPkt = Float.parseFloat(redPkt[1]);
-                                    PreferencesUtils.setMyMoney(mContext, count + moneyPkt);
-                                    EventBus.getDefault().post(new SnackBarEvent(moneyPkt + "元红包已存入您的钱包"));
-                                    message.isRead = true;
-                                    IMessageDaoManager.getInstance(mContext).updateIMessage(message);
-                                    notifyDataSetChanged();
-                                }
-                            } else {
-                                if (!AppManager.getClientUser().is_vip) {
-                                    showVipDialog(mContext.getResources().getString(R.string.un_receive_rpt));
-                                } else if (AppManager.getClientUser().gold_num < 100) {
-                                    showGoldDialog(mContext.getResources().getString(R.string.no_gold_un_receive_rpt));
-                                } else if (message.isRead){
-                                    ToastUtil.showMessage(R.string.receive_pkt);
-                                } else {
-                                    float count = PreferencesUtils.getMyMoney(mContext);
-                                    float moneyPkt = Float.parseFloat(redPkt[1]);
-                                    PreferencesUtils.setMyMoney(mContext, count + moneyPkt);
-                                    EventBus.getDefault().post(new SnackBarEvent(moneyPkt + "元红包已存入您的钱包"));
-                                    message.isRead = true;
-                                    IMessageDaoManager.getInstance(mContext).updateIMessage(message);
-                                    notifyDataSetChanged();
-                                }
-                            }
-                        }
-                    });
-                } else if (message.isSend == IMessage.MessageIsSend.SEND) {
-                    if (message.status == IMessage.MessageStatus.FAILED) {
-                        redViewHolder.message_send_fail
-                                .setVisibility(View.VISIBLE);
-                    } else if (message.status == IMessage.MessageStatus.SENDING) {
-                        redViewHolder.progress_bar.setVisibility(View.VISIBLE);
-                    } else if(message.status == IMessage.MessageStatus.SENT){
-                        redViewHolder.progress_bar.setVisibility(View.GONE);
-                    }
-
-                    if(!TextUtils.isEmpty(AppManager.getClientUser().face_local)){
-                        redViewHolder.portrait.setImageURI(Uri.parse("file://"
-                                + AppManager.getClientUser().face_local));
-                    } else {
-                        redViewHolder.portrait.setImageURI(Uri.parse(
-                                AppManager.getClientUser().face_url));
-                    }
-
-                    RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) redViewHolder.portrait
-                            .getLayoutParams();
-                    lp.addRule(RelativeLayout.ALIGN_PARENT_RIGHT,
-                            RelativeLayout.TRUE);
-                    lp.addRule(RelativeLayout.ALIGN_PARENT_LEFT, 0);
-                    redViewHolder.portrait.setLayoutParams(lp);
-
-                    lp = (RelativeLayout.LayoutParams) redViewHolder.message_content
-                            .getLayoutParams();
-                    lp.addRule(RelativeLayout.LEFT_OF, R.id.portrait);
-                    lp.addRule(RelativeLayout.RIGHT_OF, 0);
-                    redViewHolder.message_content.setLayoutParams(lp);
-
-                    redViewHolder.redPktLay.setOnClickListener(new OnClickListener() {
-                        @Override
-                        public void onClick(View v) {
-                            if (AppManager.getClientUser().isShowTd) {
-                                if (!AppManager.getClientUser().is_download_vip) {
-                                    showVipDialog(mContext.getResources().getString(R.string.un_cancel_red_packet_for_td));
-                                } else if (AppManager.getClientUser().gold_num < 100) {
-                                    showGoldDialog(mContext.getResources().getString(R.string.no_gold_un_cancel_red_packet));
-                                } else if (message.isRead) {
-                                    ToastUtil.showMessage(R.string.revoked_pkt);
-                                } else {
-                                    showRevokePkt(message);//撤销红包对话框
-                                }
-                            } else {
-                                if (!AppManager.getClientUser().is_vip) {
-                                    showVipDialog(mContext.getResources().getString(R.string.un_cancel_red_packet));
-                                } else if (AppManager.getClientUser().gold_num < 100) {
-                                    showGoldDialog(mContext.getResources().getString(R.string.no_gold_un_cancel_red_packet));
-                                } else if (message.isRead) {
-                                    ToastUtil.showMessage(R.string.revoked_pkt);
-                                } else {
-                                    showRevokePkt(message);//撤销红包对话框
-                                }
-                            }
-                        }
-                    });
-                }
-                // 设置显示消息时间
-                setChatTime(redViewHolder.chat_time, message.send_time,
-                        showTimer);
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -698,10 +557,6 @@ public class ChatMessageAdapter extends
                 return new VoipViewHolder(LayoutInflater.from(
                         parent.getContext()).inflate(
                         R.layout.item_chat_message_voip, parent, false));
-            case IMessage.MessageType.RED_PKT:
-                return new RedViewHolder(LayoutInflater.from(
-                        parent.getContext()).inflate(
-                        R.layout.item_chat_red_packet, parent, false));
             default:
                 return null;
         }
@@ -946,53 +801,6 @@ public class ChatMessageAdapter extends
         }
     }
 
-    public class RedViewHolder extends RecyclerView.ViewHolder implements OnClickListener {
-
-        RelativeLayout message_lay;
-        LinearLayout redPktLay;
-        SimpleDraweeView portrait;
-        TextView message_text;
-        TextView chat_time;
-        LinearLayout message_content;
-        TextView nickname;
-        ImageView message_send_fail;
-        CircularProgress progress_bar;
-
-        public RedViewHolder(View itemView) {
-            super(itemView);
-            message_lay = (RelativeLayout) itemView
-                    .findViewById(R.id.message_lay);
-            redPktLay = (LinearLayout) itemView.findViewById(R.id.red_pkt_lay);
-            portrait = (SimpleDraweeView) itemView.findViewById(R.id.portrait);
-            message_text = (TextView) itemView.findViewById(R.id.blessings);
-            chat_time = (TextView) itemView.findViewById(R.id.chat_time);
-            message_content = (LinearLayout) itemView
-                    .findViewById(R.id.message_content);
-            nickname = (TextView) itemView.findViewById(R.id.nickname);
-            message_send_fail = (ImageView) itemView
-                    .findViewById(R.id.message_send_fail);
-            progress_bar = (CircularProgress) itemView
-                    .findViewById(R.id.progress_bar);
-            portrait.setOnClickListener(this);
-            redPktLay.setOnClickListener(this);
-        }
-
-        @Override
-        public void onClick(View v) {
-            switch (v.getId()) {
-                case R.id.message_send_fail:
-                    break;
-                case R.id.portrait:
-                    if(null != mConversation && !"-1".equals(mConversation.talker)){
-                        Intent intent = new Intent(mContext, PersonalInfoActivity.class);
-                        intent.putExtra(ValueKey.USER_ID, mConversation.talker);
-                        mContext.startActivity(intent);
-                    }
-                    break;
-            }
-        }
-    }
-
     private void showVipDialog(String tips) {
         AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
         builder.setMessage(tips);
@@ -1001,12 +809,7 @@ public class ChatMessageAdapter extends
             public void onClick(DialogInterface dialog, int which) {
                 dialog.dismiss();
                 Intent intent = new Intent();
-                if (AppManager.getClientUser().isShowTd) {
-                    intent.putExtra(ValueKey.FROM_ACTIVITY, "chatmessageadatper");
-                    intent.setClass(mContext, MakeMoneyActivity.class);
-                } else {
-                    intent.setClass(mContext, VipCenterActivity.class);
-                }
+                intent.setClass(mContext, VipCenterActivity.class);
                 mContext.startActivity(intent);
             }
         });

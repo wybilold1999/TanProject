@@ -37,7 +37,7 @@ public class MyAppointmentActivity extends BaseActivity {
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		setContentView(R.layout.activity_make_money);
+		setContentView(R.layout.activity_my_appoint);
 		ButterKnife.bind(this);
 		Toolbar toolbar = getActionBarToolbar();
 		if (toolbar != null) {

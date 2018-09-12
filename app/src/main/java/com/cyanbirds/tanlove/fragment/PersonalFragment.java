@@ -17,22 +17,16 @@ import android.widget.TextView;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.AboutActivity;
 import com.cyanbirds.tanlove.activity.AttentionMeActivity;
-import com.cyanbirds.tanlove.activity.BetweenLoversActivity;
 import com.cyanbirds.tanlove.activity.FeedBackActivity;
 import com.cyanbirds.tanlove.activity.GiveVipActivity;
 import com.cyanbirds.tanlove.activity.IdentifyActivity;
 import com.cyanbirds.tanlove.activity.LoveFormeActivity;
-import com.cyanbirds.tanlove.activity.MakeMoneyActivity;
-import com.cyanbirds.tanlove.activity.MoneyPacketActivity;
 import com.cyanbirds.tanlove.activity.MyAppointmentActivity;
 import com.cyanbirds.tanlove.activity.MyAttentionActivity;
 import com.cyanbirds.tanlove.activity.MyGiftsActivity;
 import com.cyanbirds.tanlove.activity.MyGoldActivity;
-import com.cyanbirds.tanlove.activity.NearPartyActivity;
 import com.cyanbirds.tanlove.activity.PersonalInfoActivity;
 import com.cyanbirds.tanlove.activity.SettingActivity;
-import com.cyanbirds.tanlove.activity.SuccessCaseActivity;
-import com.cyanbirds.tanlove.activity.VideoListActivity;
 import com.cyanbirds.tanlove.activity.VipCenterActivity;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.ClientUser;
@@ -106,16 +100,6 @@ public class PersonalFragment extends Fragment {
 	RelativeLayout mMyGold;
 	@BindView(R.id.portrait)
 	SimpleDraweeView mPortrait;
-	@BindView(R.id.download_layout)
-	RelativeLayout mDownloadlayout;
-	@BindView(R.id.lovers_card)
-	CardView mLoversCard;
-	@BindView(R.id.lovers_lay)
-	RelativeLayout mLoversLay;
-	@BindView(R.id.success_case)
-	RelativeLayout mSuccessCase;
-	@BindView(R.id.near_party)
-	RelativeLayout mNearParty;
 	@BindView(R.id.identify_card)
 	CardView mIdentifyCard;
 	@BindView(R.id.identify_lay)
@@ -245,20 +229,10 @@ public class PersonalFragment extends Fragment {
 			} else {
 				mAppointmentLay.setVisibility(View.GONE);
 			}
-			if (clientUser.isShowDownloadVip) {
-				mDownloadlayout.setVisibility(View.VISIBLE);
-			} else {
-				mDownloadlayout.setVisibility(View.GONE);
-			}
 			if (clientUser.isShowGold) {
 				mMyGold.setVisibility(View.VISIBLE);
 			} else {
 				mMyGold.setVisibility(View.GONE);
-			}
-			if (clientUser.isShowLovers) {
-				mLoversCard.setVisibility(View.VISIBLE);
-			} else {
-				mLoversCard.setVisibility(View.GONE);
 			}
 			if (clientUser.isShowVip && clientUser.isShowGiveVip) {
 				mGiveVipLay.setVisibility(View.VISIBLE);
@@ -288,8 +262,7 @@ public class PersonalFragment extends Fragment {
 	@OnClick({
 			R.id.head_portrait_lay, R.id.vip_lay, R.id.my_attention,
 			R.id.attentioned_user, R.id.good_user, R.id.setting, R.id.about, R.id.my_gold,
-			R.id.download_layout, R.id.lovers_lay, R.id.success_case,
-			R.id.near_party, R.id.identify_lay, R.id.my_gifts,
+			R.id.identify_lay, R.id.my_gifts,
 			R.id.feedback, R.id.my_appointment_lay, R.id.give_vip})
 	public void onClick(View view) {
 		Intent intent = new Intent();
@@ -332,22 +305,6 @@ public class PersonalFragment extends Fragment {
 				break;
 			case R.id.my_gold:
 				intent.setClass(getActivity(), MyGoldActivity.class);
-				startActivity(intent);
-				break;
-			case R.id.download_layout:
-				intent.setClass(getActivity(), MakeMoneyActivity.class);
-				startActivity(intent);
-				break;
-			case R.id.lovers_lay:
-				intent.setClass(getActivity(), BetweenLoversActivity.class);
-				startActivity(intent);
-				break;
-			case R.id.success_case:
-				intent.setClass(getActivity(), SuccessCaseActivity.class);
-				startActivity(intent);
-				break;
-			case R.id.near_party:
-				intent.setClass(getActivity(), NearPartyActivity.class);
 				startActivity(intent);
 				break;
 			case R.id.identify_lay:
@@ -397,20 +354,10 @@ public class PersonalFragment extends Fragment {
 				vipLay.setVisibility(View.GONE);
 				mFeedBackCard.setVisibility(View.VISIBLE);
 			}
-			if (clientUser.isShowDownloadVip) {
-				mDownloadlayout.setVisibility(View.VISIBLE);
-			} else {
-				mDownloadlayout.setVisibility(View.GONE);
-			}
 			if (clientUser.isShowGold) {
 				mMyGold.setVisibility(View.VISIBLE);
 			} else {
 				mMyGold.setVisibility(View.GONE);
-			}
-			if (clientUser.isShowLovers) {
-				mLoversCard.setVisibility(View.VISIBLE);
-			} else {
-				mLoversCard.setVisibility(View.GONE);
 			}
 			if (clientUser.isShowAppointment) {
 				mAppointmentLay.setVisibility(View.VISIBLE);
