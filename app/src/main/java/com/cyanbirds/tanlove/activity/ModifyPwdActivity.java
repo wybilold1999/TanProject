@@ -1,5 +1,6 @@
 package com.cyanbirds.tanlove.activity;
 
+import android.arch.lifecycle.Lifecycle;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -11,12 +12,19 @@ import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.manager.AppManager;
-import com.cyanbirds.tanlove.net.request.ModifyPwdRequest;
+import com.cyanbirds.tanlove.net.IUserApi;
+import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 import com.cyanbirds.tanlove.utils.AESEncryptorUtil;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
 import com.cyanbirds.tanlove.utils.ToastUtil;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.uber.autodispose.AutoDispose;
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
 import com.umeng.analytics.MobclickAgent;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import mehdi.sakout.fancybuttons.FancyButton;
 
 /**
@@ -61,32 +69,37 @@ public class ModifyPwdActivity extends BaseActivity implements View.OnClickListe
                     String cryptPwd = AESEncryptorUtil.crypt(
                             mPassword.getText().toString().trim(), AppConstants.SECURITY_KEY);
                     ProgressDialogUtils.getInstance(this).show(R.string.dialog_modifying);
-                    new ModifyPwdTask().request(cryptPwd);
+                    modifyPwd(cryptPwd);
                 }
                 break;
         }
     }
 
-    class ModifyPwdTask extends ModifyPwdRequest {
-        @Override
-        public void onPostExecute(String s) {
-            ProgressDialogUtils.getInstance(ModifyPwdActivity.this).dismiss();
-            ToastUtil.showMessage(s);
-            ClientUser clientUser = AppManager.getClientUser();
-            clientUser.userPwd = AESEncryptorUtil.crypt(mPwdAgain.getText().toString().trim(), AppConstants.SECURITY_KEY);
-            AppManager.setClientUser(clientUser);
-            AppManager.saveUserInfo();
-            finish();
+    private void modifyPwd(String newPwd) {
+        RetrofitFactory.getRetrofit().create(IUserApi.class)
+                .modifyPwd(AppManager.getClientUser().sessionId, newPwd)
+                .subscribeOn(Schedulers.io())
+                .map(responseBody -> {
+                    ClientUser clientUser = AppManager.getClientUser();
+                    clientUser.userPwd = AESEncryptorUtil.crypt(mPwdAgain.getText().toString().trim(), AppConstants.SECURITY_KEY);
+                    AppManager.setClientUser(clientUser);
+                    AppManager.saveUserInfo();
+                    JsonObject obj = new JsonParser().parse(responseBody.string()).getAsJsonObject();
+                    int code = obj.get("code").getAsInt();
+                    return code;
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+                .subscribe(integer -> {
+                    ProgressDialogUtils.getInstance(ModifyPwdActivity.this).dismiss();
+                    ToastUtil.showMessage(R.string.modify_success);
+                    finish();
+                }, throwable -> {
+                    ProgressDialogUtils.getInstance(ModifyPwdActivity.this).dismiss();
+                    ToastUtil.showMessage(R.string.modify_faiure);
+                });
 
-        }
-
-        @Override
-        public void onErrorExecute(String error) {
-            ProgressDialogUtils.getInstance(ModifyPwdActivity.this).dismiss();
-            ToastUtil.showMessage(error);
-        }
     }
-
 
     /**
      * 输入验证

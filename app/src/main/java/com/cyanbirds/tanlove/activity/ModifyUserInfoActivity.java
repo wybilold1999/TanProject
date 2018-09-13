@@ -1,6 +1,7 @@
 package com.cyanbirds.tanlove.activity;
 
 import android.Manifest;
+import android.arch.lifecycle.Lifecycle;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
@@ -10,6 +11,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
 import android.support.v4.content.FileProvider;
+import android.support.v4.util.ArrayMap;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AlertDialog.Builder;
 import android.support.v7.widget.CardView;
@@ -30,13 +32,13 @@ import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.eventtype.UserEvent;
 import com.cyanbirds.tanlove.listener.ModifyUserInfoListener;
 import com.cyanbirds.tanlove.manager.AppManager;
+import com.cyanbirds.tanlove.net.IUserApi;
+import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 import com.cyanbirds.tanlove.net.request.DownloadFileRequest;
 import com.cyanbirds.tanlove.net.request.OSSImagUploadRequest;
-import com.cyanbirds.tanlove.net.request.UpdateUserInfoRequest;
 import com.cyanbirds.tanlove.ui.widget.ClearEditText;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.cyanbirds.tanlove.utils.FileUtils;
-import com.cyanbirds.tanlove.utils.ImageUtil;
 import com.cyanbirds.tanlove.utils.Md5Util;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
 import com.cyanbirds.tanlove.utils.RxBus;
@@ -45,7 +47,11 @@ import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.cyanbirds.tanlove.utils.Utils;
 import com.dl7.tag.TagLayout;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.tbruyelle.rxpermissions2.RxPermissions;
+import com.uber.autodispose.AutoDispose;
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
 import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
@@ -58,6 +64,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
 import static android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
@@ -159,15 +167,12 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 	@BindView(R.id.card_friend)
 	CardView mCardFriend;
 
-	private String mPhotoPath;
-	private File mPhotoFile;
 	private Uri mPhotoOnSDCardUri;
 	private Uri mPortraitUri;
 	private File mCutFile;
 
 
 	private ClientUser clientUser;
-	private String currentFaceUrl;//用于判断用户是否只是修改了头像就返回
 	private List<String> mVals = null;
 
 	/**
@@ -190,6 +195,8 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
     private RxPermissions rxPermissions;
 
 	private String AUTHORITY = "com.cyanbirds.tanlove.fileProvider";
+
+	private boolean isUploadPortrait = false;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -221,7 +228,6 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 	private void setUserInfo() {
 		clientUser = AppManager.getClientUser();
 		if (clientUser != null) {
-			currentFaceUrl = clientUser.face_url;
 			if (!TextUtils.isEmpty(clientUser.face_local) && new File(clientUser.face_local).exists()) {
 				mPortraitPhoto.setImageURI(Uri.parse("file://" + clientUser.face_local));
 			} else if (!TextUtils.isEmpty(clientUser.face_url)) {
@@ -428,11 +434,9 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() ==  R.id.save) {
 			ProgressDialogUtils.getInstance(this).show(R.string.dialog_save_data);
-			AppManager.setClientUser(clientUser);
-			AppManager.saveUserInfo();
 			RxBus.getInstance().post(UPDATE_USER_INFO, new UserEvent());
 			if (clientUser != null) {
-				new UpdateUserInfoTask().request(clientUser);
+				updateUserInfo(clientUser);
 			}
 		} else {
 			finish();
@@ -441,19 +445,69 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 		return true;
 	}
 
-	class UpdateUserInfoTask extends UpdateUserInfoRequest {
-		@Override
-		public void onPostExecute(String s) {
-			ToastUtil.showMessage(R.string.save_success);
-			ProgressDialogUtils.getInstance(ModifyUserInfoActivity.this).dismiss();
-			finish();
-		}
+	private void updateUserInfo(ClientUser clientUser) {
+		RetrofitFactory.getRetrofit().create(IUserApi.class)
+				.updateUserInfo(AppManager.getClientUser().sessionId, getParam(AppManager.getClientUser()))
+				.subscribeOn(Schedulers.io())
+				.map(responseBody -> {
+					AppManager.setClientUser(clientUser);
+					AppManager.saveUserInfo();
+					JsonObject obj = new JsonParser().parse(responseBody.string()).getAsJsonObject();
+					int code = obj.get("code").getAsInt();
+					return code;
+				})
+				.observeOn(AndroidSchedulers.mainThread())
+				.as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+				.subscribe(integer -> {
+					ProgressDialogUtils.getInstance(ModifyUserInfoActivity.this).dismiss();
+					if (integer == 0) {//保存成功
+						ToastUtil.showMessage(R.string.save_success);
+						if(!isUploadPortrait) {//上传头像，不退出界面
+							finish();
+						}
+					} else {
+						ToastUtil.showMessage(R.string.save_fail);
+					}
+				}, throwable -> {
+					ProgressDialogUtils.getInstance(ModifyUserInfoActivity.this).dismiss();
+					ToastUtil.showMessage(R.string.network_requests_error);
+				});
+	}
 
-		@Override
-		public void onErrorExecute(String error) {
-			ToastUtil.showMessage(R.string.save_fail);
-			ProgressDialogUtils.getInstance(ModifyUserInfoActivity.this).dismiss();
+	private ArrayMap<String, String> getParam(ClientUser clientUser) {
+		ArrayMap<String, String> params = new ArrayMap<>();
+		params.put("sex", clientUser.sex);
+		params.put("nickName", clientUser.user_name);
+		params.put("faceurl", clientUser.face_url);
+		if(!TextUtils.isEmpty(clientUser.personality_tag)){
+			params.put("personalityTag", clientUser.personality_tag);
 		}
+		if(!TextUtils.isEmpty(clientUser.part_tag)){
+			params.put("partTag", clientUser.part_tag);
+		}
+		if(!TextUtils.isEmpty(clientUser.intrest_tag)){
+			params.put("intrestTag", clientUser.intrest_tag);
+		}
+		params.put("age", String.valueOf(clientUser.age));
+		params.put("signature", clientUser.signature == null ? "" : clientUser.signature);
+		params.put("qq", clientUser.qq_no == null ? "" : clientUser.qq_no);
+		params.put("wechat", clientUser.weixin_no == null ? "" : clientUser.weixin_no);
+		params.put("publicSocialNumber", String.valueOf(clientUser.publicSocialNumber));
+		params.put("emotionStatus", clientUser.state_marry == null ? "" : clientUser.state_marry);
+		params.put("tall", clientUser.tall == null ? "" : clientUser.tall);
+		params.put("weight", clientUser.weight == null ? "" : clientUser.weight);
+		params.put("constellation", clientUser.constellation == null ? "" : clientUser.constellation);
+		params.put("occupation", clientUser.occupation == null ? "" : clientUser.occupation);
+		params.put("education", clientUser.education == null ? "" : clientUser.education);
+		params.put("purpose", clientUser.purpose == null ? "" : clientUser.purpose);
+		params.put("loveWhere", clientUser.love_where == null ? "" : clientUser.love_where);
+		params.put("doWhatFirst", clientUser.do_what_first == null ? "" : clientUser.do_what_first);
+		params.put("conception", clientUser.conception == null ? "" : clientUser.conception);
+		params.put("isDownloadVip", String.valueOf(clientUser.is_download_vip));
+		params.put("goldNum", String.valueOf(clientUser.gold_num));
+		params.put("phone", clientUser.mobile);
+		params.put("isCheckPhone", String.valueOf(clientUser.isCheckPhone));
+		return params;
 	}
 
 
@@ -1060,29 +1114,14 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 			clientUser.face_url = AppConstants.OSS_IMG_ENDPOINT + s;
 			clientUser.face_local = mPortraitUri.getPath();
 			mPortraitPhoto.setImageURI(clientUser.face_url);
-			AppManager.setClientUser(clientUser);
-			AppManager.saveUserInfo();
             RxBus.getInstance().post(UPDATE_USER_INFO, new UserEvent());
-			new UpdateUserTask().request(clientUser);
+            updateUserInfo(clientUser);
+            isUploadPortrait = true;
 		}
 
 		@Override
 		public void onErrorExecute(String error) {
 			ToastUtil.showMessage(error);
-		}
-	}
-
-	class UpdateUserTask extends UpdateUserInfoRequest {
-		@Override
-		public void onPostExecute(String s) {
-			ToastUtil.showMessage(R.string.save_success);
-			ProgressDialogUtils.getInstance(ModifyUserInfoActivity.this).dismiss();
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-			ToastUtil.showMessage(R.string.save_fail);
-			ProgressDialogUtils.getInstance(ModifyUserInfoActivity.this).dismiss();
 		}
 	}
 

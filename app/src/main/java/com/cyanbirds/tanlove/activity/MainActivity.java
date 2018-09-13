@@ -39,7 +39,6 @@ import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.db.ConversationSqlManager;
 import com.cyanbirds.tanlove.entity.AppointmentModel;
-import com.cyanbirds.tanlove.entity.CityInfo;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.entity.FederationToken;
 import com.cyanbirds.tanlove.entity.FollowModel;
@@ -56,7 +55,6 @@ import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.manager.NotificationManager;
 import com.cyanbirds.tanlove.net.request.FollowListRequest;
 import com.cyanbirds.tanlove.net.request.GetAppointmentListRequest;
-import com.cyanbirds.tanlove.net.request.GetCityInfoRequest;
 import com.cyanbirds.tanlove.net.request.GetLoveFormeListRequest;
 import com.cyanbirds.tanlove.net.request.GetOSSTokenRequest;
 import com.cyanbirds.tanlove.net.request.GiftsListRequest;
@@ -123,7 +121,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		getSupportActionBar().setDisplayHomeAsUpEnabled(false);
-		new GetCityInfoTask().request();
 		setupViews();
 		setupEvent();
 		initOSS();
@@ -310,38 +307,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		}
 		PreferencesUtils.setLatitude(this, curLat);
 		PreferencesUtils.setLongitude(this, curLon);
-	}
-
-	/**
-	 * 获取用户所在城市
-	 */
-	class GetCityInfoTask extends GetCityInfoRequest {
-
-		@Override
-		public void onPostExecute(CityInfo cityInfo) {
-			if (cityInfo != null) {
-				try {
-					String[] rectangle = cityInfo.rectangle.split(";");
-					String[] leftBottom = rectangle[0].split(",");
-					String[] rightTop = rectangle[1].split(",");
-
-					double lat = Double.parseDouble(leftBottom[1]) + (Double.parseDouble(rightTop[1]) - Double.parseDouble(leftBottom[1])) / 5;
-					curLat = String.valueOf(lat);
-
-					double lon = Double.parseDouble(leftBottom[0]) + (Double.parseDouble(rightTop[0]) - Double.parseDouble(leftBottom[0])) / 5;
-					curLon = String.valueOf(lon);
-
-					AppManager.getClientUser().latitude = curLat;
-					AppManager.getClientUser().longitude = curLon;
-				} catch (Exception e) {
-
-				}
-			}
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-		}
 	}
 
 	/**

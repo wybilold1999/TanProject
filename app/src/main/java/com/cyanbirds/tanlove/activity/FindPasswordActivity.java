@@ -1,5 +1,6 @@
 package com.cyanbirds.tanlove.activity;
 
+import android.arch.lifecycle.Lifecycle;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -10,15 +11,22 @@ import android.widget.TextView;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.ValueKey;
-import com.cyanbirds.tanlove.net.request.CheckIsRegisterByPhoneRequest;
+import com.cyanbirds.tanlove.net.IUserApi;
+import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.ToastUtil;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.uber.autodispose.AutoDispose;
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
 import com.umeng.analytics.MobclickAgent;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import cn.smssdk.SMSSDK;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import mehdi.sakout.fancybuttons.FancyButton;
 
 public class FindPasswordActivity extends BaseActivity {
@@ -48,30 +56,38 @@ public class FindPasswordActivity extends BaseActivity {
     @OnClick(R.id.next)
     public void onClick() {
         if(checkInput()){
-            new CheckPhoneIsRegisterTask().request(phoneNum.getText().toString().trim());
+            checkPhoneIsRegister();
         }
     }
 
-    class CheckPhoneIsRegisterTask extends CheckIsRegisterByPhoneRequest {
-        @Override
-        public void onPostExecute(Boolean aBoolean) {
-            if(aBoolean){
-                SMSSDK.getVerificationCode("86", phoneNum.getText().toString().trim());
-                Intent intent = new Intent(FindPasswordActivity.this, RegisterCaptchaActivity.class);
-                intent.putExtra(ValueKey.INPUT_PHONE_TYPE, mInputPhoneType);
-                intent.putExtra(ValueKey.PHONE_NUMBER, phoneNum.getText().toString().trim());
-                intent.putExtra(ValueKey.LOCATION, mCurrrentCity);
-                startActivity(intent);
-                finish();
-            } else {
-                ToastUtil.showMessage(R.string.phone_un_register);
-            }
-        }
-
-        @Override
-        public void onErrorExecute(String error) {
-            ToastUtil.showMessage(error);
-        }
+    private void checkPhoneIsRegister() {
+        RetrofitFactory.getRetrofit().create(IUserApi.class)
+                .checkIsRegister(phoneNum.getText().toString().trim())
+                .subscribeOn(Schedulers.io())
+                .map(responseBody -> {
+                    JsonObject obj = new JsonParser().parse(responseBody.string()).getAsJsonObject();
+                    int code = obj.get("code").getAsInt();
+                    boolean isRegister = false;
+                    if (code == 0) {
+                        isRegister = obj.get("data").getAsBoolean();
+                    }
+                    return isRegister;
+                })
+                .observeOn(AndroidSchedulers.mainThread())
+                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+                .subscribe(aBoolean -> {
+                    if(aBoolean){
+                        SMSSDK.getVerificationCode("86", phoneNum.getText().toString().trim());
+                        Intent intent = new Intent(FindPasswordActivity.this, RegisterCaptchaActivity.class);
+                        intent.putExtra(ValueKey.INPUT_PHONE_TYPE, mInputPhoneType);
+                        intent.putExtra(ValueKey.PHONE_NUMBER, phoneNum.getText().toString().trim());
+                        intent.putExtra(ValueKey.LOCATION, mCurrrentCity);
+                        startActivity(intent);
+                        finish();
+                    } else {
+                        ToastUtil.showMessage(R.string.phone_un_register);
+                    }
+                }, throwable -> ToastUtil.showMessage(R.string.network_requests_error));
     }
 
     /**

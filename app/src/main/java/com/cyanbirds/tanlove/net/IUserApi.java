@@ -2,7 +2,9 @@ package com.cyanbirds.tanlove.net;
 
 import android.support.v4.util.ArrayMap;
 
+import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.entity.AllKeys;
+import com.cyanbirds.tanlove.entity.CityInfo;
 
 import io.reactivex.Observable;
 import okhttp3.Response;
@@ -59,4 +61,9 @@ public interface IUserApi {
     @FormUrlEncoded
     @POST("user/updatePassword")
     Observable<ResponseBody> modifyPwd(@Header("token") String token, @Field("newPassword") String newPassword);
+
+    @FormUrlEncoded
+    @POST("user/updatePerson")
+    Observable<ResponseBody> updateUserInfo(@Header("token") String token, @FieldMap ArrayMap<String, String> params);
+
 }

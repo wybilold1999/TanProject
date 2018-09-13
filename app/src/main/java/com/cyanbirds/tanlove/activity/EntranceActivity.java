@@ -15,10 +15,8 @@ import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
-import com.cyanbirds.tanlove.entity.CityInfo;
 import com.cyanbirds.tanlove.eventtype.LocationEvent;
 import com.cyanbirds.tanlove.manager.AppManager;
-import com.cyanbirds.tanlove.net.request.GetCityInfoRequest;
 import com.cyanbirds.tanlove.net.request.UploadCityInfoRequest;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.RxBus;
@@ -51,7 +49,6 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
     private AMapLocationClientOption mLocationOption;
     private AMapLocationClient mlocationClient;
     private String mCurrrentCity;//定位到的城市
-    private CityInfo mCityInfo;//web api返回的城市信息
     private String curLat;
     private String curLon;
 
@@ -62,7 +59,6 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
         ButterKnife.bind(this);
         saveFirstLauncher();
         setupViews();
-        new GetCityInfoTask().request();
         initLocationClient();
         rxPermissions = new RxPermissions(this);
         requestLocationPermission();
@@ -84,25 +80,6 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
             PreferencesUtils.setIsFirstLauncher(this, false);
         } catch (Exception e) {
             e.printStackTrace();
-        }
-    }
-
-    /**
-     * 获取用户所在城市
-     */
-    class GetCityInfoTask extends GetCityInfoRequest {
-
-        @Override
-        public void onPostExecute(CityInfo cityInfo) {
-            mCityInfo = cityInfo;
-            mCurrrentCity = cityInfo.city;
-            PreferencesUtils.setCurrentCity(EntranceActivity.this, mCurrrentCity);
-            PreferencesUtils.setCurrentProvince(EntranceActivity.this, cityInfo.province);
-            RxBus.getInstance().post(AppConstants.CITY_WE_CHAT_RESP_CODE, new LocationEvent(mCurrrentCity));
-        }
-
-        @Override
-        public void onErrorExecute(String error) {
         }
     }
 
@@ -136,25 +113,9 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
             RxBus.getInstance().post(AppConstants.CITY_WE_CHAT_RESP_CODE, new LocationEvent(mCurrrentCity));
             new UploadCityInfoRequest().request(aMapLocation.getCity(), String.valueOf(aMapLocation.getLatitude()),
                     String.valueOf(aMapLocation.getLongitude()));
-        } else {
-            if (mCityInfo != null) {
-                try {
-                    String[] rectangle = mCityInfo.rectangle.split(";");
-                    String[] leftBottom = rectangle[0].split(",");
-                    String[] rightTop = rectangle[1].split(",");
-
-                    double lat = Double.parseDouble(leftBottom[1]) + (Double.parseDouble(rightTop[1]) - Double.parseDouble(leftBottom[1])) / 5;
-                    curLat = String.valueOf(lat);
-
-                    double lon = Double.parseDouble(leftBottom[0]) + (Double.parseDouble(rightTop[0]) - Double.parseDouble(leftBottom[0])) / 5;
-                    curLon = String.valueOf(lon);
-                } catch (Exception e) {
-
-                }
-            }
+            PreferencesUtils.setLatitude(this, curLat);
+            PreferencesUtils.setLongitude(this, curLon);
         }
-        PreferencesUtils.setLatitude(this, curLat);
-        PreferencesUtils.setLongitude(this, curLon);
     }
 
     @OnClick({R.id.login, R.id.register})
