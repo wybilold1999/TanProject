@@ -36,6 +36,7 @@ import com.cyanbirds.tanlove.net.request.UpdateUserInfoRequest;
 import com.cyanbirds.tanlove.ui.widget.ClearEditText;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.cyanbirds.tanlove.utils.FileUtils;
+import com.cyanbirds.tanlove.utils.ImageUtil;
 import com.cyanbirds.tanlove.utils.Md5Util;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
 import com.cyanbirds.tanlove.utils.RxBus;
@@ -959,22 +960,23 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 			if (!mPhotoDirFile.exists()) {
 				mPhotoDirFile.mkdir();
 			}
-			mPhotoFile = new File(mPhotoDirPath, getPhotoFileName());//照相机的File对象
-			if (!mPhotoFile.exists()) {
+			mCutFile = new File(mPhotoDirPath, getPhotoFileName());//照相机的File对象
+			if (!mCutFile.exists()) {
 				try {
-					mPhotoFile.createNewFile();
+					mCutFile.createNewFile();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 			Intent intentFromCapture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {//7.0及以上
-				Uri uriForFile = FileProvider.getUriForFile(this, AUTHORITY, mPhotoFile);
-				intentFromCapture.putExtra(MediaStore.EXTRA_OUTPUT, uriForFile);
+				mPhotoOnSDCardUri = FileProvider.getUriForFile(this, AUTHORITY, mCutFile);
+				intentFromCapture.putExtra(MediaStore.EXTRA_OUTPUT, mPhotoOnSDCardUri);
 				intentFromCapture.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
 				intentFromCapture.addFlags(FLAG_GRANT_WRITE_URI_PERMISSION);
 			} else {
-				intentFromCapture.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mPhotoFile));
+				mPhotoOnSDCardUri = Uri.fromFile(mCutFile);
+				intentFromCapture.putExtra(MediaStore.EXTRA_OUTPUT, mPhotoOnSDCardUri);
 			}
 			startActivityForResult(intentFromCapture, CAMERA_RESULT);
 		}
@@ -1025,14 +1027,10 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (resultCode == RESULT_OK && requestCode == CAMERA_RESULT) {
-			Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE,
-					mPhotoOnSDCardUri);
+			Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, mPhotoOnSDCardUri);
 			sendBroadcast(intent);
-			if (mPhotoOnSDCardUri != null) {
-				File file = new File(mPhotoPath);
-				if (file.exists()) {
-					Utils.cutPhoto(this, mPhotoOnSDCardUri, mPhotoFile, PHOTO_CUT_RESULT);
-				}
+			if (mPhotoOnSDCardUri != null && mCutFile.exists()) {
+				Utils.cutPhoto(this, mPhotoOnSDCardUri, mCutFile, PHOTO_CUT_RESULT);
 			}
 		} else if (resultCode == RESULT_OK && requestCode == ALBUMS_RESULT) {
 			Uri originalUri = data.getData();
