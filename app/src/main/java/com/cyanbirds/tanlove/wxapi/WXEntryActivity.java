@@ -17,8 +17,6 @@ import com.tencent.mm.sdk.modelbase.BaseResp;
 import com.tencent.mm.sdk.modelmsg.SendAuth;
 import com.tencent.mm.sdk.openapi.IWXAPIEventHandler;
 
-import org.greenrobot.eventbus.EventBus;
-
 public class WXEntryActivity extends Activity implements IWXAPIEventHandler {
 	// IWXAPI 是第三方app和微信通信的openapi接口
 //	private IWXAPI api;

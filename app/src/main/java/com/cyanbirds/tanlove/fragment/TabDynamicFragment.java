@@ -13,13 +13,14 @@ import android.widget.TextView;
 
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.adapter.TabDynamicAdapter;
+import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.DynamicContent;
 import com.cyanbirds.tanlove.eventtype.PubDycEvent;
 import com.cyanbirds.tanlove.listener.NestedScrollViewListener;
 import com.cyanbirds.tanlove.net.request.GetDynamicListRequest;
 import com.cyanbirds.tanlove.ui.widget.WrapperLinearLayoutManager;
-import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
+import com.cyanbirds.tanlove.utils.RxBus;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonNull;
@@ -28,16 +29,13 @@ import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
 import com.umeng.analytics.MobclickAgent;
 
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
-
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.Observable;
 
 /**
  * @author: wangyb
@@ -64,6 +62,8 @@ public class TabDynamicFragment extends Fragment {
 
 	private int mServerDynamicCount = 0;
 
+	private Observable<PubDycEvent> observable;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 							 Bundle savedInstanceState) {
@@ -72,7 +72,7 @@ public class TabDynamicFragment extends Fragment {
 			ButterKnife.bind(this, rootView);
 			setupViews();
 			setupData();
-			EventBus.getDefault().register(this);
+			rxBusSub();
 			setHasOptionsMenu(true);
 		}
 		ViewGroup parent = (ViewGroup) rootView.getParent();
@@ -89,6 +89,14 @@ public class TabDynamicFragment extends Fragment {
 		mRecyclerview.setLayoutManager(layoutManager);
 		mRecyclerview.setItemAnimator(new DefaultItemAnimator());
 		mRecyclerview.setNestedScrollingEnabled(false);
+	}
+
+	/**
+	 * rx订阅
+	 */
+	private void rxBusSub() {
+		observable = RxBus.getInstance().register(AppConstants.PUB_DYNAMIC);
+		observable.subscribe(pubDycEvent -> updatePublishedDynamic(pubDycEvent));
 	}
 
 	private void setupData() {
@@ -140,8 +148,7 @@ public class TabDynamicFragment extends Fragment {
 		}
 	}
 
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void updatePublishedDynamic(PubDycEvent pubDycEvent) {
+	private void updatePublishedDynamic(PubDycEvent pubDycEvent) {
 		DynamicContent.DataBean dataBean = new DynamicContent.DataBean();
 		JsonObject obj = new JsonParser().parse(pubDycEvent.dynamicContent).getAsJsonObject();
 		JsonObject data = obj.get("data").getAsJsonObject();
@@ -174,12 +181,6 @@ public class TabDynamicFragment extends Fragment {
 	public void onPause() {
 		super.onPause();
 		MobclickAgent.onPageEnd(this.getClass().getName());
-	}
-
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		EventBus.getDefault().unregister(this);
 	}
 
 }

@@ -69,8 +69,6 @@ import com.cyanbirds.tanlove.utils.Utils;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.umeng.analytics.MobclickAgent;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.io.File;
 import java.io.IOException;
 import java.text.SimpleDateFormat;
@@ -218,7 +216,6 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 	}
 
 	private void setupEvent() {
-		EventBus.getDefault().register(this);
 		openCamera.setOnClickListener(this);
 		openAlbums.setOnClickListener(this);
 		openEmotion.setOnClickListener(this);
@@ -562,7 +559,6 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		EventBus.getDefault().unregister(this);
 		AppManager.currentChatTalker = null;
 		MessageStatusReportListener.getInstance().setOnMessageReportCallback(null);
 		MessageCallbackListener.getInstance().setOnMessageReportCallback(null);

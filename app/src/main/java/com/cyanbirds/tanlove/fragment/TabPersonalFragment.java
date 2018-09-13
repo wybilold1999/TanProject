@@ -35,18 +35,16 @@ import com.amap.api.services.geocoder.RegeocodeResult;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.VipCenterActivity;
 import com.cyanbirds.tanlove.adapter.TabPersonalPhotosAdapter;
+import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.eventtype.UserEvent;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.ui.widget.WrapperLinearLayoutManager;
+import com.cyanbirds.tanlove.utils.RxBus;
 import com.cyanbirds.tanlove.utils.StringUtil;
 import com.dl7.tag.TagLayout;
 import com.umeng.analytics.MobclickAgent;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -55,6 +53,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.Observable;
 
 /**
  * @author: wangyb
@@ -201,16 +200,17 @@ public class TabPersonalFragment extends Fragment implements GeocodeSearch.OnGeo
 	private DPoint mStartPoint;
 	private DPoint mEndPoint;
 
+	private Observable<UserEvent> observable;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 							 Bundle savedInstanceState) {
 		if (rootView == null) {
 			rootView = inflater.inflate(R.layout.tab_item_personal, null);
 			ButterKnife.bind(this, rootView);
-			EventBus.getDefault().register(this);
 			initMap();
 			setupViews();
-			setupEvent();
+			rxBusSub();
 			setupData();
 			setHasOptionsMenu(true);
 			mapView.onCreate(savedInstanceState);// 此方法必须重写
@@ -242,7 +242,12 @@ public class TabPersonalFragment extends Fragment implements GeocodeSearch.OnGeo
 
 	}
 
-	private void setupEvent() {
+	/**
+	 * rx订阅
+	 */
+	private void rxBusSub() {
+		observable = RxBus.getInstance().register(AppConstants.UPDATE_USER_INFO);
+		observable.subscribe(userEvent -> setUserInfo(AppManager.getClientUser()));
 	}
 
 	private void setupViews() {
@@ -489,11 +494,6 @@ public class TabPersonalFragment extends Fragment implements GeocodeSearch.OnGeo
 		}
 	}
 
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void updateUserInfo(UserEvent event) {
-		setUserInfo(AppManager.getClientUser());
-	}
-
 	@OnClick({R.id.check_view_wechat, R.id.check_view_qq})
 	public void onClick(View view) {
 		switch (view.getId()) {
@@ -557,7 +557,6 @@ public class TabPersonalFragment extends Fragment implements GeocodeSearch.OnGeo
 		if (mapView != null) {
 			mapView.onDestroy();
 		}
-		EventBus.getDefault().unregister(this);
 	}
 
 	@Override

@@ -16,8 +16,6 @@ import com.tencent.mm.sdk.modelbase.BaseReq;
 import com.tencent.mm.sdk.modelbase.BaseResp;
 import com.tencent.mm.sdk.openapi.IWXAPIEventHandler;
 
-import org.greenrobot.eventbus.EventBus;
-
 /**
  * 作者：wangyb
  * 时间：2016/11/3 18:06

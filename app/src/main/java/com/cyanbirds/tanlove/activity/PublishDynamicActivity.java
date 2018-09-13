@@ -25,11 +25,10 @@ import com.cyanbirds.tanlove.net.request.PublishDynamicRequest;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.cyanbirds.tanlove.utils.ImageUtil;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
+import com.cyanbirds.tanlove.utils.RxBus;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.google.gson.Gson;
 import com.umeng.analytics.MobclickAgent;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -156,7 +155,7 @@ public class PublishDynamicActivity extends BaseActivity {
 		public void onPostExecute(String s) {
 			ProgressDialogUtils.getInstance(PublishDynamicActivity.this).dismiss();
 			ToastUtil.showMessage(R.string.publish_success);
-			EventBus.getDefault().post(new PubDycEvent(s));
+			RxBus.getInstance().post(AppConstants.PUB_DYNAMIC, new PubDycEvent(s));
 			finish();
 		}
 

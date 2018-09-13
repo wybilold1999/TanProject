@@ -27,7 +27,6 @@ import com.cyanbirds.tanlove.entity.MemberBuy;
 import com.cyanbirds.tanlove.entity.PayResult;
 import com.cyanbirds.tanlove.entity.UserVipModel;
 import com.cyanbirds.tanlove.entity.WeChatPay;
-import com.cyanbirds.tanlove.eventtype.PayEvent;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.CreateOrderRequest;
 import com.cyanbirds.tanlove.net.request.GetAliPayOrderInfoRequest;
@@ -36,13 +35,10 @@ import com.cyanbirds.tanlove.net.request.GetPayResultRequest;
 import com.cyanbirds.tanlove.ui.widget.DividerItemDecoration;
 import com.cyanbirds.tanlove.ui.widget.WrapperLinearLayoutManager;
 import com.cyanbirds.tanlove.utils.DensityUtil;
+import com.cyanbirds.tanlove.utils.RxBus;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.tencent.mm.sdk.modelpay.PayReq;
 import com.umeng.analytics.MobclickAgent;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.util.List;
 import java.util.Map;
@@ -50,6 +46,7 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.Observable;
 import mehdi.sakout.fancybuttons.FancyButton;
 
 /**
@@ -96,6 +93,8 @@ public class MyGoldActivity extends BaseActivity {
     private MemberBuy mMemberBuy;//选中的商品
     private String mPayType;//支付方式
 
+    private Observable<?> observable;
+
     @SuppressLint("HandlerLeak")
     private Handler mHandler = new Handler() {
         @SuppressWarnings("unused")
@@ -138,7 +137,7 @@ public class MyGoldActivity extends BaseActivity {
             getSupportActionBar().setTitle(R.string.my_gold);
         }
         setupView();
-        setupEvent();
+        rxBusSub();
         setupData();
     }
 
@@ -153,8 +152,12 @@ public class MyGoldActivity extends BaseActivity {
         mRecyclerView.setNestedScrollingEnabled(false);
     }
 
-    private void setupEvent() {
-        EventBus.getDefault().register(this);
+    /**
+     * rx订阅
+     */
+    private void rxBusSub() {
+        observable = RxBus.getInstance().register(AppConstants.CITY_WE_CHAT_RESP_CODE);
+        observable.subscribe(o -> new GetPayResultTask().request());
     }
 
     private void setupData() {
@@ -328,11 +331,6 @@ public class MyGoldActivity extends BaseActivity {
         payThread.start();
     }
 
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void paySuccess(PayEvent event) {
-        new GetPayResultTask().request();
-    }
-
     class GetPayResultTask extends GetPayResultRequest {
         @Override
         public void onPostExecute(UserVipModel userVipModel) {
@@ -353,12 +351,6 @@ public class MyGoldActivity extends BaseActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == 0 && requestCode == SDK_PAY_FLAG) {
         }
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
     }
 
     @Override

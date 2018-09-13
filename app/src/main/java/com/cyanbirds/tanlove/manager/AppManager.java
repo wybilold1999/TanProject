@@ -1,11 +1,9 @@
 package com.cyanbirds.tanlove.manager;
 
-import android.Manifest;
 import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningTaskInfo;
 import android.app.KeyguardManager;
-import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -73,7 +71,6 @@ public class AppManager {
 	 * 进入聊天界面当前聊天联系人id
 	 */
 	public static String currentChatTalker = null;
-	private static final int REQUEST_LOCATION_PERMISSION = 1000;
 
 	private static UserService mUserService;
 	private static PictureService mPictureService;

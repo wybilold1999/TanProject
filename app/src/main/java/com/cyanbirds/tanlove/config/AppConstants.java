@@ -77,4 +77,8 @@ public class AppConstants {
 
 	public static String PAY_SUCCESS = "pay_success";
 
+	public static String PUB_DYNAMIC = "pub_dynamic";
+
+	public static String UPDATE_USER_INFO = "update_user_info";
+
 }

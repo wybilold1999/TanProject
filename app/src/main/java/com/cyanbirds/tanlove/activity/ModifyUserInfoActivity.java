@@ -4,15 +4,11 @@ import android.Manifest;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.provider.Settings;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AlertDialog.Builder;
@@ -42,13 +38,14 @@ import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.cyanbirds.tanlove.utils.FileUtils;
 import com.cyanbirds.tanlove.utils.Md5Util;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
+import com.cyanbirds.tanlove.utils.RxBus;
 import com.cyanbirds.tanlove.utils.StringUtil;
 import com.cyanbirds.tanlove.utils.ToastUtil;
+import com.cyanbirds.tanlove.utils.Utils;
 import com.dl7.tag.TagLayout;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.umeng.analytics.MobclickAgent;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.io.File;
 import java.io.IOException;
@@ -60,6 +57,10 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+
+import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
+import static android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
+import static com.cyanbirds.tanlove.config.AppConstants.UPDATE_USER_INFO;
 
 /**
  * @author Cloudsoar(wangyb)
@@ -184,14 +185,10 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 	 * 读写文件夹
 	 */
 	private final int REQUEST_PERMISSION_WRITE = 1000;
-	/**
-	 * 跳转设置界面
-	 */
-	private final int REQUEST_PERMISSION_SETTING = 10001;
-	/**
-	 * 是否拥有读写权限
-	 */
-	private boolean isWritePersimmion = false;
+
+    private RxPermissions rxPermissions;
+
+	private String AUTHORITY = "com.cyanbirds.tanlove.fileProvider";
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -215,6 +212,7 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 	}
 
 	private void setupData() {
+        rxPermissions = new RxPermissions(this);
 		mVals = new ArrayList<>();
 		setUserInfo();
 	}
@@ -431,7 +429,7 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 			ProgressDialogUtils.getInstance(this).show(R.string.dialog_save_data);
 			AppManager.setClientUser(clientUser);
 			AppManager.saveUserInfo();
-			EventBus.getDefault().post(new UserEvent());
+			RxBus.getInstance().post(UPDATE_USER_INFO, new UserEvent());
 			if (clientUser != null) {
 				new UpdateUserInfoTask().request(clientUser);
 			}
@@ -475,12 +473,7 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 					public void onClick(DialogInterface dialog, int which) {
 						switch (which) {
 							case 0:
-								if (AppManager.checkPermission(ModifyUserInfoActivity.this, Manifest.permission.WRITE_EXTERNAL_STORAGE, REQUEST_PERMISSION_WRITE)) {
-									isWritePersimmion = true;
-									if (AppManager.checkPermission(ModifyUserInfoActivity.this, Manifest.permission.CAMERA, CAMERA_RESULT)) {
-										openCamera();
-									}
-								}
+                                checkPOpenCamera();
 								break;
 							case 1:
 								openAlbums();
@@ -491,6 +484,38 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 				});
 		builder.show();
 	}
+
+    private void checkPOpenCamera() {
+        rxPermissions.requestEachCombined(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
+                .subscribe(permission -> { // will emit 1 Permission object
+                    if (permission.granted) {
+                        // All permissions are granted !
+                        openCamera();
+                    } else if (permission.shouldShowRequestPermissionRationale) {
+                        // At least one denied permission without ask never again
+                    } else {
+                        // At least one denied permission with ask never again
+                        // Need to go to the settings
+                        if (permission.name.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
+                            showPermissionDialog(R.string.open_write_external, REQUEST_PERMISSION_WRITE);
+                        } else {
+                            showPermissionDialog(R.string.open_camera_permission, CAMERA_RESULT);
+                        }
+                    }
+                }, throwable -> {
+
+                });
+    }
+
+    private void showPermissionDialog(int textResId, int requestCode) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(textResId);
+        builder.setPositiveButton(R.string.ok, (dialog, i) -> {
+            dialog.dismiss();
+            Utils.goToSetting(this, requestCode);
+        });
+        builder.show();
+    }
 
 	/**
 	 * 年龄
@@ -926,18 +951,15 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 	 * 打开相机
 	 */
 	private void openCamera() {
-		hideSoftKeyboard();
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		if (intent.resolveActivity(getPackageManager())!=null){
-			String mPhotoDirPath = Environment
-					.getExternalStoragePublicDirectory(
-							Environment.DIRECTORY_DCIM).getPath();
+
+			String mPhotoDirPath = Environment.getExternalStorageDirectory()+"/Android/data/com.cyanbirds.tanlove/files/";
 			File mPhotoDirFile = new File(mPhotoDirPath);
 			if (!mPhotoDirFile.exists()) {
 				mPhotoDirFile.mkdir();
 			}
-			mPhotoPath = mPhotoDirPath + File.separator + getPhotoFileName();
-			mPhotoFile = new File(mPhotoPath);
+			mPhotoFile = new File(mPhotoDirPath, getPhotoFileName());//照相机的File对象
 			if (!mPhotoFile.exists()) {
 				try {
 					mPhotoFile.createNewFile();
@@ -945,16 +967,16 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 					e.printStackTrace();
 				}
 			}
-			if (mPhotoFile != null) {
-				//FileProvider 是一个特殊的 ContentProvider 的子类，
-				//它使用 content:// Uri 代替了 file:/// Uri. ，更便利而且安全的为另一个app分享文件
-				mPhotoOnSDCardUri = FileProvider.getUriForFile(this,
-						"com.cyanbirds.tanlove.fileProvider",
-						mPhotoFile);
-				intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION); //添加这一句表示对目标应用临时授权该Uri所代表的文件
-				intent.putExtra(MediaStore.EXTRA_OUTPUT, mPhotoOnSDCardUri);
-				startActivityForResult(intent, CAMERA_RESULT);
+			Intent intentFromCapture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {//7.0及以上
+				Uri uriForFile = FileProvider.getUriForFile(this, AUTHORITY, mPhotoFile);
+				intentFromCapture.putExtra(MediaStore.EXTRA_OUTPUT, uriForFile);
+				intentFromCapture.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
+				intentFromCapture.addFlags(FLAG_GRANT_WRITE_URI_PERMISSION);
+			} else {
+				intentFromCapture.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mPhotoFile));
 			}
+			startActivityForResult(intentFromCapture, CAMERA_RESULT);
 		}
 	}
 
@@ -974,9 +996,29 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 	 * 打开相册
 	 */
 	private void openAlbums() {
-		Intent openAlbumIntent = new Intent(Intent.ACTION_GET_CONTENT);
-		openAlbumIntent.setType("image/*");
-		startActivityForResult(openAlbumIntent, ALBUMS_RESULT);
+		String mAlbumsFilePath = Environment.getExternalStorageDirectory()+"/Android/data/com.cyanbirds.tanlove/files/";
+		mCutFile = new File(mAlbumsFilePath, "cutphoto.png");
+		if (!mCutFile.exists()) {
+			try {
+				mCutFile.createNewFile();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+		Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+		intent.addCategory(Intent.CATEGORY_OPENABLE);
+		intent.setType("image/*");
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {//如果大于等于7.0使用FileProvider
+			Uri uriForFile = FileProvider.getUriForFile
+					(this, AUTHORITY, mCutFile);
+			intent.putExtra(MediaStore.EXTRA_OUTPUT, uriForFile);
+			intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
+			intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+			startActivityForResult(intent, ALBUMS_RESULT);
+		} else {
+			//intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mGalleryFile));
+			startActivityForResult(intent, ALBUMS_RESULT);
+		}
 	}
 
 	@Override
@@ -989,24 +1031,23 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 			if (mPhotoOnSDCardUri != null) {
 				File file = new File(mPhotoPath);
 				if (file.exists()) {
-					cutPhoto(file);
+					Utils.cutPhoto(this, mPhotoOnSDCardUri, mPhotoFile, PHOTO_CUT_RESULT);
 				}
 			}
 		} else if (resultCode == RESULT_OK && requestCode == ALBUMS_RESULT) {
 			Uri originalUri = data.getData();
-			if (!TextUtils.isEmpty(FileUtils.getPath(this, originalUri))) {
-				cutPhoto(new File(FileUtils.getPath(this, originalUri)));
-			}
+			File originalFile = new File(FileUtils.getPath(this, originalUri));
+			Uri dataUri = FileProvider.getUriForFile(this, AUTHORITY, originalFile);
+			Utils.cutPhoto(this, dataUri, mCutFile, PHOTO_CUT_RESULT);
 		} else if (resultCode == RESULT_OK && requestCode == PHOTO_CUT_RESULT) {
 			mPortraitUri = data.getData();
 			if (mPortraitUri == null && mCutFile != null) {
-				mPortraitUri = Uri.parse(mCutFile.getPath());
+				mPortraitUri = FileProvider.getUriForFile(this, AUTHORITY, mCutFile);
 			}
-			if (mPortraitUri != null
-					&& new File(mPortraitUri.getPath()).exists()) {
+			if (mPortraitUri != null && mCutFile.exists()) {
 				ProgressDialogUtils.getInstance(this).show(R.string.dialog_request_uploda);
 				new OSSImgUploadTask().request(AppManager.getFederationToken().bucketName,
-						AppManager.getOSSFacePath(), mPortraitUri.getPath());
+						AppManager.getOSSFacePath(), mCutFile.getAbsolutePath());
 			}
 		}
 	}
@@ -1023,7 +1064,7 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 			mPortraitPhoto.setImageURI(clientUser.face_url);
 			AppManager.setClientUser(clientUser);
 			AppManager.saveUserInfo();
-			EventBus.getDefault().post(new UserEvent());
+            RxBus.getInstance().post(UPDATE_USER_INFO, new UserEvent());
 			new UpdateUserTask().request(clientUser);
 		}
 
@@ -1047,38 +1088,6 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 		}
 	}
 
-	/**
-	 * 剪切图片
-	 * @param file
-	 */
-	private void cutPhoto(File file) {
-		mCutFile = new File(FileAccessorUtils.getImagePathName(),
-				"cutphoto.png");
-		if (!mCutFile.exists()) {
-			try {
-				mCutFile.createNewFile();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-
-//		Uri imageUri=FileProvider.getUriForFile(this, "com.cyanbirds.tanlove.fileProvider", file);//通过FileProvider创建一个content类型的Uri
-		Uri imageUri = Uri.fromFile(file);
-		Intent intent = new Intent("com.android.camera.action.CROP");
-		intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-		intent.setDataAndType(imageUri, "image/*");
-		intent.putExtra("crop", "true");
-		intent.putExtra("outputX", 500);
-		intent.putExtra("outputY", 500);
-		intent.putExtra("aspectX", 1);
-		intent.putExtra("aspectY", 1);
-		intent.putExtra("scale", true);
-		intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mCutFile));
-		intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());
-		intent.putExtra("noFaceDetection", true); // no face detection
-		startActivityForResult(intent, PHOTO_CUT_RESULT);
-	}
-
 	@Override
 	public void onBackPressed() {
 		super.onBackPressed();
@@ -1096,67 +1105,5 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 		super.onPause();
 		MobclickAgent.onPageEnd(this.getClass().getName());
 		MobclickAgent.onPause(this);
-	}
-
-	@Override
-	public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-		if (requestCode == CAMERA_RESULT) {
-			// 拒绝授权
-			if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
-				// 勾选了不再提示
-				if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
-					showOpenCameraDialog();
-				} else {
-				}
-			} else if (isWritePersimmion) {
-				openCamera();
-			}
-		} else if (requestCode == REQUEST_PERMISSION_WRITE) {//读写文件夹权限
-			// 拒绝授权
-			if (grantResults[0] == PackageManager.PERMISSION_DENIED) {
-				// 勾选了不再提示
-				if (!ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA)) {
-					showWriteDialog();
-				}
-			} else {
-				isWritePersimmion = true;
-				AppManager.checkPermission(this, Manifest.permission.CAMERA, CAMERA_RESULT);
-			}
-		}
-		super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-	}
-
-	private void showOpenCameraDialog(){
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(R.string.open_camera_permission);
-		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-				Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-				Uri uri = Uri.fromParts("package", getPackageName(), null);
-				intent.setData(uri);
-				startActivityForResult(intent, REQUEST_PERMISSION_SETTING);
-
-			}
-		});
-		builder.show();
-	}
-
-	private void showWriteDialog(){
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(R.string.open_write_external);
-		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-				Intent intent = new Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS);
-				Uri uri = Uri.fromParts("package", getPackageName(), null);
-				intent.setData(uri);
-				startActivityForResult(intent, REQUEST_PERMISSION_SETTING);
-
-			}
-		});
-		builder.show();
 	}
 }

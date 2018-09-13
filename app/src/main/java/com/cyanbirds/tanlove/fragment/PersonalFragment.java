@@ -28,6 +28,7 @@ import com.cyanbirds.tanlove.activity.MyGoldActivity;
 import com.cyanbirds.tanlove.activity.PersonalInfoActivity;
 import com.cyanbirds.tanlove.activity.SettingActivity;
 import com.cyanbirds.tanlove.activity.VipCenterActivity;
+import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.entity.FollowLoveModel;
@@ -38,12 +39,9 @@ import com.cyanbirds.tanlove.net.request.GetFollowLoveRequest;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.cyanbirds.tanlove.utils.Md5Util;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
+import com.cyanbirds.tanlove.utils.RxBus;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.umeng.analytics.MobclickAgent;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 
@@ -51,6 +49,7 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
+import io.reactivex.Observable;
 
 /**
  * @author: wangyb
@@ -131,15 +130,15 @@ public class PersonalFragment extends Fragment {
 
 	private ClientUser clientUser;
 
+	private Observable<UserEvent> observable;
+
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 							 Bundle savedInstanceState) {
 		if (rootView == null) {
 			rootView = inflater.inflate(R.layout.fragment_personal, null);
 			unbinder = ButterKnife.bind(this, rootView);
-			EventBus.getDefault().register(this);
-			setupViews();
-			setupEvent();
+			rxBusSub();
 			setupData();
 			setHasOptionsMenu(true);
 		}
@@ -150,10 +149,12 @@ public class PersonalFragment extends Fragment {
 		return rootView;
 	}
 
-	private void setupViews() {
-	}
-
-	private void setupEvent() {
+	/**
+	 * rx订阅
+	 */
+	private void rxBusSub() {
+		observable = RxBus.getInstance().register(AppConstants.UPDATE_USER_INFO);
+		observable.subscribe(this::changeUserInfo);
 	}
 
 	private void setupData() {
@@ -327,8 +328,7 @@ public class PersonalFragment extends Fragment {
 	}
 
 
-	@Subscribe(threadMode = ThreadMode.MAIN)
-	public void changeUserInfo(UserEvent event) {
+	private void changeUserInfo(UserEvent event) {
 		ClientUser clientUser = AppManager.getClientUser();
 		if (clientUser != null) {
 			if (!TextUtils.isEmpty(clientUser.face_url)) {
@@ -340,35 +340,6 @@ public class PersonalFragment extends Fragment {
 			if (!TextUtils.isEmpty(clientUser.user_name)) {
 				userName.setText(clientUser.user_name);
 			}
-			if (clientUser.isShowVip && clientUser.is_vip) {
-				isVip.setVisibility(View.VISIBLE);
-			} else {
-				isVip.setVisibility(View.GONE);
-			}
-			if (clientUser.isShowVip) {
-				mIdentifyCard.setVisibility(View.VISIBLE);
-				vipLay.setVisibility(View.VISIBLE);
-				mFeedBackCard.setVisibility(View.GONE);
-			} else {
-				mIdentifyCard.setVisibility(View.GONE);
-				vipLay.setVisibility(View.GONE);
-				mFeedBackCard.setVisibility(View.VISIBLE);
-			}
-			if (clientUser.isShowGold) {
-				mMyGold.setVisibility(View.VISIBLE);
-			} else {
-				mMyGold.setVisibility(View.GONE);
-			}
-			if (clientUser.isShowAppointment) {
-				mAppointmentLay.setVisibility(View.VISIBLE);
-			} else {
-				mAppointmentLay.setVisibility(View.GONE);
-			}
-			if (clientUser.isShowVip && clientUser.isShowGiveVip) {
-				mGiveVipLay.setVisibility(View.VISIBLE);
-			} else {
-				mGiveVipLay.setVisibility(View.GONE);
-			}
 		}
 	}
 
@@ -378,7 +349,6 @@ public class PersonalFragment extends Fragment {
 		if (unbinder != null) {
 			unbinder.unbind();
 		}
-		EventBus.getDefault().unregister(this);
 	}
 
 	@Override

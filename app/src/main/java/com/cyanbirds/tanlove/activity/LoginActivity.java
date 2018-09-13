@@ -38,7 +38,6 @@ import com.tencent.tauth.Tencent;
 import com.tencent.tauth.UiError;
 import com.umeng.analytics.MobclickAgent;
 
-import org.greenrobot.eventbus.EventBus;
 import org.json.JSONObject;
 
 import java.io.File;
@@ -352,11 +351,5 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
     protected void onStop() {
         super.onStop();
         ProgressDialogUtils.getInstance(this).dismiss();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        EventBus.getDefault().unregister(this);
     }
 }

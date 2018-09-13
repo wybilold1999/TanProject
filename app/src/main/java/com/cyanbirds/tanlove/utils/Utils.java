@@ -9,16 +9,30 @@ import android.content.pm.ResolveInfo;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Build;
+import android.os.Environment;
+import android.provider.MediaStore;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.util.Log;
 
+import java.io.File;
 import java.util.List;
+
+import static android.content.Intent.FLAG_GRANT_READ_URI_PERMISSION;
+import static android.content.Intent.FLAG_GRANT_WRITE_URI_PERMISSION;
 
 public class Utils {
 
     /** 包名 */
     public static String pkgName = "com.cyanbirds.tanlove";
 
+
+    /**
+     * 跳转到应用市场
+     * @param context
+     * @param channel
+     */
     public static void goToMarket(Context context, String channel) {
         /**
          * 根据渠道跳转到不同的应用市场更新APP
@@ -50,6 +64,11 @@ public class Utils {
         }
     }
 
+    /**
+     * 跳转到应用设置界面
+     * @param context
+     * @param requestCode
+     */
     public static void goToSetting(Activity context, int requestCode) {
         //判断是否为小米系统
         if (TextUtils.equals(BrandUtils.getSystemInfo().getOs(), BrandUtils.SYS_MIUI)) {
@@ -120,4 +139,52 @@ public class Utils {
         }
         return false;
     }
+    /**
+     * *************************************************网络相关************************************************************
+     *
+     */
+
+
+
+    public static void cutPhoto(Activity activity, Uri inputUri, File mCropFile, int requestCode) {
+        if (inputUri == null) {
+            Log.e("error","The uri is not exist.");
+            return;
+        }
+
+        Intent intent = new Intent("com.android.camera.action.CROP");
+        //sdk>=24
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            Uri outPutUri = Uri.fromFile(mCropFile);
+            intent.setDataAndType(inputUri, "image/*");
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, outPutUri);
+            intent.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
+            intent.addFlags(FLAG_GRANT_WRITE_URI_PERMISSION);
+        } else {
+            Uri outPutUri = Uri.fromFile(mCropFile);
+            if (Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                String url = FileUtils.getPath(activity, inputUri);//这个方法是处理4.4以上图片返回的Uri对象不同的处理方法
+                intent.setDataAndType(Uri.fromFile(new File(url)), "image/*");
+            } else {
+                intent.setDataAndType(inputUri, "image/*");
+            }
+            intent.putExtra(MediaStore.EXTRA_OUTPUT, outPutUri);
+        }
+
+
+        // 设置裁剪
+        intent.putExtra("crop", "true");
+        // aspectX aspectY 是宽高的比例
+        intent.putExtra("aspectX", 1);
+        intent.putExtra("aspectY", 1);
+        // outputX outputY 是裁剪图片宽高
+        intent.putExtra("outputX", 250);
+        intent.putExtra("outputY", 250);
+        intent.putExtra("return-data", false);
+        intent.putExtra("noFaceDetection", false);//去除默认的人脸识别，否则和剪裁匡重叠
+        intent.putExtra("outputFormat", "JPEG");
+        //intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());// 图片格式
+        activity.startActivityForResult(intent, requestCode);//这里就将裁剪后的图片的Uri返回了
+    }
+
 }

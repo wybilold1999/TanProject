@@ -19,6 +19,7 @@ import android.widget.TextView;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.adapter.TabFragmentAdapter;
+import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.eventtype.UserEvent;
@@ -31,13 +32,10 @@ import com.cyanbirds.tanlove.net.request.GetUserInfoRequest;
 import com.cyanbirds.tanlove.net.request.SendGreetRequest;
 import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
+import com.cyanbirds.tanlove.utils.RxBus;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.facebook.drawee.view.SimpleDraweeView;
 import com.umeng.analytics.MobclickAgent;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -46,6 +44,7 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.Observable;
 
 /**
  * @author: wangyb
@@ -89,14 +88,14 @@ public class PersonalInfoActivity extends BaseActivity {
 	private String curUserId; //当前用户id
 	private String channel = "";
 
+	private Observable<UserEvent> observable;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_personal_info);
 		ButterKnife.bind(this);
-		EventBus.getDefault().register(this);
 		setupView();
-		setupEvent();
 		setupData();
 	}
 
@@ -125,10 +124,17 @@ public class PersonalInfoActivity extends BaseActivity {
 			mLove.setText(R.string.like);
 		}
 
+		rxBusSub();
+
 	}
 
 
-	private void setupEvent() {
+	/**
+	 * rx订阅
+	 */
+	private void rxBusSub() {
+		observable = RxBus.getInstance().register(AppConstants.UPDATE_USER_INFO);
+		observable.subscribe(this::updateUserInfo);
 	}
 
 	private void setupData() {
@@ -391,7 +397,6 @@ public class PersonalInfoActivity extends BaseActivity {
 		});
 	}
 
-	@Subscribe(threadMode = ThreadMode.MAIN)
 	public void updateUserInfo(UserEvent event) {
 		//如果是本人信息，先查找本地有没有头像，有就加载，没有就用face_url;如果是其他用户信息，直接使用face_url
 		ClientUser clientUser = AppManager.getClientUser();
@@ -419,11 +424,5 @@ public class PersonalInfoActivity extends BaseActivity {
 		super.onPause();
 		MobclickAgent.onPageEnd(this.getClass().getName());
 		MobclickAgent.onPause(this);
-	}
-
-	@Override
-	protected void onDestroy() {
-		super.onDestroy();
-		EventBus.getDefault().unregister(this);
 	}
 }
