@@ -21,7 +21,6 @@ import com.cyanbirds.tanlove.activity.FeedBackActivity;
 import com.cyanbirds.tanlove.activity.GiveVipActivity;
 import com.cyanbirds.tanlove.activity.IdentifyActivity;
 import com.cyanbirds.tanlove.activity.LoveFormeActivity;
-import com.cyanbirds.tanlove.activity.MyAppointmentActivity;
 import com.cyanbirds.tanlove.activity.MyAttentionActivity;
 import com.cyanbirds.tanlove.activity.MyGiftsActivity;
 import com.cyanbirds.tanlove.activity.MyGoldActivity;
@@ -317,8 +316,8 @@ public class PersonalFragment extends Fragment {
 				startActivity(intent);
 				break;
 			case R.id.my_appointment_lay:
-				intent.setClass(getActivity(), MyAppointmentActivity.class);
-				startActivity(intent);
+//				intent.setClass(getActivity(), MyAppointmentActivity.class);
+//				startActivity(intent);
 				break;
 			case R.id.give_vip:
 				intent.setClass(getActivity(), GiveVipActivity.class);

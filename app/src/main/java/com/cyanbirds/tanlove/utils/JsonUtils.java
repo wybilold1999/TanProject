@@ -2,17 +2,28 @@ package com.cyanbirds.tanlove.utils;
 
 import android.text.TextUtils;
 
-import com.cyanbirds.tanlove.CSApplication;
-import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.entity.AllKeys;
 import com.cyanbirds.tanlove.entity.ClientUser;
+import com.cyanbirds.tanlove.entity.FederationToken;
+import com.cyanbirds.tanlove.entity.FollowModel;
+import com.cyanbirds.tanlove.entity.LoveModel;
+import com.cyanbirds.tanlove.entity.ReceiveGiftModel;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.reflect.TypeToken;
+
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 
 public class JsonUtils {
 
+    /**
+     * 登录的clientuser
+     * @param json
+     * @return
+     */
     public static ClientUser parseClientUser(String json){
         try {
             String decrptData = AESOperator.getInstance().decrypt(json);
@@ -76,6 +87,11 @@ public class JsonUtils {
         return null;
     }
 
+    /**
+     * 微信ID等
+     * @param json
+     * @return
+     */
     public static AllKeys parseJsonIdKeys(String json){
         try {
             String decryptData = AESOperator.getInstance().decrypt(json);
@@ -90,6 +106,11 @@ public class JsonUtils {
         return null;
     }
 
+    /**
+     * 手机是否注册
+     * @param json
+     * @return
+     */
     public static boolean parseCheckIsRegister(String json) {
         try {
             JsonObject obj = new JsonParser().parse(json).getAsJsonObject();
@@ -103,4 +124,98 @@ public class JsonUtils {
         }
         return false;
     }
+
+    /**
+     * OSS鉴权
+     * @param result
+     * @return
+     */
+    public static FederationToken parseOSSToken(String result) {
+        try {
+            if (!TextUtils.isEmpty(result)) {
+                String data = AESOperator.getInstance().decrypt(result);
+                Gson gson = new Gson();
+                FederationToken token = gson.fromJson(data, FederationToken.class);
+                if (token != null && !TextUtils.isEmpty(token.accessKeySecret) && !TextUtils.isEmpty(token.accessKeyId) && !TextUtils.isEmpty(token.bucketName) && !TextUtils.isEmpty(token.imagesEndpoint)) {
+                    return token;
+                }
+            }
+        } catch (Exception e) {
+        }
+        return null;
+    }
+
+    /**
+     * 关注者
+     * @param json
+     * @return
+     */
+    public static ArrayList<FollowModel> parseJsonFollows(String json){
+        try {
+            String decryptData = AESOperator.getInstance().decrypt(json);
+            JsonObject obj = new JsonParser().parse(decryptData).getAsJsonObject();
+            int code = obj.get("code").getAsInt();
+            if (code != 0) {
+                return null;
+            }
+            String result = obj.get("data").getAsString();
+            Type listType = new TypeToken<ArrayList<FollowModel>>() {
+            }.getType();
+            Gson gson = new Gson();
+            ArrayList<FollowModel> followModels = gson.fromJson(result, listType);
+            return followModels;
+        } catch (Exception e) {
+        }
+        return null;
+    }
+
+    /**
+     * 接收到的礼物
+     * @param json
+     * @return
+     */
+    public static ArrayList<ReceiveGiftModel> parseJsonReceiveGift(String json){
+        try {
+            String decryptData = AESOperator.getInstance().decrypt(json);
+            JsonObject obj = new JsonParser().parse(decryptData).getAsJsonObject();
+            int code = obj.get("code").getAsInt();
+            if (code != 0) {
+                return null;
+            }
+            String result = obj.get("data").getAsString();
+            Type listType = new TypeToken<ArrayList<ReceiveGiftModel>>() {
+            }.getType();
+            Gson gson = new Gson();
+            ArrayList<ReceiveGiftModel> receiveGiftModels = gson.fromJson(result, listType);
+            return receiveGiftModels;
+        } catch (Exception e) {
+        }
+        return null;
+    }
+
+    /**
+     * 喜欢的人
+     * @param json
+     * @return
+     */
+    public static ArrayList<LoveModel> parseJsonLovers(String json){
+        try {
+            String decryptData = AESOperator.getInstance().decrypt(json);
+            JsonObject obj = new JsonParser().parse(decryptData).getAsJsonObject();
+            int code = obj.get("code").getAsInt();
+            if (code != 0) {
+                return null;
+            }
+            String result = obj.get("data").getAsString();
+            Type listType = new TypeToken<ArrayList<LoveModel>>() {
+            }.getType();
+            Gson gson = new Gson();
+            ArrayList<LoveModel> loveModels = gson.fromJson(result, listType);
+            return loveModels;
+        } catch (Exception e) {
+        }
+        return null;
+    }
+
+
 }

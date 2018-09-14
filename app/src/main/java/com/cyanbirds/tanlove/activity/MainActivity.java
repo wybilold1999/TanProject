@@ -1,25 +1,18 @@
 package com.cyanbirds.tanlove.activity;
 
 import android.Manifest;
-import android.content.DialogInterface;
+import android.arch.lifecycle.Lifecycle;
 import android.content.Intent;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
 import android.support.design.internal.BottomNavigationMenuView;
 import android.support.design.widget.BottomNavigationView;
-import android.support.v4.app.ActivityCompat;
+import android.support.v4.util.ArrayMap;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
-import android.text.Html;
 import android.text.TextUtils;
 import android.view.KeyEvent;
-import android.view.LayoutInflater;
-import android.view.MenuItem;
 import android.view.View;
-import android.widget.TextView;
 
 import com.alibaba.sdk.android.oss.ClientConfiguration;
 import com.alibaba.sdk.android.oss.OSS;
@@ -38,11 +31,8 @@ import com.cyanbirds.tanlove.adapter.ViewPagerAdapter;
 import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.db.ConversationSqlManager;
-import com.cyanbirds.tanlove.entity.AppointmentModel;
 import com.cyanbirds.tanlove.entity.ClientUser;
-import com.cyanbirds.tanlove.entity.FederationToken;
 import com.cyanbirds.tanlove.entity.FollowModel;
-import com.cyanbirds.tanlove.entity.LoveModel;
 import com.cyanbirds.tanlove.entity.ReceiveGiftModel;
 import com.cyanbirds.tanlove.fragment.FoundFragment;
 import com.cyanbirds.tanlove.fragment.HomeLoveFragment;
@@ -53,39 +43,38 @@ import com.cyanbirds.tanlove.helper.SDKCoreHelper;
 import com.cyanbirds.tanlove.listener.MessageUnReadListener;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.manager.NotificationManager;
-import com.cyanbirds.tanlove.net.request.FollowListRequest;
-import com.cyanbirds.tanlove.net.request.GetAppointmentListRequest;
-import com.cyanbirds.tanlove.net.request.GetLoveFormeListRequest;
-import com.cyanbirds.tanlove.net.request.GetOSSTokenRequest;
-import com.cyanbirds.tanlove.net.request.GiftsListRequest;
+import com.cyanbirds.tanlove.net.IUserApi;
+import com.cyanbirds.tanlove.net.IUserFollowApi;
+import com.cyanbirds.tanlove.net.IUserLoveApi;
+import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 import com.cyanbirds.tanlove.net.request.UploadCityInfoRequest;
 import com.cyanbirds.tanlove.service.MyIntentService;
 import com.cyanbirds.tanlove.service.MyPushService;
 import com.cyanbirds.tanlove.ui.widget.CustomViewPager;
 import com.cyanbirds.tanlove.utils.DateUtil;
 import com.cyanbirds.tanlove.utils.DensityUtil;
+import com.cyanbirds.tanlove.utils.JsonUtils;
 import com.cyanbirds.tanlove.utils.MsgUtil;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.PushMsgUtil;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.cyanbirds.tanlove.utils.Utils;
-import com.facebook.drawee.view.SimpleDraweeView;
 import com.igexin.sdk.PushManager;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.tencent.android.tpush.XGPushManager;
+import com.uber.autodispose.AutoDispose;
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
 import com.umeng.analytics.MobclickAgent;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.yuntongxun.ecsdk.ECInitParams;
 
 import java.util.Calendar;
-import java.util.List;
 
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import q.rorbin.badgeview.Badge;
 import q.rorbin.badgeview.QBadgeView;
 
-import static com.cyanbirds.tanlove.entity.AppointmentModel.AppointStatus.ACCEPT;
-import static com.cyanbirds.tanlove.entity.AppointmentModel.AppointStatus.DECLINE;
-import static com.cyanbirds.tanlove.entity.AppointmentModel.AppointStatus.MY_WAIT_CALL_BACK;
 import static com.cyanbirds.tanlove.utils.DateUtil.TIMESTAMP_PATTERN;
 
 public class MainActivity extends BaseActivity implements MessageUnReadListener.OnMessageUnReadListener, AMapLocationListener {
@@ -95,12 +84,10 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	private ClientConfiguration mOSSConf;
 
 	private final int REQUEST_LOCATION_PERMISSION = 1000;
-	private final int REQUEST_PERMISSION_SETTING = 10001;
 
 	private AMapLocationClientOption mLocationOption;
 	private AMapLocationClient mlocationClient;
 	private boolean isSecondAccess = false;
-	private boolean isSecondRead = false;
 
 	private String curLat;
 	private String curLon;
@@ -154,18 +141,11 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		});
 
 		if (AppManager.getClientUser().isShowVip) {
-			mHandler.postDelayed(() -> new GetLoveFormeListTask().request(1, 1), 9000 * 10);
-			mHandler.postDelayed(() -> new MyGiftListTask().request(1, 1), 5000 * 10);
-			mHandler.postDelayed(() -> new FollowListTask().request("followFormeList", 1, 1), 1500 * 10);
+			mHandler.postDelayed(() -> requestLoveForme(1, 1), 9000 * 10);
+			mHandler.postDelayed(() -> requestMyGiftList(1, 1), 5000 * 10);
+			mHandler.postDelayed(() -> requestFollowList("followFormeList", 1, 1), 1500 * 10);
 		} else {
 			SDKCoreHelper.init(CSApplication.getInstance(), ECInitParams.LoginMode.FORCE_LOGIN);
-		}
-		if (AppManager.getClientUser().versionCode <= AppManager.getVersionCode() &&
-				AppManager.getClientUser().isShowVip && AppManager.getClientUser().isShowAppointment) {
-			//我约的
-			new GetIAppointmentListTask().request(1, 1, AppManager.getClientUser().userId, 0);
-			//约我的
-			new GetAppointmeListTask().request(1, 1, AppManager.getClientUser().userId, 1);
 		}
 	}
 
@@ -235,7 +215,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		Runnable runnable = new Runnable() {
 			@Override
 			public void run() {
-				new GetFederationTokenTask().request();
+				getFederationToken();
 				handler.postDelayed(this, 60 * 30 * 1000);
 			}
 		};
@@ -243,35 +223,28 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		handler.postDelayed(runnable, 0);
 	}
 
-	class GetFederationTokenTask extends GetOSSTokenRequest {
-
-		@Override
-		public void onPostExecute(FederationToken result) {
-			try {
-				if (result != null) {
-					AppManager.setFederationToken(result);
-					OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider(result.accessKeyId, result.accessKeySecret, result.securityToken);
-					OSS oss = new OSSClient(getApplicationContext(), result.endpoint, credentialProvider, mOSSConf);
-					AppManager.setOSS(oss);
-					mOSSTokenRetryCount = 0;
-				} else {
-					if (mOSSTokenRetryCount < 5) {
-						new GetFederationTokenTask().request();
-						mOSSTokenRetryCount++;
+	private void getFederationToken() {
+		RetrofitFactory.getRetrofit().create(IUserApi.class)
+				.getOSSToken()
+				.subscribeOn(Schedulers.io())
+				.map(responseBody -> JsonUtils.parseOSSToken(responseBody.string()))
+				.observeOn(AndroidSchedulers.mainThread())
+				.as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+				.subscribe(result -> {
+					if (result != null) {
+						AppManager.setFederationToken(result);
+						OSSCredentialProvider credentialProvider = new OSSStsTokenCredentialProvider(result.accessKeyId, result.accessKeySecret, result.securityToken);
+						OSS oss = new OSSClient(getApplicationContext(), result.endpoint, credentialProvider, mOSSConf);
+						AppManager.setOSS(oss);
+						mOSSTokenRetryCount = 0;
+					} else {
+						if (mOSSTokenRetryCount < 5) {
+							getFederationToken();
+							mOSSTokenRetryCount++;
+						}
 					}
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
+				}, throwable -> {});
 
-		@Override
-		public void onErrorExecute(String error) {
-			if (mOSSTokenRetryCount < 5) {
-				new GetFederationTokenTask().request();
-				mOSSTokenRetryCount++;
-			}
-		}
 	}
 
 	/**
@@ -304,177 +277,93 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 			}
 			new UploadCityInfoRequest().request(aMapLocation.getCity(), String.valueOf(aMapLocation.getLatitude()),
 					String.valueOf(aMapLocation.getLongitude()));
+			PreferencesUtils.setLatitude(this, curLat);
+			PreferencesUtils.setLongitude(this, curLon);
 		}
-		PreferencesUtils.setLatitude(this, curLat);
-		PreferencesUtils.setLongitude(this, curLon);
+
 	}
 
 	/**
 	 * 获取最近喜欢我的那个人
 	 */
-	class GetLoveFormeListTask extends GetLoveFormeListRequest {
-		@Override
-		public void onPostExecute(List<LoveModel> loveModels) {
-			if(loveModels != null && loveModels.size() > 0) {
-				String lastUserId = PreferencesUtils.getLoveMeUserId(MainActivity.this);
-				if (!lastUserId.equals(String.valueOf(loveModels.get(0).userId))) {
+	private void requestLoveForme(final int pageNo, final int pageSize){
+		ArrayMap<String, String> params = new ArrayMap<>();
+		params.put("uid", AppManager.getClientUser().userId);
+		params.put("pageNo", String.valueOf(pageNo));
+		params.put("pageSize", String.valueOf(pageSize));
+		RetrofitFactory.getRetrofit().create(IUserLoveApi.class)
+				.getLoveFormeList(AppManager.getClientUser().sessionId, params)
+				.subscribeOn(Schedulers.io())
+				.map(responseBody -> JsonUtils.parseJsonLovers(responseBody.string()))
+				.observeOn(AndroidSchedulers.mainThread())
+				.as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+				.subscribe(loveModels -> {
+					if(loveModels != null && loveModels.size() > 0) {
+						String lastUserId = PreferencesUtils.getLoveMeUserId(MainActivity.this);
+						if (!lastUserId.equals(String.valueOf(loveModels.get(0).userId))) {
 
-					PreferencesUtils.setLoveMeUserId(
-							MainActivity.this, String.valueOf(loveModels.get(0).userId));
-					Intent intent = new Intent(MainActivity.this, PopupLoveActivity.class);
-					intent.putExtra(ValueKey.DATA, loveModels.get(0));
-					startActivity(intent);
-				}
-			}
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-		}
-	}
-
-	class MyGiftListTask extends GiftsListRequest {
-		@Override
-		public void onPostExecute(List<ReceiveGiftModel> receiveGiftModels) {
-			if(null != receiveGiftModels && receiveGiftModels.size() > 0){
-				ReceiveGiftModel model = receiveGiftModels.get(0);
-				String lastUserId = PreferencesUtils.getGiftMeUserId(MainActivity.this);
-				if (!lastUserId.equals(String.valueOf(model.userId))) {
-					PreferencesUtils.setGiftMeUserId(
-							MainActivity.this, String.valueOf(model.userId));
-					MsgUtil.sendAttentionOrGiftMsg(String.valueOf(model.userId), model.nickname, model.faceUrl,
-							model.nickname + "给您送了一件礼物");
-				}
-			}
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-			ToastUtil.showMessage(error);
-		}
-	}
-
-	class FollowListTask extends FollowListRequest {
-		@Override
-		public void onPostExecute(List<FollowModel> followModels) {
-			if(followModels != null && followModels.size() > 0){
-				FollowModel followModel = followModels.get(0);
-				String lastUserId = PreferencesUtils.getAttentionMeUserId(MainActivity.this);
-				if (!lastUserId.equals(String.valueOf(followModel.userId))) {
-					PreferencesUtils.setAttentionMeUserId(
-							MainActivity.this, String.valueOf(followModel.userId));
-					MsgUtil.sendAttentionOrGiftMsg(String.valueOf(followModel.userId),
-							followModel.nickname, followModel.faceUrl,
-							followModel.nickname + "关注了您");
-				}
-			}
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-		}
-	}
-
-	/**
-	 * 我约的
-	 */
-	class GetIAppointmentListTask extends GetAppointmentListRequest {
-
-		@Override
-		public void onPostExecute(List<AppointmentModel> appointmentModels) {
-			if(appointmentModels != null && appointmentModels.size() > 0){
-				final AppointmentModel model = appointmentModels.get(0);
-				if(model.status == ACCEPT || model.status == DECLINE) {
-					String lastUserId = PreferencesUtils.getIAppointUserId(MainActivity.this);
-					if (!lastUserId.equals(String.valueOf(model.userById))) {
-						PreferencesUtils.setIAppointUserId(
-								MainActivity.this, String.valueOf(model.userById));
-						String status = "";
-						if (model.status == ACCEPT) {
-							status = model.userByName + "同意了你的约会请求";
-						} else {
-							status = model.userByName + "拒绝了你的约会请求";
+							PreferencesUtils.setLoveMeUserId(
+									MainActivity.this, String.valueOf(loveModels.get(0).userId));
+							Intent intent = new Intent(MainActivity.this, PopupLoveActivity.class);
+							intent.putExtra(ValueKey.DATA, loveModels.get(0));
+							startActivity(intent);
 						}
-						MsgUtil.sendAttentionOrGiftMsg(String.valueOf(model.userById),
-							model.userName, model.faceUrl, status);
 					}
-				}
-			}
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-		}
+				}, throwable -> ToastUtil.showMessage(R.string.network_requests_error));
 	}
 
 	/**
-	 * 约我的
+	 * 获取礼物
 	 */
-	class GetAppointmeListTask extends GetAppointmentListRequest {
-
-		@Override
-		public void onPostExecute(List<AppointmentModel> appointmentModels) {
-			if(appointmentModels != null && appointmentModels.size() > 0){
-				AppointmentModel model = appointmentModels.get(0);
-				if(model.status == MY_WAIT_CALL_BACK) {
-					String lastUserId = PreferencesUtils.getAppointMeUserId(MainActivity.this);
-					if (!lastUserId.equals(String.valueOf(model.userById))) {
-						PreferencesUtils.setAppointMeUserId(
-								MainActivity.this, String.valueOf(model.userById));
-						//向你发起了约会申请
-						showAppointmentInfoDialog(model);
+	private void requestMyGiftList(int pageNo, int pageSize){
+		ArrayMap<String, String> params = new ArrayMap<>();
+		params.put("uid", AppManager.getClientUser().userId);
+		params.put("pageNo", String.valueOf(pageNo));
+		params.put("pageSize", String.valueOf(pageSize));
+		RetrofitFactory.getRetrofit().create(IUserFollowApi.class)
+				.getGiftsList(AppManager.getClientUser().sessionId, params)
+				.subscribeOn(Schedulers.io())
+				.map(responseBody -> JsonUtils.parseJsonReceiveGift(responseBody.string()))
+				.observeOn(AndroidSchedulers.mainThread())
+				.as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+				.subscribe(receiveGiftModels -> {
+					if(null != receiveGiftModels && receiveGiftModels.size() > 0){
+						ReceiveGiftModel model = receiveGiftModels.get(0);
+						String lastUserId = PreferencesUtils.getGiftMeUserId(MainActivity.this);
+						if (!lastUserId.equals(String.valueOf(model.userId))) {
+							PreferencesUtils.setGiftMeUserId(
+									MainActivity.this, String.valueOf(model.userId));
+							MsgUtil.sendAttentionOrGiftMsg(String.valueOf(model.userId), model.nickname, model.faceUrl,
+									model.nickname + "给您送了一件礼物");
+						}
 					}
-				}
-			}
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-		}
+				}, throwable -> ToastUtil.showMessage(R.string.network_requests_error));
 	}
 
-	private void showAppointmentInfoDialog(final AppointmentModel model) {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setTitle(R.string.appointment_invite);
-		builder.setView(initAppointmentUserInfoView(model));
-		builder.setPositiveButton(R.string.check_appointment_invite_info, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-				Intent intent = new Intent(MainActivity.this, AppointmentInfoActivity.class);
-				intent.putExtra(ValueKey.DATA, model);
-				intent.putExtra(ValueKey.FROM_ACTIVITY, MainActivity.this.getClass().getSimpleName());
-				startActivity(intent);
-			}
-		});
-		builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-			}
-		});
-		builder.setCancelable(false);
-		builder.show();
-	}
-
-	private View initAppointmentUserInfoView(final AppointmentModel model) {
-		View view = LayoutInflater.from(this).inflate(R.layout.dialog_appointment, null);
-		SimpleDraweeView portrait = (SimpleDraweeView) view.findViewById(R.id.portrait);
-		TextView inviteInfo = (TextView) view.findViewById(R.id.appointment_info);
-		if (!TextUtils.isEmpty(model.faceUrl)) {
-			portrait.setImageURI(Uri.parse(model.faceUrl));
-		}
-		portrait.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View view) {
-				Intent intent = new Intent(MainActivity.this, PersonalInfoActivity.class);
-				intent.putExtra(ValueKey.USER_ID, model.userId);
-				startActivity(intent);
-			}
-		});
-		inviteInfo.setText(Html.fromHtml(String.format(
-				getResources().getString(R.string.appointment_invite_info), model.userName)));
-		return view;
+	private void requestFollowList(String url, int pageNo, int pageSize) {
+		ArrayMap<String, String> params = new ArrayMap<>();
+		params.put("uid", AppManager.getClientUser().userId);
+		params.put("pageNo", String.valueOf(pageNo));
+		params.put("pageSize", String.valueOf(pageSize));
+		RetrofitFactory.getRetrofit().create(IUserFollowApi.class)
+				.getFollowList(url, AppManager.getClientUser().sessionId, params)
+				.subscribeOn(Schedulers.io())
+				.map(responseBody -> JsonUtils.parseJsonFollows(responseBody.string()))
+				.observeOn(AndroidSchedulers.mainThread())
+				.as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+				.subscribe(followModels -> {
+					if(followModels != null && followModels.size() > 0){
+						FollowModel followModel = followModels.get(0);
+						String lastUserId = PreferencesUtils.getAttentionMeUserId(MainActivity.this);
+						if (!lastUserId.equals(String.valueOf(followModel.userId))) {
+							PreferencesUtils.setAttentionMeUserId(
+									MainActivity.this, String.valueOf(followModel.userId));
+							MsgUtil.sendAttentionOrGiftMsg(String.valueOf(followModel.userId),
+									followModel.nickname, followModel.faceUrl,
+									followModel.nickname + "关注了您");
+						}
+					}
+				}, throwable -> ToastUtil.showMessage(R.string.network_requests_error));
 	}
 
 	/**
@@ -486,27 +375,23 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		bottomNavigationView = findViewById(R.id.bottom_navigation);
 		//默认 >3 的选中效果会影响ViewPager的滑动切换时的效果，故利用反射去掉
 		BottomNavigationViewHelper.disableShiftMode(bottomNavigationView);
-		bottomNavigationView.setOnNavigationItemSelectedListener(
-				new BottomNavigationView.OnNavigationItemSelectedListener() {
-					@Override
-					public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-						switch (item.getItemId()) {
-							case R.id.item_news:
-								viewPager.setCurrentItem(0);
-								break;
-							case R.id.item_lib:
-								viewPager.setCurrentItem(1);
-								break;
-							case R.id.item_find:
-								viewPager.setCurrentItem(2);
-								break;
-							case R.id.item_more:
-								viewPager.setCurrentItem(3);
-								break;
-						}
-						return false;
-					}
-				});
+		bottomNavigationView.setOnNavigationItemSelectedListener(item -> {
+			switch (item.getItemId()) {
+				case R.id.item_news:
+					viewPager.setCurrentItem(0);
+					break;
+				case R.id.item_lib:
+					viewPager.setCurrentItem(1);
+					break;
+				case R.id.item_find:
+					viewPager.setCurrentItem(2);
+					break;
+				case R.id.item_more:
+					viewPager.setCurrentItem(3);
+					break;
+			}
+			return false;
+		});
 
 		viewPager.addOnPageChangeListener(new ViewPager.OnPageChangeListener() {
 			@Override
@@ -603,24 +488,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		builder.setPositiveButton(R.string.ok, (dialog, i) -> {
 			dialog.dismiss();
 			Utils.goToSetting(MainActivity.this, REQUEST_LOCATION_PERMISSION);
-		});
-		builder.show();
-	}
-
-	private void showReadPhoneStateDialog(){
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(R.string.get_read_phone_state);
-		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-				isSecondRead = true;
-				if (Build.VERSION.SDK_INT >= 23) {
-					ActivityCompat.requestPermissions(MainActivity.this, new String[] {android.Manifest.permission.ACCESS_COARSE_LOCATION, android.Manifest.permission.ACCESS_FINE_LOCATION},
-							REQUEST_LOCATION_PERMISSION);
-				}
-
-			}
 		});
 		builder.show();
 	}

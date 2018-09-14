@@ -225,11 +225,11 @@ public class PersonalInfoActivity extends BaseActivity {
 			case R.id.love:
 				if (AppManager.getClientUser().isShowAppointment && !TextUtils.isEmpty(curUserId)) {
 					if (mClientUser != null) {
-						intent.setClass(this, AppointmentActivity.class);
+						/*intent.setClass(this, AppointmentActivity.class);
 						intent.putExtra(ValueKey.USER_ID, curUserId);
 						intent.putExtra(ValueKey.USER_NAME, mClientUser.user_name);
 						intent.putExtra(ValueKey.IMAGE_URL, mClientUser.face_url);
-						startActivity(intent);
+						startActivity(intent);*/
 					}
 				} else {
 					if (null != mClientUser) {

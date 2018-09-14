@@ -1,7 +1,9 @@
 package com.cyanbirds.tanlove.activity;
 
+import android.arch.lifecycle.Lifecycle;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.util.ArrayMap;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -15,18 +17,26 @@ import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.adapter.LoveFormeAdapter;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.LoveModel;
-import com.cyanbirds.tanlove.net.request.GetLoveFormeListRequest;
+import com.cyanbirds.tanlove.manager.AppManager;
+import com.cyanbirds.tanlove.net.IUserLoveApi;
+import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 import com.cyanbirds.tanlove.ui.widget.CircularProgress;
 import com.cyanbirds.tanlove.ui.widget.DividerItemDecoration;
 import com.cyanbirds.tanlove.ui.widget.WrapperLinearLayoutManager;
 import com.cyanbirds.tanlove.utils.DensityUtil;
+import com.cyanbirds.tanlove.utils.JsonUtils;
+import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.ToastUtil;
+import com.uber.autodispose.AutoDispose;
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
 import com.umeng.analytics.MobclickAgent;
 
 import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author Cloudsoar(wangyb)
@@ -82,7 +92,7 @@ public class LoveFormeActivity extends BaseActivity {
         mAdapter.setOnItemClickListener(mOnItemClickListener);
         mRecyclerView.setAdapter(mAdapter);
         mCircularProgress.setVisibility(View.VISIBLE);
-        new GetLoveFormeListTask().request(1, 100);
+        requestLoveForme(1, 100);
     }
 
     private LoveFormeAdapter.OnItemClickListener mOnItemClickListener = new LoveFormeAdapter.OnItemClickListener() {
@@ -95,24 +105,30 @@ public class LoveFormeActivity extends BaseActivity {
         }
     };
 
-    class GetLoveFormeListTask extends GetLoveFormeListRequest {
-        @Override
-        public void onPostExecute(List<LoveModel> loveModels) {
-            mCircularProgress.setVisibility(View.GONE);
-            if(loveModels != null && loveModels.size() > 0){
-                mNoUserinfo.setVisibility(View.GONE);
-                mLoveModels = loveModels;
-                mAdapter.setLoveModels(loveModels);
-            } else {
-                mNoUserinfo.setVisibility(View.VISIBLE);
-            }
-        }
-
-        @Override
-        public void onErrorExecute(String error) {
-            mCircularProgress.setVisibility(View.GONE);
-            ToastUtil.showMessage(error);
-        }
+    private void requestLoveForme(final int pageNo, final int pageSize){
+        ArrayMap<String, String> params = new ArrayMap<>();
+        params.put("uid", AppManager.getClientUser().userId);
+        params.put("pageNo", String.valueOf(pageNo));
+        params.put("pageSize", String.valueOf(pageSize));
+        RetrofitFactory.getRetrofit().create(IUserLoveApi.class)
+                .getLoveFormeList(AppManager.getClientUser().sessionId, params)
+                .subscribeOn(Schedulers.io())
+                .map(responseBody -> JsonUtils.parseJsonLovers(responseBody.string()))
+                .observeOn(AndroidSchedulers.mainThread())
+                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+                .subscribe(loveModels -> {
+                    mCircularProgress.setVisibility(View.GONE);
+                    if(loveModels != null && loveModels.size() > 0){
+                        mNoUserinfo.setVisibility(View.GONE);
+                        mLoveModels = loveModels;
+                        mAdapter.setLoveModels(loveModels);
+                    } else {
+                        mNoUserinfo.setVisibility(View.VISIBLE);
+                    }
+                }, throwable -> {
+                    mCircularProgress.setVisibility(View.GONE);
+                    ToastUtil.showMessage(R.string.network_requests_error);
+                });
     }
 
     @Override

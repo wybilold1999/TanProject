@@ -66,4 +66,7 @@ public interface IUserApi {
     @POST("user/updatePerson")
     Observable<ResponseBody> updateUserInfo(@Header("token") String token, @FieldMap ArrayMap<String, String> params);
 
+    @GET("oss/distribute-token")
+    Observable<ResponseBody> getOSSToken();
+
 }
