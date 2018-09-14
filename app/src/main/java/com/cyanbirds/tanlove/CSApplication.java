@@ -8,12 +8,8 @@ import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.helper.AppActivityLifecycleCallbacks;
 import com.cyanbirds.tanlove.helper.CrashHandler;
 import com.cyanbirds.tanlove.manager.AppManager;
-import com.cyanbirds.tanlove.net.DynamicService;
-import com.cyanbirds.tanlove.net.FollowService;
-import com.cyanbirds.tanlove.net.LoveService;
 import com.cyanbirds.tanlove.net.PictureService;
 import com.cyanbirds.tanlove.net.UserService;
-import com.cyanbirds.tanlove.net.VideoService;
 import com.cyanbirds.tanlove.net.base.RetrofitManager;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.facebook.cache.disk.DiskCacheConfig;
@@ -151,25 +147,5 @@ public class CSApplication extends MultiDexApplication {
 		 */
 		PictureService pictureService = RetrofitManager.getInstance().getRetrofitInstance().create(PictureService.class);
 		AppManager.setPictureService(pictureService);
-		/**
-		 * 关注
-		 */
-		FollowService followService = RetrofitManager.getInstance().getRetrofitInstance().create(FollowService.class);
-		AppManager.setFollowService(followService);
-		/**
-		 * 喜欢
-		 */
-		LoveService loveService = RetrofitManager.getInstance().getRetrofitInstance().create(LoveService.class);
-		AppManager.setLoveService(loveService);
-		/**
-		 * 视频
-		 */
-		VideoService videoService = RetrofitManager.getInstance().getRetrofitInstance().create(VideoService.class);
-		AppManager.setVideoService(videoService);
-		/**
-		 * 动态
-		 */
-		DynamicService dynamicService = RetrofitManager.getInstance().getRetrofitInstance().create(DynamicService.class);
-		AppManager.setDynamicService(dynamicService);
 	}
 }

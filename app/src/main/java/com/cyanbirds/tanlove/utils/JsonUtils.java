@@ -2,12 +2,16 @@ package com.cyanbirds.tanlove.utils;
 
 import android.text.TextUtils;
 
+import com.cyanbirds.tanlove.CSApplication;
+import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.entity.AllKeys;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.entity.FederationToken;
+import com.cyanbirds.tanlove.entity.FollowLoveModel;
 import com.cyanbirds.tanlove.entity.FollowModel;
 import com.cyanbirds.tanlove.entity.LoveModel;
 import com.cyanbirds.tanlove.entity.ReceiveGiftModel;
+import com.cyanbirds.tanlove.entity.YuanFenModel;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -16,6 +20,7 @@ import com.google.gson.reflect.TypeToken;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
+import java.util.List;
 
 public class JsonUtils {
 
@@ -217,5 +222,99 @@ public class JsonUtils {
         return null;
     }
 
+    /**
+     * 获取用户信息
+     * @param json
+     */
+    public static ClientUser parserUserInfo(String json){
+        try {
+            String decryptData = AESOperator.getInstance().decrypt(json);
+            JsonObject obj = new JsonParser().parse(decryptData).getAsJsonObject();
+            int code = obj.get("code").getAsInt();
+            if (code != 0) {
+                return null;
+            }
+            String dataString = obj.get("data").getAsString();
+            JsonObject data = new JsonParser().parse(dataString).getAsJsonObject();
+            ClientUser clientUser = new ClientUser();
+            clientUser.userId = data.get("uid").getAsString();
+            clientUser.sex = data.get("sex").getAsInt() == 1 ? "男" : "女";
+            clientUser.user_name = data.get("nickname").getAsString();
+            clientUser.city = data.get("city").getAsString();
+            clientUser.distance = data.get("distance").getAsString();
+            clientUser.tall = data.get("heigth").getAsString();
+            clientUser.weight = data.get("weight").getAsString();
+            clientUser.is_vip = data.get("isVip").getAsBoolean();
+            clientUser.isFollow = data.get("isFollow").getAsBoolean();
+            clientUser.state_marry = data.get("emotionStatus").getAsString();
+            clientUser.face_url = data.get("faceUrl").getAsString();
+            clientUser.age = data.get("age").getAsInt();
+            clientUser.signature = data.get("signature").getAsString();
+            clientUser.constellation = data.get("constellation").getAsString();
+            clientUser.qq_no = data.get("qq").getAsString();
+            clientUser.weixin_no = data.get("wechat").getAsString();
+            clientUser.occupation = data.get("occupation").getAsString();
+            clientUser.education = data.get("education").getAsString();
+            clientUser.intrest_tag = data.get("intrestTag").getAsString();
+            clientUser.personality_tag = data.get("personalityTag").getAsString();
+            clientUser.part_tag = data.get("partTag").getAsString();
+            clientUser.purpose = data.get("purpose").getAsString();
+            clientUser.love_where = data.get("loveWhere").getAsString();
+            clientUser.do_what_first = data.get("doWhatFirst").getAsString();
+            clientUser.conception = data.get("conception").getAsString();
+            clientUser.imgUrls = data.get("picturesUrls").getAsString();
+            clientUser.gifts = data.get("gifts").getAsString();
+            clientUser.latitude = data.get("latitude").getAsString();
+            clientUser.longitude = data.get("longitude").getAsString();
+            return clientUser;
+        } catch (Exception e) {
+        }
+        return null;
+    }
+
+    /**
+     * 缘分用户
+     * @param json
+     * @return
+     */
+    public static List<YuanFenModel> parseYuanFenUsers(String json){
+        try {
+            String decryptData = AESOperator.getInstance().decrypt(json);
+            JsonObject obj = new JsonParser().parse(decryptData).getAsJsonObject();
+            int code = obj.get("code").getAsInt();
+            if (code != 0) {
+                return null;
+            }
+            String dataString = obj.get("data").getAsString();
+            Type listType = new TypeToken<ArrayList<YuanFenModel>>() {
+            }.getType();
+            Gson gson = new Gson();
+            List<YuanFenModel> models = gson.fromJson(dataString, listType);
+            return models;
+        } catch (Exception e) {
+        }
+        return null;
+    }
+
+    /**
+     * 获取关注，喜欢我的用户数
+     * @param json
+     * @return
+     */
+    public static FollowLoveModel parseFollowLove(String json) {
+        try {
+            String decryptData = AESOperator.getInstance().decrypt(json);
+            JsonObject obj = new JsonParser().parse(decryptData).getAsJsonObject();
+            int code = obj.get("code").getAsInt();
+            if (code == 1) {
+                return null;
+            }
+            Gson gson = new Gson();
+            FollowLoveModel model = gson.fromJson(obj.get("data").getAsJsonObject(), FollowLoveModel.class);
+            return model;
+        } catch (Exception e) {
+        }
+        return null;
+    }
 
 }

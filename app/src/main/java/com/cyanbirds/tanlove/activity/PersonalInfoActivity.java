@@ -1,5 +1,6 @@
 package com.cyanbirds.tanlove.activity;
 
+import android.arch.lifecycle.Lifecycle;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.adapter.TabFragmentAdapter;
@@ -26,15 +28,20 @@ import com.cyanbirds.tanlove.eventtype.UserEvent;
 import com.cyanbirds.tanlove.fragment.TabDynamicFragment;
 import com.cyanbirds.tanlove.fragment.TabPersonalFragment;
 import com.cyanbirds.tanlove.manager.AppManager;
-import com.cyanbirds.tanlove.net.request.AddFollowRequest;
-import com.cyanbirds.tanlove.net.request.AddLoveRequest;
-import com.cyanbirds.tanlove.net.request.GetUserInfoRequest;
-import com.cyanbirds.tanlove.net.request.SendGreetRequest;
+import com.cyanbirds.tanlove.net.IUserApi;
+import com.cyanbirds.tanlove.net.IUserFollowApi;
+import com.cyanbirds.tanlove.net.IUserLoveApi;
+import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 import com.cyanbirds.tanlove.utils.CheckUtil;
+import com.cyanbirds.tanlove.utils.JsonUtils;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
 import com.cyanbirds.tanlove.utils.RxBus;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.uber.autodispose.AutoDispose;
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
 import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
@@ -45,6 +52,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author: wangyb
@@ -150,7 +159,7 @@ public class PersonalInfoActivity extends BaseActivity {
 				mFab.setVisibility(View.GONE);
 				mBottomLayout.setVisibility(View.VISIBLE);
 				ProgressDialogUtils.getInstance(PersonalInfoActivity.this).show(R.string.dialog_request_data);
-				new GetUserInfoTask().request(curUserId);
+				getUserInfo(curUserId);
 			}
 		}
 	}
@@ -211,9 +220,9 @@ public class PersonalInfoActivity extends BaseActivity {
 			case R.id.attention:
 				if (null != mClientUser) {
 					if (mAttention.getText().toString().equals("关注")) {
-						new AddFollowTask().request(mClientUser.userId);
+						addCancelFollow(mClientUser.userId, true);
 					} else {
-						new CancelFollowTask().request(mClientUser.userId);
+						addCancelFollow(mClientUser.userId, false);
 					}
 				}
 				break;
@@ -233,8 +242,8 @@ public class PersonalInfoActivity extends BaseActivity {
 					}
 				} else {
 					if (null != mClientUser) {
-						new SenderGreetTask().request(mClientUser.userId);
-						new AddLoveTask().request(mClientUser.userId);
+						sendGreet(mClientUser.userId);
+						addLove(mClientUser.userId);
 					}
 				}
 				break;
@@ -249,85 +258,106 @@ public class PersonalInfoActivity extends BaseActivity {
 	}
 
 	/**
-	 * 关注
+	 * 关注，取消关注
+	 * @param userId
+	 * @param isAdd true:关注 false:取消关注
 	 */
-	class AddFollowTask extends AddFollowRequest {
-		@Override
-		public void onPostExecute(String s) {
-			if (s.equals("已关注")) {
-				mAttention.setText("已关注");
-				mAttention.setTextColor(getResources().getColor(R.color.colorPrimary));
-				ToastUtil.showMessage(R.string.attention_success);
-			} else {
-				ToastUtil.showMessage(R.string.attention_faiure);
-			}
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-			super.onErrorExecute(error);
-		}
+	private void addCancelFollow(String userId, boolean isAdd) {
+		RetrofitFactory.getRetrofit().create(IUserFollowApi.class)
+				.addFollow(AppManager.getClientUser().sessionId, userId)
+				.subscribeOn(Schedulers.io())
+				.map(responseBody -> {
+					JsonObject obj = new JsonParser().parse(responseBody.string()).getAsJsonObject();
+					int code = obj.get("code").getAsInt();
+					if (code == 0) {//关注成功
+						return obj.get("data").getAsString();
+					} else {
+						return CSApplication.getInstance().getResources()
+								.getString(R.string.attention_faiure);
+					}
+				})
+				.observeOn(AndroidSchedulers.mainThread())
+				.as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+				.subscribe(s -> {
+					if (isAdd) {
+						if (s.equals("已关注")) {
+							mAttention.setText("已关注");
+							mAttention.setTextColor(getResources().getColor(R.color.colorPrimary));
+							ToastUtil.showMessage(R.string.attention_success);
+						} else {
+							ToastUtil.showMessage(R.string.attention_faiure);
+						}
+					} else {
+						mAttention.setText("关注");
+						ToastUtil.showMessage(R.string.cancle_attention);
+					}
+				}, throwable -> {});
 	}
 
-	class CancelFollowTask extends AddFollowRequest {
-		@Override
-		public void onPostExecute(String s) {
-			mAttention.setText("关注");
-			ToastUtil.showMessage(R.string.cancle_attention);
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-		}
+	private void sendGreet(String userId) {
+		RetrofitFactory.getRetrofit().create(IUserLoveApi.class)
+				.sendGreet(AppManager.getClientUser().sessionId, userId)
+				.subscribeOn(Schedulers.io())
+				.map(responseBody -> {
+					JsonObject obj = new JsonParser().parse(responseBody.string()).getAsJsonObject();
+					int code = obj.get("code").getAsInt();
+					if (code == 0) {//喜欢成功
+						return CSApplication.getInstance().getResources()
+								.getString(R.string.like_success);
+					} else {
+						return CSApplication.getInstance().getResources()
+								.getString(R.string.like_faiure);
+					}
+				})
+				.observeOn(AndroidSchedulers.mainThread())
+				.as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+				.subscribe(s -> ToastUtil.showMessage(s), throwable -> ToastUtil.showMessage(R.string.like_faiure));
 	}
 
-	class SenderGreetTask extends SendGreetRequest {
-		@Override
-		public void onPostExecute(String s) {
-			ToastUtil.showMessage(s);
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-			ToastUtil.showMessage(error);
-		}
+	private void addLove(String userId) {
+		RetrofitFactory.getRetrofit().create(IUserLoveApi.class)
+				.addLove(AppManager.getClientUser().sessionId, userId)
+				.subscribeOn(Schedulers.io())
+				.map(responseBody -> {
+					JsonObject obj = new JsonParser().parse(responseBody.string()).getAsJsonObject();
+					int code = obj.get("code").getAsInt();
+					if (code == 0) {//喜欢成功
+						return obj.get("data").getAsBoolean();
+					} else {
+						return false;
+					}
+				})
+				.observeOn(AndroidSchedulers.mainThread())
+				.as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+				.subscribe(aBoolean -> {
+					if (aBoolean) {
+						mLove.setText("已喜欢");
+					} else {
+						mLove.setText("喜欢");
+					}
+				}, throwable -> {});
 	}
-
-	class AddLoveTask extends AddLoveRequest {
-
-		@Override
-		public void onPostExecute(Boolean s) {
-			if (s) {
-				mLove.setText("已喜欢");
-			} else {
-				mLove.setText("喜欢");
-			}
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-		}
-	}
-
 
 	/**
 	 * 获取用户信息
 	 */
-	class GetUserInfoTask extends GetUserInfoRequest {
-		@Override
-		public void onPostExecute(ClientUser clientUser) {
-			ProgressDialogUtils.getInstance(PersonalInfoActivity.this).dismiss();
-			mClientUser = clientUser;
-			if (null != mClientUser) {
-				setUserInfoAndValue(clientUser);
-			}
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-			ToastUtil.showMessage(error);
-			ProgressDialogUtils.getInstance(PersonalInfoActivity.this).dismiss();
-		}
+	private void getUserInfo(String userId) {
+		RetrofitFactory.getRetrofit().create(IUserApi.class)
+				.getUserInfo(AppManager.getClientUser().sessionId, userId)
+				.subscribeOn(Schedulers.io())
+				.map(responseBody -> JsonUtils.parserUserInfo(responseBody.string()))
+				.observeOn(AndroidSchedulers.mainThread())
+				.as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+				.subscribe(clientUser -> {
+					ProgressDialogUtils.getInstance(PersonalInfoActivity.this).dismiss();
+					mClientUser = clientUser;
+					if (null != mClientUser) {
+						setUserInfoAndValue(clientUser);
+					}
+				}, throwable -> {
+					ToastUtil.showMessage(R.string.network_requests_error);
+					ProgressDialogUtils.getInstance(PersonalInfoActivity.this).dismiss();
+				});
 	}
 
 	/**

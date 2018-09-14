@@ -1,5 +1,6 @@
 package com.cyanbirds.tanlove.fragment;
 
+import android.arch.lifecycle.Lifecycle;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -30,16 +31,19 @@ import com.cyanbirds.tanlove.activity.VipCenterActivity;
 import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.ClientUser;
-import com.cyanbirds.tanlove.entity.FollowLoveModel;
 import com.cyanbirds.tanlove.eventtype.UserEvent;
 import com.cyanbirds.tanlove.manager.AppManager;
+import com.cyanbirds.tanlove.net.IUserFollowApi;
+import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 import com.cyanbirds.tanlove.net.request.DownloadFileRequest;
-import com.cyanbirds.tanlove.net.request.GetFollowLoveRequest;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
+import com.cyanbirds.tanlove.utils.JsonUtils;
 import com.cyanbirds.tanlove.utils.Md5Util;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.RxBus;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.uber.autodispose.AutoDispose;
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
 import com.umeng.analytics.MobclickAgent;
 
 import java.io.File;
@@ -49,6 +53,8 @@ import butterknife.ButterKnife;
 import butterknife.OnClick;
 import butterknife.Unbinder;
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author: wangyb
@@ -161,31 +167,34 @@ public class PersonalFragment extends Fragment {
 		mAttentionRedPoint.setVisibility(View.VISIBLE);
 		mGiftRedPoint.setVisibility(View.VISIBLE);
 		setUserInfo();
-		new GetFollowLoveTask().request(AppManager.getClientUser().userId);
+		getFollowLove();
 	}
 
-	class GetFollowLoveTask extends GetFollowLoveRequest {
-		@Override
-		public void onPostExecute(FollowLoveModel followLoveModel) {
-			if (null != followLoveModel) {
-				if (followLoveModel.followCount > 0) {
-					attentionCount.setVisibility(View.VISIBLE);
-					attentionCount.setText(String.valueOf(followLoveModel.followCount));
-				}
-				if (followLoveModel.loveCount > 0) {
-					loveCount.setVisibility(View.VISIBLE);
-					loveCount.setText(String.valueOf(followLoveModel.loveCount));
-				}
-				if (followLoveModel.giftsCount > 0) {
-					giftsCount.setVisibility(View.VISIBLE);
-					giftsCount.setText(String.valueOf(followLoveModel.giftsCount));
-				}
-			}
-		}
 
-		@Override
-		public void onErrorExecute(String error) {
-		}
+	private void getFollowLove() {
+		RetrofitFactory.getRetrofit().create(IUserFollowApi.class)
+				.getFollowAndLoveInfo(AppManager.getClientUser().sessionId, AppManager.getClientUser().userId)
+				.subscribeOn(Schedulers.io())
+				.map(responseBody -> JsonUtils.parseFollowLove(responseBody.string()))
+				.observeOn(AndroidSchedulers.mainThread())
+				.as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+				.subscribe(followLoveModel -> {
+					if (null != followLoveModel) {
+						if (followLoveModel.followCount > 0) {
+							attentionCount.setVisibility(View.VISIBLE);
+							attentionCount.setText(String.valueOf(followLoveModel.followCount));
+						}
+						if (followLoveModel.loveCount > 0) {
+							loveCount.setVisibility(View.VISIBLE);
+							loveCount.setText(String.valueOf(followLoveModel.loveCount));
+						}
+						if (followLoveModel.giftsCount > 0) {
+							giftsCount.setVisibility(View.VISIBLE);
+							giftsCount.setText(String.valueOf(followLoveModel.giftsCount));
+						}
+					}
+				}, throwable -> {});
+
 	}
 
 	/**

@@ -1,6 +1,5 @@
 package com.cyanbirds.tanlove.manager;
 
-import android.app.Activity;
 import android.app.ActivityManager;
 import android.app.ActivityManager.RunningTaskInfo;
 import android.app.KeyguardManager;
@@ -8,25 +7,18 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.net.Uri;
 import android.os.Build;
-import android.support.v4.app.ActivityCompat;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
 import com.alibaba.sdk.android.oss.OSS;
-import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.entity.FederationToken;
 import com.cyanbirds.tanlove.entity.IMessage;
-import com.cyanbirds.tanlove.net.DynamicService;
-import com.cyanbirds.tanlove.net.FollowService;
-import com.cyanbirds.tanlove.net.LoveService;
 import com.cyanbirds.tanlove.net.PictureService;
 import com.cyanbirds.tanlove.net.UserService;
-import com.cyanbirds.tanlove.net.VideoService;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.tencent.mm.sdk.openapi.IWXAPI;
 
@@ -74,10 +66,6 @@ public class AppManager {
 
 	private static UserService mUserService;
 	private static PictureService mPictureService;
-	private static FollowService mFollowService;
-	private static LoveService mLoveService;
-	private static VideoService mVideoService;
-	private static DynamicService mDynamicService;
 
 	private static IWXAPI sIWX_PAY_API;
 	private static IWXAPI sIWXAPI;
@@ -598,41 +586,5 @@ public class AppManager {
 
 	public static PictureService getPictureService(){
 		return mPictureService;
-	}
-
-	/************设置和获取网络关注操作接口**********************/
-	public static void setFollowService(FollowService followService){
-		mFollowService = followService;
-	}
-
-	public static FollowService getFollowService(){
-		return mFollowService;
-	}
-
-	/************设置和获取网络喜欢操作接口**********************/
-	public static void setLoveService(LoveService loveService){
-		mLoveService = loveService;
-	}
-
-	public static LoveService getLoveService(){
-		return mLoveService;
-	}
-
-	/************设置和获取网络视频操作接口**********************/
-	public static void setVideoService(VideoService videoService){
-		mVideoService = videoService;
-	}
-
-	public static VideoService getVideoService(){
-		return mVideoService;
-	}
-
-	/************设置和获取动态操作接口**********************/
-	public static DynamicService getDynamicService() {
-		return mDynamicService;
-	}
-
-	public static void setDynamicService(DynamicService mDynamicService) {
-		AppManager.mDynamicService = mDynamicService;
 	}
 }

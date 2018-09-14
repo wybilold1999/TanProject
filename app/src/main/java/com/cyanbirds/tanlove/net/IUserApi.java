@@ -69,4 +69,18 @@ public interface IUserApi {
     @GET("oss/distribute-token")
     Observable<ResponseBody> getOSSToken();
 
+    @FormUrlEncoded
+    @POST("user/userInfo")
+    Observable<ResponseBody> getUserInfo(@Header("token") String token, @Field("uid") String uid);
+
+    /**
+     * 缘分卡片
+     * @param token
+     * @param params
+     * @return
+     */
+    @FormUrlEncoded
+    @POST("user/yuanFenUser")
+    Observable<ResponseBody> getYuanFenUser(@Header("token") String token, @FieldMap ArrayMap<String, Integer> params);
+
 }
