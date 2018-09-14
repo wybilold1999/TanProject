@@ -103,6 +103,7 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 	private RecyclerView mEmoticonRecyclerview;
 	private SwipeRefreshLayout mSwipeRefresh;
 
+	private String mPhotoDirPath;
 	private ClientUser mClientUser;
 	private Conversation mConversation;
 
@@ -573,7 +574,7 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 		Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 		if (intent.resolveActivity(getPackageManager())!=null){
 
-			String mPhotoDirPath = Environment.getExternalStorageDirectory()+"/Android/data/com.cyanbirds.tanlove/files/";
+			mPhotoDirPath = Environment.getExternalStorageDirectory()+"/Android/data/com.cyanbirds.tanlove/files/";
 			File mPhotoDirFile = new File(mPhotoDirPath);
 			if (!mPhotoDirFile.exists()) {
 				mPhotoDirFile.mkdir();
@@ -634,7 +635,7 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 			sendBroadcast(intent);
 			if (inputUri != null && mCameraFile.exists()) {
 				//压缩图片
-				String imgUrl = ImageUtil.compressImage(mCameraFile.getPath(), mCameraFile.getPath());
+				String imgUrl = ImageUtil.compressImage(mCameraFile.getPath(), mPhotoDirPath);
 				Uri uri = Uri.parse("file://" + imgUrl);
 				toImagePreview(uri);
 			}

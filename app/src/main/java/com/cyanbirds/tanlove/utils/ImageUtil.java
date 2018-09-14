@@ -55,7 +55,7 @@ public class ImageUtil {
 				dir.mkdirs();
 			}
 
-			File photoFile = new File(path);
+			File photoFile = new File(path, photoName);
 
 			FileOutputStream fileOutputStream = null;
 			try {

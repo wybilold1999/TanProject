@@ -2,14 +2,13 @@ package com.cyanbirds.tanlove.utils;
 
 import android.text.TextUtils;
 
-import com.cyanbirds.tanlove.CSApplication;
-import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.entity.AllKeys;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.entity.FederationToken;
 import com.cyanbirds.tanlove.entity.FollowLoveModel;
 import com.cyanbirds.tanlove.entity.FollowModel;
 import com.cyanbirds.tanlove.entity.LoveModel;
+import com.cyanbirds.tanlove.entity.PictureModel;
 import com.cyanbirds.tanlove.entity.ReceiveGiftModel;
 import com.cyanbirds.tanlove.entity.YuanFenModel;
 import com.cyanbirds.tanlove.manager.AppManager;
@@ -312,6 +311,25 @@ public class JsonUtils {
             Gson gson = new Gson();
             FollowLoveModel model = gson.fromJson(obj.get("data").getAsJsonObject(), FollowLoveModel.class);
             return model;
+        } catch (Exception e) {
+        }
+        return null;
+    }
+
+    public static ArrayList<PictureModel> parseDiscoverInfo(String json) {
+        try {
+            String decryptData = AESOperator.getInstance().decrypt(json);
+            JsonObject obj = new JsonParser().parse(decryptData).getAsJsonObject();
+            int code = obj.get("code").getAsInt();
+            if (code != 0) {
+                return null;
+            }
+            String result = obj.get("data").getAsString();
+            Type listType = new TypeToken<ArrayList<PictureModel>>() {
+            }.getType();
+            Gson gson = new Gson();
+            ArrayList<PictureModel> pictureModels = gson.fromJson(result, listType);
+            return pictureModels;
         } catch (Exception e) {
         }
         return null;

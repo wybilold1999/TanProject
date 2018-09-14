@@ -8,7 +8,6 @@ import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.helper.AppActivityLifecycleCallbacks;
 import com.cyanbirds.tanlove.helper.CrashHandler;
 import com.cyanbirds.tanlove.manager.AppManager;
-import com.cyanbirds.tanlove.net.PictureService;
 import com.cyanbirds.tanlove.net.UserService;
 import com.cyanbirds.tanlove.net.base.RetrofitManager;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
@@ -142,10 +141,5 @@ public class CSApplication extends MultiDexApplication {
 		 */
 		UserService userService = RetrofitManager.getInstance().getRetrofitInstance().create(UserService.class);
 		AppManager.setUserService(userService);
-		/**
-		 * 图片
-		 */
-		PictureService pictureService = RetrofitManager.getInstance().getRetrofitInstance().create(PictureService.class);
-		AppManager.setPictureService(pictureService);
 	}
 }

@@ -17,7 +17,6 @@ import com.alibaba.sdk.android.oss.OSS;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.entity.FederationToken;
 import com.cyanbirds.tanlove.entity.IMessage;
-import com.cyanbirds.tanlove.net.PictureService;
 import com.cyanbirds.tanlove.net.UserService;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.tencent.mm.sdk.openapi.IWXAPI;
@@ -65,7 +64,6 @@ public class AppManager {
 	public static String currentChatTalker = null;
 
 	private static UserService mUserService;
-	private static PictureService mPictureService;
 
 	private static IWXAPI sIWX_PAY_API;
 	private static IWXAPI sIWXAPI;
@@ -579,12 +577,4 @@ public class AppManager {
 		return mUserService;
 	}
 
-	/************设置和获取网络图片接口**********************/
-	public static void setPictureService(PictureService pictureService){
-		mPictureService = pictureService;
-	}
-
-	public static PictureService getPictureService(){
-		return mPictureService;
-	}
 }

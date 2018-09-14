@@ -31,7 +31,6 @@ import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.GetFindLoveRequest;
-import com.cyanbirds.tanlove.net.request.GetRealUserRequest;
 import com.cyanbirds.tanlove.ui.widget.CircularProgress;
 import com.cyanbirds.tanlove.ui.widget.DividerItemDecoration;
 import com.cyanbirds.tanlove.ui.widget.WrapperLinearLayoutManager;
@@ -170,13 +169,7 @@ public class FindLoveFragment extends Fragment implements OnRefreshListener, Vie
         } else {
             GENDER = "Male";
         }
-        if("-1".equals(AppManager.getClientUser().userId) ||
-                "-2".equals(AppManager.getClientUser().userId) ||
-                "-3".equals(AppManager.getClientUser().userId)){ //客服登陆，获取真实用户
-            new GetRealLoveUsersTask().request(pageIndex, pageSize, GENDER);
-        } else {
-            new GetFindLoveTask().request(pageIndex, pageSize, GENDER, mUserScopeType);
-        }
+        new GetFindLoveTask().request(pageIndex, pageSize, GENDER, mUserScopeType);
     }
 
     @Override
@@ -209,13 +202,7 @@ public class FindLoveFragment extends Fragment implements OnRefreshListener, Vie
                     && mAdapter.isShowFooter()) {
                 //加载更多
                 //请求数据
-                if("-1".equals(AppManager.getClientUser().userId) ||
-                        "-2".equals(AppManager.getClientUser().userId) ||
-                        "-3".equals(AppManager.getClientUser().userId)){ //客服登陆，获取真实用户
-                    new GetRealLoveUsersTask().request(++pageIndex, pageSize, GENDER);
-                } else {
-                    new GetFindLoveTask().request(++pageIndex, pageSize, GENDER, mUserScopeType);
-                }
+                new GetFindLoveTask().request(++pageIndex, pageSize, GENDER, mUserScopeType);
             }
         }
     };
@@ -271,33 +258,6 @@ public class FindLoveFragment extends Fragment implements OnRefreshListener, Vie
         }
     }
 
-    /**
-     * 获取真实的用户
-     */
-    class GetRealLoveUsersTask extends GetRealUserRequest {
-        @Override
-        public void onPostExecute(List<ClientUser> clientUsers) {
-            mProgress.setVisibility(View.GONE);
-            mSwipeRefresh.setRefreshing(false);
-            if(clientUsers == null || clientUsers.size() == 0){
-                mAdapter.setIsShowFooter(false);
-                mAdapter.notifyDataSetChanged();
-//                ToastUtil.showMessage(R.string.no_more_data);
-            } else {
-                mClientUsers.addAll(clientUsers);
-                mAdapter.setIsShowFooter(true);
-                mAdapter.setClientUsers(mClientUsers);
-            }
-        }
-
-        @Override
-        public void onErrorExecute(String error) {
-            mSwipeRefresh.setRefreshing(false);
-            mProgress.setVisibility(View.GONE);
-            mAdapter.setIsShowFooter(false);
-            mAdapter.notifyDataSetChanged();
-        }
-    }
 
     /**
      * 筛选dialog
@@ -313,13 +273,7 @@ public class FindLoveFragment extends Fragment implements OnRefreshListener, Vie
                         dialog.dismiss();
                         pageIndex = 1;
                         mClientUsers.clear();
-                        if("-1".equals(AppManager.getClientUser().userId) ||
-                                "-2".equals(AppManager.getClientUser().userId) ||
-                                "-3".equals(AppManager.getClientUser().userId)){ //客服登陆，获取真实用户
-                            new GetRealLoveUsersTask().request(pageIndex, pageSize, GENDER);
-                        } else {
-                            new GetFindLoveTask().request(pageIndex, pageSize, GENDER, mUserScopeType);
-                        }
+                        new GetFindLoveTask().request(pageIndex, pageSize, GENDER, mUserScopeType);
                         mProgress.setVisibility(View.VISIBLE);
                         mIsRefreshing = true;
                     }
@@ -370,13 +324,7 @@ public class FindLoveFragment extends Fragment implements OnRefreshListener, Vie
     }
 
     private void getFreshData() {
-        if("-1".equals(AppManager.getClientUser().userId) ||
-                "-2".equals(AppManager.getClientUser().userId) ||
-                "-3".equals(AppManager.getClientUser().userId)){ //客服登陆，获取真实用户
-            new GetRealLoveFreshFindLoveTask().request(++pageIndex, pageSize, GENDER);
-        } else {
-            new GetFreshFindLoveTask().request(++pageIndex, pageSize, GENDER, mUserScopeType);
-        }
+        new GetFreshFindLoveTask().request(++pageIndex, pageSize, GENDER, mUserScopeType);
     }
 
     class GetFreshFindLoveTask extends GetFindLoveRequest{
@@ -400,28 +348,6 @@ public class FindLoveFragment extends Fragment implements OnRefreshListener, Vie
             mProgress.setVisibility(View.GONE);
             mSwipeRefresh.setRefreshing(false);
             ToastUtil.showMessage(error);
-        }
-    }
-
-    class GetRealLoveFreshFindLoveTask extends GetRealUserRequest{
-        @Override
-        public void onPostExecute(List<ClientUser> userList) {
-            mProgress.setVisibility(View.GONE);
-            mSwipeRefresh.setRefreshing(false);
-            if(userList == null || userList.size() == 0){//没有数据了就又从第一页开始查找
-                ToastUtil.showMessage(R.string.no_more_data);
-            } else {
-                mClientUsers.clear();
-                mClientUsers.addAll(userList);
-                mAdapter.setIsShowFooter(false);
-                mAdapter.setClientUsers(mClientUsers);
-            }
-        }
-
-        @Override
-        public void onErrorExecute(String error) {
-            mProgress.setVisibility(View.GONE);
-            mSwipeRefresh.setRefreshing(false);
         }
     }
 
