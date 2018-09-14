@@ -1,8 +1,10 @@
 package com.cyanbirds.tanlove.activity;
 
+import android.arch.lifecycle.Lifecycle;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.util.ArrayMap;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -20,14 +22,20 @@ import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.Picture;
 import com.cyanbirds.tanlove.eventtype.PubDycEvent;
 import com.cyanbirds.tanlove.manager.AppManager;
+import com.cyanbirds.tanlove.net.IUserDynamic;
+import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 import com.cyanbirds.tanlove.net.request.OSSImagUploadRequest;
-import com.cyanbirds.tanlove.net.request.PublishDynamicRequest;
+import com.cyanbirds.tanlove.utils.AESOperator;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.cyanbirds.tanlove.utils.ImageUtil;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
 import com.cyanbirds.tanlove.utils.RxBus;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+import com.uber.autodispose.AutoDispose;
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
 import com.umeng.analytics.MobclickAgent;
 
 import java.util.ArrayList;
@@ -35,6 +43,8 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * 作者：wangyb
@@ -107,7 +117,7 @@ public class PublishDynamicActivity extends BaseActivity {
 							AppManager.getOSSFacePath(), imgUrl);
 				}
 			} else {
-				new PublishDynamicTask().request("", mDynamicTextContent.getText().toString());
+				publishDynamic("", mDynamicTextContent.getText().toString());
 			}
 			return true;
 		}
@@ -139,7 +149,7 @@ public class PublishDynamicActivity extends BaseActivity {
 				if (count == photoList.size()) {
 					Gson gson = new Gson();
 					String picUrls = gson.toJson(ossImgUrls);
-					new PublishDynamicTask().request(picUrls, mDynamicTextContent.getText().toString());
+					publishDynamic(picUrls, mDynamicTextContent.getText().toString());
 				}
 			}
 		}
@@ -150,19 +160,31 @@ public class PublishDynamicActivity extends BaseActivity {
 		}
 	}
 
-	class PublishDynamicTask extends PublishDynamicRequest {
-		@Override
-		public void onPostExecute(String s) {
-			ProgressDialogUtils.getInstance(PublishDynamicActivity.this).dismiss();
-			ToastUtil.showMessage(R.string.publish_success);
-			RxBus.getInstance().post(AppConstants.PUB_DYNAMIC, new PubDycEvent(s));
-			finish();
-		}
+	private void publishDynamic(String pictures, String content) {
+		ArrayMap<String, String> params = new ArrayMap<>(2);
+		params.put("pictures", pictures);
+		params.put("content", content);
+		RetrofitFactory.getRetrofit().create(IUserDynamic.class)
+				.publishDynamic(AppManager.getClientUser().sessionId, params)
+				.subscribeOn(Schedulers.io())
+				.map(responseBody -> {
+					String decryptData = AESOperator.getInstance().decrypt(responseBody.string());
+					JsonObject obj = new JsonParser().parse(decryptData).getAsJsonObject();
+					int code = obj.get("code").getAsInt();
+					if (code != 0) {
+						return null;
+					}
+					return decryptData;
+				})
+				.observeOn(AndroidSchedulers.mainThread())
+				.as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+				.subscribe(s -> {
+					ProgressDialogUtils.getInstance(PublishDynamicActivity.this).dismiss();
+					ToastUtil.showMessage(R.string.publish_success);
+					RxBus.getInstance().post(AppConstants.PUB_DYNAMIC, new PubDycEvent(s));
+					finish();
+				}, throwable -> ProgressDialogUtils.getInstance(PublishDynamicActivity.this).dismiss());
 
-		@Override
-		public void onErrorExecute(String error) {
-			ProgressDialogUtils.getInstance(PublishDynamicActivity.this).dismiss();
-		}
 	}
 
 	@Override

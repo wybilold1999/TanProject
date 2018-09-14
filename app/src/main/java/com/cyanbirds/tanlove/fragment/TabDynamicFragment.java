@@ -1,7 +1,9 @@
 package com.cyanbirds.tanlove.fragment;
 
+import android.arch.lifecycle.Lifecycle;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.util.ArrayMap;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
@@ -18,8 +20,11 @@ import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.DynamicContent;
 import com.cyanbirds.tanlove.eventtype.PubDycEvent;
 import com.cyanbirds.tanlove.listener.NestedScrollViewListener;
-import com.cyanbirds.tanlove.net.request.GetDynamicListRequest;
+import com.cyanbirds.tanlove.manager.AppManager;
+import com.cyanbirds.tanlove.net.IUserDynamic;
+import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 import com.cyanbirds.tanlove.ui.widget.WrapperLinearLayoutManager;
+import com.cyanbirds.tanlove.utils.AESOperator;
 import com.cyanbirds.tanlove.utils.RxBus;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.google.gson.Gson;
@@ -27,6 +32,8 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+import com.uber.autodispose.AutoDispose;
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
 import com.umeng.analytics.MobclickAgent;
 
 import java.lang.reflect.Type;
@@ -36,6 +43,8 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author: wangyb
@@ -113,39 +122,51 @@ public class TabDynamicFragment extends Fragment {
 			@Override
 			public void onLoadMore(int page, int totalItemsCount) {
 				if (totalItemsCount < mServerDynamicCount) {
-					new GetDynamicListTask().request(curUserId, ++pageNo, pageSize);
+					getDynamicList(curUserId, ++pageNo, pageSize);
 				}
 			}
 		});
-		new GetDynamicListTask().request(curUserId, pageNo, pageSize);
+		getDynamicList(curUserId, pageNo, pageSize);
 	}
 
-	/**
-	 * 获取动态
-	 */
-	class GetDynamicListTask extends GetDynamicListRequest {
-		@Override
-		public void onPostExecute(String data) {
-			DynamicContent content = gson.fromJson(data, DynamicContent.class);
-			if (content != null && content.getData() != null && !content.getData().isEmpty()) {
-				curUserId = String.valueOf(content.getData().get(0).getUsersId());
-				mServerDynamicCount = content.getData().get(0).getCount();
-				mAllData.addAll(content.getData());
-				mAdapter.setData(mAllData);
-				mAdapter.notifyDataSetChanged();
-				mTvTabContent.setVisibility(View.GONE);
-				mRecyclerview.setVisibility(View.VISIBLE);
-			} else {
-				mTvTabContent.setVisibility(View.VISIBLE);
-				mRecyclerview.setVisibility(View.GONE);
-			}
-		}
+	private void getDynamicList(String userId, int pageNo, int pageSize) {
+		ArrayMap<String, String> params = new ArrayMap<>(3);
+		params.put("pageNo", String.valueOf(pageNo));
+		params.put("pageSize", String.valueOf(pageSize));
+		params.put("uid", userId);
+		RetrofitFactory.getRetrofit().create(IUserDynamic.class)
+				.getDynamicList(AppManager.getClientUser().sessionId, params)
+				.subscribeOn(Schedulers.io())
+				.map(responseBody -> {
+					String decryptData = AESOperator.getInstance().decrypt(responseBody.string());
+					JsonObject obj = new JsonParser().parse(decryptData).getAsJsonObject();
+					int code = obj.get("code").getAsInt();
+					if (code != 0) {
+						return null;
+					}
+					DynamicContent content = gson.fromJson(decryptData, DynamicContent.class);
+					return content;
+				})
+				.observeOn(AndroidSchedulers.mainThread())
+				.as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+				.subscribe(content -> {
+					if (content != null && content.getData() != null && !content.getData().isEmpty()) {
+						curUserId = String.valueOf(content.getData().get(0).getUsersId());
+						mServerDynamicCount = content.getData().get(0).getCount();
+						mAllData.addAll(content.getData());
+						mAdapter.setData(mAllData);
+						mAdapter.notifyDataSetChanged();
+						mTvTabContent.setVisibility(View.GONE);
+						mRecyclerview.setVisibility(View.VISIBLE);
+					} else {
+						mTvTabContent.setVisibility(View.VISIBLE);
+						mRecyclerview.setVisibility(View.GONE);
+					}
+				}, throwable -> {
+					ToastUtil.showMessage(R.string.network_requests_error);
+					mAdapter.notifyDataSetChanged();
+				});
 
-		@Override
-		public void onErrorExecute(String error) {
-			ToastUtil.showMessage(error);
-			mAdapter.notifyDataSetChanged();
-		}
 	}
 
 	private void updatePublishedDynamic(PubDycEvent pubDycEvent) {
