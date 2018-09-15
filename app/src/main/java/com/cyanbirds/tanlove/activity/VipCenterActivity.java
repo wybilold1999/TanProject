@@ -1,11 +1,12 @@
 package com.cyanbirds.tanlove.activity;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
+import android.arch.lifecycle.Lifecycle;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.design.widget.Snackbar;
+import android.support.v4.util.ArrayMap;
 import android.support.v4.widget.NestedScrollView;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
@@ -27,23 +28,26 @@ import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.entity.MemberBuy;
 import com.cyanbirds.tanlove.entity.PayResult;
 import com.cyanbirds.tanlove.entity.UserVipModel;
-import com.cyanbirds.tanlove.entity.WeChatPay;
 import com.cyanbirds.tanlove.helper.SDKCoreHelper;
 import com.cyanbirds.tanlove.manager.AppManager;
-import com.cyanbirds.tanlove.net.request.CreateOrderRequest;
-import com.cyanbirds.tanlove.net.request.GetAliPayOrderInfoRequest;
-import com.cyanbirds.tanlove.net.request.GetMemberBuyListRequest;
-import com.cyanbirds.tanlove.net.request.GetPayResultRequest;
-import com.cyanbirds.tanlove.net.request.GetUserNameRequest;
+import com.cyanbirds.tanlove.net.IUserApi;
+import com.cyanbirds.tanlove.net.IUserBuyApi;
+import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 import com.cyanbirds.tanlove.ui.widget.DividerItemDecoration;
 import com.cyanbirds.tanlove.ui.widget.WrapperLinearLayoutManager;
-import com.cyanbirds.tanlove.utils.CheckUtil;
+import com.cyanbirds.tanlove.utils.AESOperator;
 import com.cyanbirds.tanlove.utils.DensityUtil;
+import com.cyanbirds.tanlove.utils.JsonUtils;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.RxBus;
 import com.cyanbirds.tanlove.utils.ToastUtil;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.sunfusheng.marqueeview.MarqueeView;
 import com.tencent.mm.sdk.modelpay.PayReq;
+import com.uber.autodispose.AutoDispose;
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
 import com.umeng.analytics.MobclickAgent;
 import com.yuntongxun.ecsdk.ECInitParams;
 
@@ -54,6 +58,8 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * @author Cloudsoar(wangyb)
@@ -97,7 +103,6 @@ public class VipCenterActivity extends BaseActivity {
 
 	private String mPref;//优惠信息
 	private MemberBuy mMemberBuy;
-	private String channel = "";
 
 	private Observable<?> observable;
 
@@ -118,7 +123,7 @@ public class VipCenterActivity extends BaseActivity {
 					if (TextUtils.equals(resultStatus, "9000")) {
 						// 该笔订单是否真实支付成功，需要依赖服务端的异步通知。
 						ToastUtil.showMessage(R.string.pay_success);
-						new GetPayResultTask().request();
+						getPayResult();
 					} else {
 						// 该笔订单真实的支付结果，需要依赖服务端的异步通知。
 						ToastUtil.showMessage(R.string.pay_failure);
@@ -168,80 +173,79 @@ public class VipCenterActivity extends BaseActivity {
 	 */
 	private void rxBusSub() {
 		observable = RxBus.getInstance().register(AppConstants.CITY_WE_CHAT_RESP_CODE);
-		observable.subscribe(o -> new GetPayResultTask().request());
+		observable.subscribe(o -> getPayResult());
 	}
 
 	private void setupData() {
-		channel = CheckUtil.getAppMetaData(this, "UMENG_CHANNEL");
-		if (!AppManager.getClientUser().is_vip && !"oppo".equals(channel)) {//oppo渠道，不显示这两个权限
+		if (!AppManager.getClientUser().is_vip) {
 			mVip7Lay.setVisibility(View.VISIBLE);
 			mVip8Lay.setVisibility(View.VISIBLE);
 		} else {
 			mVip7Lay.setVisibility(View.GONE);
 			mVip8Lay.setVisibility(View.GONE);
 		}
-		new GetMemberBuyListTask().request(NORMAL_VIP);
+		getMemberBuy(NORMAL_VIP);
 	}
 
-	/**
-	 * 获取用户名
-	 */
-	class GetUserNameTask extends GetUserNameRequest {
-		@Override
-		public void onPostExecute(final List<String> strings) {
-			if (strings != null && strings.size() > 0) {
-				turnOnVipNameList = new ArrayList<>();
-				for (String name : strings) {
-					turnOnVipNameList.add(name + " 开通了会员，赶快去和TA聊天吧！");
-				}
-				mMarqueeView.startWithList(turnOnVipNameList);
-				mPreferential.setText(mPref);
-			} else {
-				setTurnOnVipUserName();
-			}
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-			setTurnOnVipUserName();
-		}
+	private void getUserName(int pageNo, int pageSize) {
+		ArrayMap<String, String> params = new ArrayMap<>(2);
+		params.put("pageNo", String.valueOf(pageNo));
+		params.put("pageSize", String.valueOf(pageSize));
+		RetrofitFactory.getRetrofit().create(IUserApi.class)
+				.getUserName(AppManager.getClientUser().sessionId, params)
+				.subscribeOn(Schedulers.io())
+				.map(responseBody -> JsonUtils.parseUserName(responseBody.string()))
+				.observeOn(AndroidSchedulers.mainThread())
+				.as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+				.subscribe(strings -> {
+					if (strings != null && strings.size() > 0) {
+						turnOnVipNameList = new ArrayList<>();
+						for (String name : strings) {
+							turnOnVipNameList.add(name + " 开通了会员，赶快去和TA聊天吧！");
+						}
+						mMarqueeView.startWithList(turnOnVipNameList);
+						mPreferential.setText(mPref);
+					} else {
+						setTurnOnVipUserName();
+					}
+				}, throwable -> setTurnOnVipUserName());
 	}
 
-	class GetMemberBuyListTask extends GetMemberBuyListRequest {
-		@Override
-		public void onPostExecute(List<MemberBuy> memberBuys) {
-			mAdapter = new MemberBuyAdapter(VipCenterActivity.this, memberBuys);
-			mAdapter.setOnItemClickListener(mOnItemClickListener);
-			mRecyclerView.setAdapter(mAdapter);
+	private void getMemberBuy(int type) {
+		RetrofitFactory.getRetrofit().create(IUserBuyApi.class)
+				.getBuyList(AppManager.getClientUser().sessionId, type)
+				.subscribeOn(Schedulers.io())
+				.map(responseBody -> JsonUtils.parseMemberBuy(responseBody.string()))
+				.observeOn(AndroidSchedulers.mainThread())
+				.as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+				.subscribe(memberBuys -> {
+					mAdapter = new MemberBuyAdapter(VipCenterActivity.this, memberBuys);
+					mAdapter.setOnItemClickListener(mOnItemClickListener);
+					mRecyclerView.setAdapter(mAdapter);
 
-			if (null != memberBuys && memberBuys.size() > 0) {
-				array = new ArrayList<>(memberBuys.size());
-				for (int i = 0; i < memberBuys.size(); i++) {
-					if (!TextUtils.isEmpty(memberBuys.get(i).preferential) &&
-							memberBuys.get(i).preferential.length() > 10) {
-						mPreferential.setVisibility(View.VISIBLE);
-						mPref = memberBuys.get(i).preferential;
-						continue;
+					if (null != memberBuys && memberBuys.size() > 0) {
+						array = new ArrayList<>(memberBuys.size());
+						for (int i = 0; i < memberBuys.size(); i++) {
+							if (!TextUtils.isEmpty(memberBuys.get(i).preferential) &&
+									memberBuys.get(i).preferential.length() > 10) {
+								mPreferential.setVisibility(View.VISIBLE);
+								mPref = memberBuys.get(i).preferential;
+								continue;
+							}
+							if (!TextUtils.isEmpty(memberBuys.get(i).preferential)) {
+								array.add(Integer.parseInt(memberBuys.get(i).preferential));
+							}
+						}
+						if (array.size() == 0) {
+							mPrefTelFareLay.setVisibility(View.VISIBLE);
+							PreferencesUtils.setIsHasGetFareActivity(VipCenterActivity.this, false);
+						} else {
+							mPrefTelFareLay.setVisibility(View.GONE);
+							PreferencesUtils.setIsHasGetFareActivity(VipCenterActivity.this, true);
+						}
 					}
-					if (!TextUtils.isEmpty(memberBuys.get(i).preferential)) {
-						array.add(Integer.parseInt(memberBuys.get(i).preferential));
-					}
-				}
-				if (array.size() == 0 || "oppo".equals(channel)) {//oppo渠道，不显示有什么人赠送话费
-					mPrefTelFareLay.setVisibility(View.VISIBLE);
-					PreferencesUtils.setIsHasGetFareActivity(VipCenterActivity.this, false);
-				} else {
-					mPrefTelFareLay.setVisibility(View.GONE);
-					PreferencesUtils.setIsHasGetFareActivity(VipCenterActivity.this, true);
-				}
-			}
-			new GetUserNameTask().request(1, 100);
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-			ToastUtil.showMessage(error);
-		}
+					getUserName(1, 100);
+				}, throwable -> {});
 	}
 
 	private void setTurnOnVipUserName() {
@@ -283,9 +287,9 @@ public class VipCenterActivity extends BaseActivity {
 		if (memberBuy.isShowAliPay && memberBuy.isShowWePay) {
 			showPayDialog(memberBuy);
 		} else if (memberBuy.isShowAliPay) {
-			new GetAliPayOrderInfoTask().request(memberBuy.id, AppConstants.ALI_PAY_PLATFORM);
+			createAliPayOrder(memberBuy.id, AppConstants.ALI_PAY_PLATFORM);
 		} else if (memberBuy.isShowWePay) {
-			new CreateOrderTask().request(memberBuy.id, AppConstants.WX_PAY_PLATFORM);
+			createWeChatOrder(memberBuy.id, AppConstants.WX_PAY_PLATFORM);
 		}
 	}
 
@@ -303,21 +307,16 @@ public class VipCenterActivity extends BaseActivity {
 			weChatPay = weChatPay + "(推荐)";
 		}
 		builder.setItems(
-				new String[]{aliPay, weChatPay},
-				new DialogInterface.OnClickListener() {
-
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						switch (which) {
-							case 0:
-								new GetAliPayOrderInfoTask().request(memberBuy.id, AppConstants.ALI_PAY_PLATFORM);
-								break;
-							case 1:
-								new CreateOrderTask().request(memberBuy.id, AppConstants.WX_PAY_PLATFORM);
-								break;
-						}
-						dialog.dismiss();
+				new String[]{aliPay, weChatPay}, (dialog, which) -> {
+					switch (which) {
+						case 0:
+							createAliPayOrder(memberBuy.id, AppConstants.ALI_PAY_PLATFORM);
+							break;
+						case 1:
+							createWeChatOrder(memberBuy.id, AppConstants.WX_PAY_PLATFORM);
+							break;
 					}
+					dialog.dismiss();
 				});
 		builder.show();
 	}
@@ -325,32 +324,44 @@ public class VipCenterActivity extends BaseActivity {
 	/**
 	 * 获取支付成功之后用户开通了哪项服务
 	 */
-	class GetPayResultTask extends GetPayResultRequest {
-		@Override
-		public void onPostExecute(UserVipModel userVipModel) {
-			SDKCoreHelper.init(CSApplication.getInstance(), ECInitParams.LoginMode.FORCE_LOGIN);
-			AppManager.getClientUser().is_vip = userVipModel.isVip;
-			AppManager.getClientUser().is_download_vip = userVipModel.isDownloadVip;
-			AppManager.getClientUser().gold_num = userVipModel.goldNum;
-			Snackbar.make(findViewById(R.id.vip_layout),
-					"您已经是会员了，赶快去聊天吧", Snackbar.LENGTH_SHORT)
-					.show();
-			if (mMemberBuy != null) {
-				if (mMemberBuy.price > 200) {
-					PreferencesUtils.setRewardCount(VipCenterActivity.this, 3);
-				}
-				if (mMemberBuy.price > 150) {
-					PreferencesUtils.setWhichVip(VipCenterActivity.this, 0);
-				} else {
-					PreferencesUtils.setWhichVip(VipCenterActivity.this, 1);
-				}
-			}
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-			ToastUtil.showMessage(error);
-		}
+	private void getPayResult() {
+		RetrofitFactory.getRetrofit().create(IUserBuyApi.class)
+				.getPayResult(AppManager.getClientUser().sessionId)
+				.subscribeOn(Schedulers.io())
+				.map(responseBody -> {
+					JsonObject obj = new JsonParser().parse(responseBody.string()).getAsJsonObject();
+					int code = obj.get("code").getAsInt();
+					if (code != 0) {
+						return null;
+					}
+					JsonObject data = obj.get("data").getAsJsonObject();
+					Gson gson = new Gson();
+					UserVipModel model = gson.fromJson(data, UserVipModel.class);
+					return model;
+				})
+				.observeOn(AndroidSchedulers.mainThread())
+				.as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+				.subscribe(userVipModel -> {
+					if (userVipModel != null) {
+						SDKCoreHelper.init(CSApplication.getInstance(), ECInitParams.LoginMode.FORCE_LOGIN);
+						AppManager.getClientUser().is_vip = userVipModel.isVip;
+						AppManager.getClientUser().is_download_vip = userVipModel.isDownloadVip;
+						AppManager.getClientUser().gold_num = userVipModel.goldNum;
+						Snackbar.make(findViewById(R.id.vip_layout),
+								"您已经是会员了，赶快去聊天吧", Snackbar.LENGTH_SHORT)
+								.show();
+						if (mMemberBuy != null) {
+							if (mMemberBuy.price > 200) {
+								PreferencesUtils.setRewardCount(VipCenterActivity.this, 3);
+							}
+							if (mMemberBuy.price > 150) {
+								PreferencesUtils.setWhichVip(VipCenterActivity.this, 0);
+							} else {
+								PreferencesUtils.setWhichVip(VipCenterActivity.this, 1);
+							}
+						}
+					}
+				}, throwable -> {});
 	}
 
 	/*********************************************************************************************************************/
@@ -358,39 +369,61 @@ public class VipCenterActivity extends BaseActivity {
 	/**
 	 * 调用微信支付
 	 */
-	class CreateOrderTask extends CreateOrderRequest {
-		@Override
-		public void onPostExecute(WeChatPay weChatPay) {
-			PayReq payReq = new PayReq();
-			payReq.appId = AppConstants.WEIXIN_PAY_ID;
-			payReq.partnerId = weChatPay.mch_id;
-			payReq.prepayId = weChatPay.prepay_id;
-			payReq.packageValue = "Sign=WXPay";
-			payReq.nonceStr = weChatPay.nonce_str;
-			payReq.timeStamp = weChatPay.timeStamp;
-			payReq.sign = weChatPay.appSign;
-			AppManager.getIWX_PAY_API().sendReq(payReq);
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-			ToastUtil.showMessage(error);
-		}
+	private void createWeChatOrder(int memberId, String payPlatform) {
+		ArrayMap<String, String> params = new ArrayMap<>(2);
+		params.put("memberId", String.valueOf(memberId));
+		params.put("payPlatform", payPlatform);
+		RetrofitFactory.getRetrofit().create(IUserBuyApi.class)
+				.createOrder(AppManager.getClientUser().sessionId, params)
+				.subscribeOn(Schedulers.io())
+				.map(responseBody -> JsonUtils.parseWeChatPay(responseBody.string()))
+				.observeOn(AndroidSchedulers.mainThread())
+				.as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+				.subscribe(weChatPay -> {
+					if (weChatPay != null) {
+						PayReq payReq = new PayReq();
+						payReq.appId = AppConstants.WEIXIN_PAY_ID;
+						payReq.partnerId = weChatPay.mch_id;
+						payReq.prepayId = weChatPay.prepay_id;
+						payReq.packageValue = "Sign=WXPay";
+						payReq.nonceStr = weChatPay.nonce_str;
+						payReq.timeStamp = weChatPay.timeStamp;
+						payReq.sign = weChatPay.appSign;
+						AppManager.getIWX_PAY_API().sendReq(payReq);
+					}
+				}, throwable -> ToastUtil.showMessage(R.string.network_requests_error));
 	}
 
 	/**
 	 * 调用支付宝支付
+	 * @param memberId
+	 * @param payPlatform
 	 */
-	class GetAliPayOrderInfoTask extends GetAliPayOrderInfoRequest {
-		@Override
-		public void onPostExecute(String s) {
-			payV2(s);
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-			ToastUtil.showMessage(error);
-		}
+	private void createAliPayOrder(int memberId, String payPlatform) {
+		ArrayMap<String, String> params = new ArrayMap<>(2);
+		params.put("memberId", String.valueOf(memberId));
+		params.put("payPlatform", payPlatform);
+		RetrofitFactory.getRetrofit().create(IUserBuyApi.class)
+				.createOrder(AppManager.getClientUser().sessionId, params)
+				.subscribeOn(Schedulers.io())
+				.map(responseBody -> {
+					String decryptData = AESOperator.getInstance().decrypt(responseBody.string());
+					JsonObject obj = new JsonParser().parse(decryptData).getAsJsonObject();
+					int code = obj.get("code").getAsInt();
+					if (code != 0) {
+						return null;
+					}
+					JsonObject data = obj.get("data").getAsJsonObject();
+					String payInfo = data.get("payInfo").getAsString();
+					return payInfo;
+				})
+				.observeOn(AndroidSchedulers.mainThread())
+				.as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+				.subscribe(payInfo -> {
+					if (!TextUtils.isEmpty(payInfo)) {
+						payV2(payInfo);
+					}
+				}, throwable -> ToastUtil.showMessage(R.string.network_requests_error));
 	}
 
 	/**
@@ -405,18 +438,14 @@ public class VipCenterActivity extends BaseActivity {
 		 * 防止商户私密数据泄露，造成不必要的资金损失，及面临各种安全风险；
 		 * orderInfo的获取必须来自服务端；
 		 */
-		Runnable payRunnable = new Runnable() {
+		Runnable payRunnable = () -> {
+			PayTask alipay = new PayTask(VipCenterActivity.this);
+			Map<String, String> result = alipay.payV2(orderInfo, true);
 
-			@Override
-			public void run() {
-				PayTask alipay = new PayTask(VipCenterActivity.this);
-				Map<String, String> result = alipay.payV2(orderInfo, true);
-
-				Message msg = new Message();
-				msg.what = SDK_PAY_FLAG;
-				msg.obj = result;
-				mHandler.sendMessage(msg);
-			}
+			Message msg = new Message();
+			msg.what = SDK_PAY_FLAG;
+			msg.obj = result;
+			mHandler.sendMessage(msg);
 		};
 
 		Thread payThread = new Thread(payRunnable);

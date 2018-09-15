@@ -1,7 +1,6 @@
 package com.cyanbirds.tanlove.activity;
 
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.arch.lifecycle.Lifecycle;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.Snackbar;
@@ -22,16 +21,19 @@ import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.entity.Gift;
 import com.cyanbirds.tanlove.manager.AppManager;
-import com.cyanbirds.tanlove.net.request.GetGiftListRequest;
-import com.cyanbirds.tanlove.net.request.SendGiftRequest;
+import com.cyanbirds.tanlove.net.IUserApi;
+import com.cyanbirds.tanlove.net.base.RetrofitFactory;
+import com.cyanbirds.tanlove.utils.JsonUtils;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.facebook.drawee.view.SimpleDraweeView;
+import com.uber.autodispose.AutoDispose;
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
 import com.umeng.analytics.MobclickAgent;
-
-import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 
 /**
  * 作者：wangyb
@@ -71,7 +73,7 @@ public class GiftMarketActivity extends BaseActivity implements View.OnClickList
 			toolbar.setNavigationIcon(R.mipmap.ic_up);
 		}
 		initView();
-		new GetGiftListTask().request();
+		getGiftList();
 	}
 
 	private void initView() {
@@ -81,18 +83,18 @@ public class GiftMarketActivity extends BaseActivity implements View.OnClickList
 		giftUser = (ClientUser) getIntent().getSerializableExtra(ValueKey.USER);
 	}
 
-	class GetGiftListTask extends GetGiftListRequest {
-		@Override
-		public void onPostExecute(List<Gift> gifts) {
-			mAdapter = new GiftMarketAdapter(GiftMarketActivity.this, gifts);
-			mAdapter.setOnItemClickListener(mOnItemClickListener);
-			mRecyclerview.setAdapter(mAdapter);
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-			ToastUtil.showMessage(error);
-		}
+	private void getGiftList() {
+		RetrofitFactory.getRetrofit().create(IUserApi.class)
+				.getGift(AppManager.getClientUser().sessionId)
+				.subscribeOn(Schedulers.io())
+				.map(responseBody -> JsonUtils.parseGiftList(responseBody.string()))
+				.observeOn(AndroidSchedulers.mainThread())
+				.as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+				.subscribe(gifts -> {
+					mAdapter = new GiftMarketAdapter(GiftMarketActivity.this, gifts);
+					mAdapter.setOnItemClickListener(mOnItemClickListener);
+					mRecyclerview.setAdapter(mAdapter);
+				}, throwable -> ToastUtil.showMessage(R.string.network_requests_error));
 	}
 
 	private GiftMarketAdapter.OnItemClickListener mOnItemClickListener = new GiftMarketAdapter.OnItemClickListener() {
@@ -143,63 +145,9 @@ public class GiftMarketActivity extends BaseActivity implements View.OnClickList
 	@Override
 	public void onClick(View v) {
 		mGiftDialog.dismiss();
-		if (AppManager.getClientUser().isShowGold) {
-			if (AppManager.getClientUser().gold_num == 0) {
-				showBuyGoldDialog();
-			} else {
-				String gold = "";
-				if (AppManager.getClientUser().isShowVip && AppManager.getClientUser().is_vip) {
-					gold = String.valueOf(gift.vip_amount);
-				} else {
-					gold = String.valueOf(gift.amount);
-				}
-				if (AppManager.getClientUser().gold_num < Integer.parseInt(gold)) {
-					showBuyGoldDialog();
-				} else {
-					AppManager.getClientUser().gold_num -= Integer.parseInt(gold);
-					if (giftUser != null) {
-						new SendGiftTask().request(giftUser.userId, gift.dynamic_image_url, gold);
-					}
-				}
-			}
-		} else {
-			new SendGiftTask().request(giftUser.userId, gift.dynamic_image_url, "0");
-		}
-	}
-
-	class SendGiftTask extends SendGiftRequest {
-		@Override
-		public void onPostExecute(String s) {
-			Snackbar.make(findViewById(R.id.recyclerview),
-					getResources().getString(R.string.send_gift_success),
-					Snackbar.LENGTH_LONG).show();
-		}
-
-		@Override
-		public void onErrorExecute(String error) {
-			ToastUtil.showMessage(error);
-		}
-	}
-
-	private void showBuyGoldDialog() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(R.string.no_gold);
-		builder.setPositiveButton(getResources().getString(R.string.ok),
-				new DialogInterface.OnClickListener() {
-					public void onClick(DialogInterface dialog, int id) {
-						dialog.dismiss();
-						Intent intent = new Intent(GiftMarketActivity.this, MyGoldActivity.class);
-						startActivity(intent);
-					}
-				});
-		builder.setNegativeButton(getResources().getString(R.string.cancel),
-				new DialogInterface.OnClickListener() {
-					@Override
-					public void onClick(DialogInterface dialog, int which) {
-						dialog.dismiss();
-					}
-				});
-		builder.show();
+		Snackbar.make(findViewById(R.id.recyclerview),
+				getResources().getString(R.string.send_gift_success),
+				Snackbar.LENGTH_LONG).show();
 	}
 
 	@Override

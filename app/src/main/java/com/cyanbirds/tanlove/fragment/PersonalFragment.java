@@ -24,7 +24,6 @@ import com.cyanbirds.tanlove.activity.IdentifyActivity;
 import com.cyanbirds.tanlove.activity.LoveFormeActivity;
 import com.cyanbirds.tanlove.activity.MyAttentionActivity;
 import com.cyanbirds.tanlove.activity.MyGiftsActivity;
-import com.cyanbirds.tanlove.activity.MyGoldActivity;
 import com.cyanbirds.tanlove.activity.PersonalInfoActivity;
 import com.cyanbirds.tanlove.activity.SettingActivity;
 import com.cyanbirds.tanlove.activity.VipCenterActivity;
@@ -100,8 +99,6 @@ public class PersonalFragment extends Fragment {
 	RelativeLayout setting;
 	@BindView(R.id.about)
 	RelativeLayout about;
-	@BindView(R.id.my_gold)
-	RelativeLayout mMyGold;
 	@BindView(R.id.portrait)
 	SimpleDraweeView mPortrait;
 	@BindView(R.id.identify_card)
@@ -238,11 +235,6 @@ public class PersonalFragment extends Fragment {
 			} else {
 				mAppointmentLay.setVisibility(View.GONE);
 			}
-			if (clientUser.isShowGold) {
-				mMyGold.setVisibility(View.VISIBLE);
-			} else {
-				mMyGold.setVisibility(View.GONE);
-			}
 			if (clientUser.isShowVip && clientUser.isShowGiveVip) {
 				mGiveVipLay.setVisibility(View.VISIBLE);
 			} else {
@@ -270,7 +262,7 @@ public class PersonalFragment extends Fragment {
 
 	@OnClick({
 			R.id.head_portrait_lay, R.id.vip_lay, R.id.my_attention,
-			R.id.attentioned_user, R.id.good_user, R.id.setting, R.id.about, R.id.my_gold,
+			R.id.attentioned_user, R.id.good_user, R.id.setting, R.id.about,
 			R.id.identify_lay, R.id.my_gifts,
 			R.id.feedback, R.id.my_appointment_lay, R.id.give_vip})
 	public void onClick(View view) {
@@ -310,10 +302,6 @@ public class PersonalFragment extends Fragment {
 				break;
 			case R.id.about:
 				intent.setClass(getActivity(), AboutActivity.class);
-				startActivity(intent);
-				break;
-			case R.id.my_gold:
-				intent.setClass(getActivity(), MyGoldActivity.class);
 				startActivity(intent);
 				break;
 			case R.id.identify_lay:

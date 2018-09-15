@@ -504,26 +504,6 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 		builder.show();
 	}
 
-	private void showGoldDialog() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(R.string.no_gold_un_send_msg);
-		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-				Intent intent = new Intent(ChatActivity.this, MyGoldActivity.class);
-				startActivity(intent);
-			}
-		});
-		builder.setNegativeButton(R.string.until_single, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-			}
-		});
-		builder.show();
-	}
-
 	/**
 	 * 通知消息发送状态
 	 *
@@ -642,22 +622,18 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 		} else if (resultCode == RESULT_OK && requestCode == ALBUMS_RESULT) {
 			if (AppManager.getClientUser().isShowVip) {
 				if (AppManager.getClientUser().is_vip) {
-					if (AppManager.getClientUser().isShowGold && AppManager.getClientUser().gold_num  < 101) {
-						showGoldDialog();
-					} else {
-						Uri uri = data.getData();
-						String url = FileUtils.getPath(this, uri);
-						if (!TextUtils.isEmpty(url)) {
-							String fileUrl = "";
-							if (url.startsWith("/storage")) {
-								fileUrl = url;
-							} else {
-								String extSdCardPath = FileUtils.getPath();
-								fileUrl = extSdCardPath + File.separator + FileUtils.getPath(this, uri);
-							}
-							if (null != IMChattingHelper.getInstance().getChatManager()) {
-								IMChattingHelper.getInstance().sendImgMsg(mClientUser, fileUrl);
-							}
+					Uri uri = data.getData();
+					String url = FileUtils.getPath(this, uri);
+					if (!TextUtils.isEmpty(url)) {
+						String fileUrl = "";
+						if (url.startsWith("/storage")) {
+							fileUrl = url;
+						} else {
+							String extSdCardPath = FileUtils.getPath();
+							fileUrl = extSdCardPath + File.separator + FileUtils.getPath(this, uri);
+						}
+						if (null != IMChattingHelper.getInstance().getChatManager()) {
+							IMChattingHelper.getInstance().sendImgMsg(mClientUser, fileUrl);
 						}
 					}
 				} else {

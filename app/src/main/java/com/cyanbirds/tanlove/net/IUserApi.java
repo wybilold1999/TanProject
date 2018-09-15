@@ -83,4 +83,20 @@ public interface IUserApi {
     @POST("user/yuanFenUser")
     Observable<ResponseBody> getYuanFenUser(@Header("token") String token, @FieldMap ArrayMap<String, Integer> params);
 
+    @FormUrlEncoded
+    @POST("user/getUserName")
+    Observable<ResponseBody> getUserName(@Header("token") String token, @FieldMap ArrayMap<String, String> params);
+
+    /**
+     * 获取礼物信息
+     * @param token
+     * @return
+     */
+    @GET("user/getGift")
+    Observable<ResponseBody> getGift(@Header("token") String token);
+
+    @FormUrlEncoded
+    @POST("user/homeLoveList")
+    Observable<ResponseBody> getHomeLoveList(@Header("token") String token, @FieldMap ArrayMap<String, String> params);
+
 }

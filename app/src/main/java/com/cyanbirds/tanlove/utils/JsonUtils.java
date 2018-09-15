@@ -7,12 +7,17 @@ import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.entity.FederationToken;
 import com.cyanbirds.tanlove.entity.FollowLoveModel;
 import com.cyanbirds.tanlove.entity.FollowModel;
+import com.cyanbirds.tanlove.entity.Gift;
 import com.cyanbirds.tanlove.entity.LoveModel;
+import com.cyanbirds.tanlove.entity.MemberBuy;
 import com.cyanbirds.tanlove.entity.PictureModel;
 import com.cyanbirds.tanlove.entity.ReceiveGiftModel;
+import com.cyanbirds.tanlove.entity.WeChatPay;
 import com.cyanbirds.tanlove.entity.YuanFenModel;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
@@ -330,6 +335,145 @@ public class JsonUtils {
             Gson gson = new Gson();
             ArrayList<PictureModel> pictureModels = gson.fromJson(result, listType);
             return pictureModels;
+        } catch (Exception e) {
+        }
+        return null;
+    }
+
+    /**
+     * 开通会员的名称
+     * @param json
+     * @return
+     */
+    public static ArrayList<String> parseUserName(String json) {
+        try {
+            String decryptData = AESOperator.getInstance().decrypt(json);
+            JsonObject obj = new JsonParser().parse(decryptData).getAsJsonObject();
+            int code = obj.get("code").getAsInt();
+            if (code != 0) {
+                return null;
+            }
+            String result = obj.get("data").getAsString();
+            Type listType = new TypeToken<ArrayList<String>>() {
+            }.getType();
+            Gson gson = new Gson();
+            ArrayList<String> mNameList = gson.fromJson(result, listType);
+            return mNameList;
+        } catch (Exception e) {
+        }
+        return null;
+    }
+
+    /**
+     * 商品列表
+     * @param json
+     * @return
+     */
+    public static ArrayList<MemberBuy> parseMemberBuy(String json) {
+        try {
+            String decryptData = AESOperator.getInstance().decrypt(json);
+            JsonObject obj = new JsonParser().parse(decryptData).getAsJsonObject();
+            int code = obj.get("code").getAsInt();
+            if (code != 0) {
+                return null;
+            }
+            String result = obj.get("data").getAsString();
+            Type listType = new TypeToken<ArrayList<MemberBuy>>() {
+            }.getType();
+            Gson gson = new Gson();
+            ArrayList<MemberBuy> memberBuys = gson.fromJson(result, listType);
+            return memberBuys;
+        } catch (Exception e) {
+        }
+        return null;
+    }
+
+    /**
+     * 微信支付信息
+      * @param json
+     * @return
+     */
+    public static WeChatPay parseWeChatPay(String json) {
+        try {
+            String decryptData = AESOperator.getInstance().decrypt(json);
+            JsonObject obj = new JsonParser().parse(decryptData).getAsJsonObject();
+            int code = obj.get("code").getAsInt();
+            if (code != 0) {
+                return null;
+            }
+            JsonObject data = obj.get("data").getAsJsonObject();
+            String payInfo = data.get("payInfo").getAsString();
+            Gson gson = new Gson();
+            WeChatPay weChatPay = gson.fromJson(payInfo, WeChatPay.class);
+            return weChatPay;
+        } catch (Exception e) {
+        }
+        return null;
+    }
+
+    /**
+     * 礼物列表
+     * @param json
+     * @return
+     */
+    public static List<Gift> parseGiftList(String json) {
+        try {
+            String decryptData = AESOperator.getInstance().decrypt(json);
+            JsonObject obj = new JsonParser().parse(decryptData).getAsJsonObject();
+            int code = obj.get("code").getAsInt();
+            if (code != 0) {
+                return null;
+            }
+            String data = obj.get("data").getAsString();
+            Gson gson = new Gson();
+            Type listType = new TypeToken<ArrayList<Gift>>() {
+            }.getType();
+            List<Gift> gifts = gson.fromJson(data, listType);
+            return gifts;
+        } catch (Exception e) {
+        }
+        return null;
+    }
+
+    /**
+     * 获取用户列表
+     * @param json
+     * @return
+     */
+    public static List<ClientUser> parseUsertList(String json) {
+        try {
+            String decryptData = AESOperator.getInstance().decrypt(json);
+            JsonObject obj = new JsonParser().parse(decryptData).getAsJsonObject();
+            int code = obj.get("code").getAsInt();
+            if (code == 1) {
+                return null;
+            } else if(code == 3){
+                return null;
+            }
+            String strData = obj.get("data").getAsString();
+            JsonArray data = new JsonParser().parse(strData).getAsJsonArray();
+            List<ClientUser> userList = new ArrayList<>();
+            for(int i = 0; i < data.size(); i++){
+                ClientUser clientUser = new ClientUser();
+                JsonObject jsonObject = data.get(i).getAsJsonObject();
+                clientUser.userId = jsonObject.get("uid").getAsString();
+                clientUser.sex = jsonObject.get("sex").getAsInt() == 1 ? "男" : "女";
+                clientUser.user_name = jsonObject.get("nickname").getAsString();
+                clientUser.is_vip = jsonObject.get("isVip").getAsBoolean();
+                clientUser.state_marry = jsonObject.get("emotionStatus").getAsString();
+                clientUser.face_url = jsonObject.get("faceUrl").getAsString();
+                clientUser.age = jsonObject.get("age").getAsInt();
+                clientUser.signature = jsonObject.get("signature").getAsString();
+                clientUser.constellation = jsonObject.get("constellation").getAsString();
+                clientUser.city = jsonObject.get("city").getAsString();
+                Object o = jsonObject.get("distance");
+                if (!(o instanceof JsonNull)) {
+                    clientUser.distance = jsonObject.get("distance").getAsString();
+                }
+                clientUser.personality_tag = jsonObject.get("personalityTag").getAsString();
+                userList.add(clientUser);
+            }
+            return userList;
         } catch (Exception e) {
         }
         return null;

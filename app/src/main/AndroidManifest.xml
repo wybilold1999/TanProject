@@ -328,11 +328,6 @@
             android:label="@string/about"
             android:screenOrientation="portrait"/>
         <activity
-            android:name=".activity.MyGoldActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:label="@string/my_gold"
-            android:screenOrientation="portrait"/>
-        <activity
             android:name=".activity.ImagePreviewActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:label="@string/image_preview"

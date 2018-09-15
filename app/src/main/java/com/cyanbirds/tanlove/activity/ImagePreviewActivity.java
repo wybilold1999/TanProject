@@ -66,11 +66,7 @@ public class ImagePreviewActivity extends BaseActivity {
 		if (id == R.id.send) {
 			if (AppManager.getClientUser().isShowVip) {
 				if (AppManager.getClientUser().is_vip) {
-					if (AppManager.getClientUser().isShowGold && AppManager.getClientUser().gold_num  < 101) {
-						showGoldDialog();
-					} else {
-						sendImg();
-					}
+					sendImg();
 				} else {
 					showTurnOnVipDialog();
 				}
@@ -97,26 +93,6 @@ public class ImagePreviewActivity extends BaseActivity {
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();
 				Intent intent = new Intent(ImagePreviewActivity.this, VipCenterActivity.class);
-				startActivity(intent);
-			}
-		});
-		builder.setNegativeButton(R.string.until_single, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-			}
-		});
-		builder.show();
-	}
-
-	private void showGoldDialog() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(R.string.no_gold_un_send_msg);
-		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-				Intent intent = new Intent(ImagePreviewActivity.this, MyGoldActivity.class);
 				startActivity(intent);
 			}
 		});

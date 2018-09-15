@@ -4,12 +4,9 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
-import android.location.Location;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DefaultItemAnimator;
-import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.Menu;
@@ -18,7 +15,6 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageButton;
-
 
 import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
@@ -314,11 +310,7 @@ public class ShareLocationActivity extends BaseActivity implements
 		if (id == R.id.send) {
 			if (AppManager.getClientUser().isShowVip) {
 				if (AppManager.getClientUser().is_vip) {
-					if (AppManager.getClientUser().isShowGold && AppManager.getClientUser().gold_num  < 101) {
-						showGoldDialog();
-					} else {
-						sendLocation();
-					}
+					sendLocation();
 				} else {
 					showTurnOnVipDialog();
 				}
@@ -354,26 +346,6 @@ public class ShareLocationActivity extends BaseActivity implements
 			public void onClick(DialogInterface dialog, int which) {
 				dialog.dismiss();
 				Intent intent = new Intent(ShareLocationActivity.this, VipCenterActivity.class);
-				startActivity(intent);
-			}
-		});
-		builder.setNegativeButton(R.string.until_single, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-			}
-		});
-		builder.show();
-	}
-
-	private void showGoldDialog() {
-		AlertDialog.Builder builder = new AlertDialog.Builder(this);
-		builder.setMessage(R.string.no_gold_un_send_msg);
-		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-				Intent intent = new Intent(ShareLocationActivity.this, MyGoldActivity.class);
 				startActivity(intent);
 			}
 		});
