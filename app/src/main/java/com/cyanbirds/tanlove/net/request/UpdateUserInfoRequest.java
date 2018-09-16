@@ -55,6 +55,8 @@ public class UpdateUserInfoRequest extends ResultPostExecute<String> {
         params.put("conception", clientUser.conception == null ? "" : clientUser.conception);
         params.put("isDownloadVip", String.valueOf(clientUser.is_download_vip));
         params.put("goldNum", String.valueOf(clientUser.gold_num));
+        params.put("phone", clientUser.mobile);
+        params.put("isCheckPhone", String.valueOf(clientUser.isCheckPhone));
         Call<ResponseBody> call = AppManager.getUserService().updateUserInfo(AppManager.getClientUser().sessionId, params);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
