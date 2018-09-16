@@ -1099,6 +1099,8 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 				new OSSImgUploadTask().request(AppManager.getFederationToken().bucketName,
 						AppManager.getOSSFacePath(), mCutFile.getAbsolutePath());
 			}
+		} else if (requestCode == REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL) {
+			checkPOpenCamera();
 		}
 	}
 
