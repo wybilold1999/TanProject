@@ -42,4 +42,12 @@ public interface IUserBuyApi {
     @FormUrlEncoded
     @POST("memberOrders/createOrder")
     Observable<ResponseBody> createOrder(@Header("token") String token, @FieldMap ArrayMap<String, String> params);
+
+    /**
+     * 获取返话费活动条件
+     * @param token
+     * @return
+     */
+    @GET("buy/getFareActivityInfo")
+    Observable<ResponseBody> getFareActivityInfo(@Header("token") String token);
 }

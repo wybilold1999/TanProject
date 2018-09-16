@@ -47,10 +47,10 @@ import com.cyanbirds.tanlove.net.IUserApi;
 import com.cyanbirds.tanlove.net.IUserFollowApi;
 import com.cyanbirds.tanlove.net.IUserLoveApi;
 import com.cyanbirds.tanlove.net.base.RetrofitFactory;
-import com.cyanbirds.tanlove.net.request.UploadCityInfoRequest;
 import com.cyanbirds.tanlove.service.MyIntentService;
 import com.cyanbirds.tanlove.service.MyPushService;
 import com.cyanbirds.tanlove.ui.widget.CustomViewPager;
+import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.DateUtil;
 import com.cyanbirds.tanlove.utils.DensityUtil;
 import com.cyanbirds.tanlove.utils.JsonUtils;
@@ -275,12 +275,26 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 			if (TextUtils.isEmpty(PreferencesUtils.getCurrentProvince(this))) {
 				PreferencesUtils.setCurrentProvince(this, aMapLocation.getProvince());
 			}
-			new UploadCityInfoRequest().request(aMapLocation.getCity(), String.valueOf(aMapLocation.getLatitude()),
+			uploadCityInfoRequest(aMapLocation.getCity(), String.valueOf(aMapLocation.getLatitude()),
 					String.valueOf(aMapLocation.getLongitude()));
 			PreferencesUtils.setLatitude(this, curLat);
 			PreferencesUtils.setLongitude(this, curLon);
 		}
 
+	}
+
+	private void uploadCityInfoRequest(String city, String lat, String lon) {
+		ArrayMap<String, String> params = new ArrayMap<>();
+		params.put("channel", CheckUtil.getAppMetaData(CSApplication.getInstance(), "UMENG_CHANNEL"));
+		params.put("currentCity", city);
+		params.put("latitude", lat);
+		params.put("longitude", lon);
+		RetrofitFactory.getRetrofit().create(IUserApi.class)
+				.uploadCityInfo(params, AppManager.getClientUser().sessionId)
+				.subscribeOn(Schedulers.io())
+				.observeOn(AndroidSchedulers.mainThread())
+				.as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+				.subscribe(responseBody -> {} , throwable -> {});
 	}
 
 	/**

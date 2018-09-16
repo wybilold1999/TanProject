@@ -20,7 +20,6 @@ import com.cyanbirds.tanlove.activity.AboutActivity;
 import com.cyanbirds.tanlove.activity.AttentionMeActivity;
 import com.cyanbirds.tanlove.activity.FeedBackActivity;
 import com.cyanbirds.tanlove.activity.GiveVipActivity;
-import com.cyanbirds.tanlove.activity.IdentifyActivity;
 import com.cyanbirds.tanlove.activity.LoveFormeActivity;
 import com.cyanbirds.tanlove.activity.MyAttentionActivity;
 import com.cyanbirds.tanlove.activity.MyGiftsActivity;
@@ -101,10 +100,6 @@ public class PersonalFragment extends Fragment {
 	RelativeLayout about;
 	@BindView(R.id.portrait)
 	SimpleDraweeView mPortrait;
-	@BindView(R.id.identify_card)
-	CardView mIdentifyCard;
-	@BindView(R.id.identify_lay)
-	RelativeLayout mIdentifyLay;
 	@BindView(R.id.my_gifts)
 	RelativeLayout mMyGifts;
 	@BindView(R.id.gifts_count)
@@ -221,12 +216,10 @@ public class PersonalFragment extends Fragment {
 			}
 			if (clientUser.isShowVip) {
 				mVipCard.setVisibility(View.VISIBLE);
-				mIdentifyCard.setVisibility(View.VISIBLE);
 				vipLay.setVisibility(View.VISIBLE);
 				mFeedBackCard.setVisibility(View.GONE);
 			} else {
 				mVipCard.setVisibility(View.GONE);
-				mIdentifyCard.setVisibility(View.GONE);
 				vipLay.setVisibility(View.GONE);
 				mFeedBackCard.setVisibility(View.VISIBLE);
 			}
@@ -262,8 +255,7 @@ public class PersonalFragment extends Fragment {
 
 	@OnClick({
 			R.id.head_portrait_lay, R.id.vip_lay, R.id.my_attention,
-			R.id.attentioned_user, R.id.good_user, R.id.setting, R.id.about,
-			R.id.identify_lay, R.id.my_gifts,
+			R.id.attentioned_user, R.id.good_user, R.id.setting, R.id.about, R.id.my_gifts,
 			R.id.feedback, R.id.my_appointment_lay, R.id.give_vip})
 	public void onClick(View view) {
 		Intent intent = new Intent();
@@ -302,10 +294,6 @@ public class PersonalFragment extends Fragment {
 				break;
 			case R.id.about:
 				intent.setClass(getActivity(), AboutActivity.class);
-				startActivity(intent);
-				break;
-			case R.id.identify_lay:
-				intent.setClass(getActivity(), IdentifyActivity.class);
 				startActivity(intent);
 				break;
 			case R.id.feedback:

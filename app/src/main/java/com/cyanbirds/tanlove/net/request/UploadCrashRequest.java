@@ -2,8 +2,9 @@ package com.cyanbirds.tanlove.net.request;
 
 import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;
-import com.cyanbirds.tanlove.manager.AppManager;
+import com.cyanbirds.tanlove.net.IUserApi;
 import com.cyanbirds.tanlove.net.base.ResultPostExecute;
+import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -16,7 +17,8 @@ import retrofit2.Callback;
  */
 public class UploadCrashRequest extends ResultPostExecute<String> {
     public void request(String crashInfo){
-        Call<ResponseBody> call = AppManager.getUserService().uploadCrash(crashInfo);
+
+        Call<ResponseBody> call = RetrofitFactory.getRetrofit().create(IUserApi.class).uploadCrash(crashInfo);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {

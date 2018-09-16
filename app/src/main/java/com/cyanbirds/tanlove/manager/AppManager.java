@@ -17,7 +17,6 @@ import com.alibaba.sdk.android.oss.OSS;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.entity.FederationToken;
 import com.cyanbirds.tanlove.entity.IMessage;
-import com.cyanbirds.tanlove.net.UserService;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.tencent.mm.sdk.openapi.IWXAPI;
 
@@ -62,8 +61,6 @@ public class AppManager {
 	 * 进入聊天界面当前聊天联系人id
 	 */
 	public static String currentChatTalker = null;
-
-	private static UserService mUserService;
 
 	private static IWXAPI sIWX_PAY_API;
 	private static IWXAPI sIWXAPI;
@@ -566,15 +563,6 @@ public class AppManager {
 	 * 释放数据库
 	 */
 	public static void release() {
-	}
-
-	/************设置和获取网络用户接口**********************/
-	public static void setUserService(UserService userService){
-		mUserService = userService;
-	}
-
-	public static UserService getUserService(){
-		return mUserService;
 	}
 
 }

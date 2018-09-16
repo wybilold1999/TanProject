@@ -8,7 +8,6 @@ import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.helper.AppActivityLifecycleCallbacks;
 import com.cyanbirds.tanlove.helper.CrashHandler;
 import com.cyanbirds.tanlove.manager.AppManager;
-import com.cyanbirds.tanlove.net.UserService;
 import com.cyanbirds.tanlove.net.base.RetrofitManager;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.facebook.cache.disk.DiskCacheConfig;
@@ -55,7 +54,6 @@ public class CSApplication extends MultiDexApplication {
 	public void onCreate() {
 		super.onCreate();
 		sApplication = this;
-		initNetInterface();
 		AppManager.getExecutorService().execute(new Runnable() {
 			@Override
 			public void run() {
@@ -130,16 +128,5 @@ public class CSApplication extends MultiDexApplication {
 				.setMainDiskCacheConfig(diskCacheConfig)
 				.setRequestListeners(listeners).build();
 		Fresco.initialize(this, config);
-	}
-
-	/**
-	 * 初始化网络接口
-	 */
-	private void initNetInterface(){
-		/**
-		 * 用户
-		 */
-		UserService userService = RetrofitManager.getInstance().getRetrofitInstance().create(UserService.class);
-		AppManager.setUserService(userService);
 	}
 }

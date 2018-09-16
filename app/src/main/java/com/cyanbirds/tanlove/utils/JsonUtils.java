@@ -2,12 +2,16 @@ package com.cyanbirds.tanlove.utils;
 
 import android.text.TextUtils;
 
+import com.cyanbirds.tanlove.CSApplication;
+import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.entity.AllKeys;
 import com.cyanbirds.tanlove.entity.ClientUser;
+import com.cyanbirds.tanlove.entity.FareActivityModel;
 import com.cyanbirds.tanlove.entity.FederationToken;
 import com.cyanbirds.tanlove.entity.FollowLoveModel;
 import com.cyanbirds.tanlove.entity.FollowModel;
 import com.cyanbirds.tanlove.entity.Gift;
+import com.cyanbirds.tanlove.entity.IdentifyCard;
 import com.cyanbirds.tanlove.entity.LoveModel;
 import com.cyanbirds.tanlove.entity.MemberBuy;
 import com.cyanbirds.tanlove.entity.PictureModel;
@@ -474,6 +478,27 @@ public class JsonUtils {
                 userList.add(clientUser);
             }
             return userList;
+        } catch (Exception e) {
+        }
+        return null;
+    }
+
+    /**
+     * 获取返话费活动条件等
+     * @param json
+     * @return
+     */
+    public static FareActivityModel parseFareActvityInfo(String json) {
+        try {
+            String decryptData = AESOperator.getInstance().decrypt(json);
+            JsonObject obj = new JsonParser().parse(decryptData).getAsJsonObject();
+            int code = obj.get("code").getAsInt();
+            if (code != 0) {
+                return null;
+            }
+            Gson gson = new Gson();
+            FareActivityModel activityModel = gson.fromJson(obj.getAsJsonObject("data"), FareActivityModel.class);
+            return activityModel;
         } catch (Exception e) {
         }
         return null;

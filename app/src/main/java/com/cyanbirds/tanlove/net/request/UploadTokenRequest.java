@@ -3,7 +3,9 @@ package com.cyanbirds.tanlove.net.request;
 import android.support.v4.util.ArrayMap;
 
 import com.cyanbirds.tanlove.manager.AppManager;
+import com.cyanbirds.tanlove.net.IUserApi;
 import com.cyanbirds.tanlove.net.base.ResultPostExecute;
+import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 
 import okhttp3.ResponseBody;
 import retrofit2.Call;
@@ -19,7 +21,7 @@ public class UploadTokenRequest extends ResultPostExecute<String> {
         ArrayMap<String, String> map = new ArrayMap<>();
         map.put("gtClientId", gtClientId);
         map.put("xgToken", xgToken);
-        Call<ResponseBody> call = AppManager.getUserService().uploadToken(map, AppManager.getClientUser().sessionId);
+        Call<ResponseBody> call = RetrofitFactory.getRetrofit().create(IUserApi.class).uploadToken(map, AppManager.getClientUser().sessionId);
         call.enqueue(new Callback<ResponseBody>() {
             @Override
             public void onResponse(Call<ResponseBody> call, retrofit2.Response<ResponseBody> response) {

@@ -344,13 +344,6 @@
             android:screenOrientation="portrait"/>
 
         <activity
-            android:name=".activity.IdentifyActivity"
-            android:configChanges="keyboard|keyboardHidden|orientation"
-            android:label="@string/identify"
-            android:screenOrientation="portrait">
-        </activity>
-
-        <activity
             android:name=".activity.GiftMarketActivity"
             android:configChanges="keyboard|keyboardHidden|orientation"
             android:label="@string/gift_market"

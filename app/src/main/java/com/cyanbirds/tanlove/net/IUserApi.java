@@ -2,12 +2,7 @@ package com.cyanbirds.tanlove.net;
 
 import android.support.v4.util.ArrayMap;
 
-import com.cyanbirds.tanlove.config.AppConstants;
-import com.cyanbirds.tanlove.entity.AllKeys;
-import com.cyanbirds.tanlove.entity.CityInfo;
-
 import io.reactivex.Observable;
-import okhttp3.Response;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
 import retrofit2.http.Field;
@@ -98,5 +93,31 @@ public interface IUserApi {
     @FormUrlEncoded
     @POST("user/homeLoveList")
     Observable<ResponseBody> getHomeLoveList(@Header("token") String token, @FieldMap ArrayMap<String, String> params);
+
+    /**
+     * 上传城市信息
+     * @param token
+     * @return
+     */
+    @FormUrlEncoded
+    @POST("user/uploadCityInfo")
+    Observable<ResponseBody> uploadCityInfo(@FieldMap ArrayMap<String, String> params, @Header("token") String token);
+
+    /**
+     * 上传crash信息
+     * @return
+     */
+    @FormUrlEncoded
+    @POST("user/uploadCrash")
+    Call<ResponseBody> uploadCrash(@Field("crashInfo") String crashInfo);
+
+    /**
+     * 上传token
+     * @param token
+     * @return
+     */
+    @FormUrlEncoded
+    @POST("user/uploadToken")
+    Call<ResponseBody> uploadToken(@FieldMap ArrayMap<String, String> params, @Header("token") String token);
 
 }

@@ -1,5 +1,6 @@
 package com.cyanbirds.tanlove.activity;
 
+import android.arch.lifecycle.Lifecycle;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -9,15 +10,21 @@ import android.widget.TextView;
 
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
-import com.cyanbirds.tanlove.entity.FareActivityModel;
 import com.cyanbirds.tanlove.manager.AppManager;
-import com.cyanbirds.tanlove.net.request.GetFareActvityInfoRequest;
+import com.cyanbirds.tanlove.net.IUserBuyApi;
+import com.cyanbirds.tanlove.net.base.RetrofitFactory;
+import com.cyanbirds.tanlove.utils.JsonUtils;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
+import com.cyanbirds.tanlove.utils.ToastUtil;
+import com.uber.autodispose.AutoDispose;
+import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
 import com.umeng.analytics.MobclickAgent;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.OnClick;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import mehdi.sakout.fancybuttons.FancyButton;
 
 /**
@@ -46,24 +53,29 @@ public class GetTelFareRuleActivity extends BaseActivity {
         if (toolbar != null) {
             toolbar.setNavigationIcon(R.mipmap.ic_up);
         }
-        new GetFareActvityInfoTask().request();
+        getFareActvityInfo();
     }
 
-    class GetFareActvityInfoTask extends GetFareActvityInfoRequest {
-        @Override
-        public void onPostExecute(FareActivityModel fareActivityModel) {
-            if (null != fareActivityModel) {
-                mQualification.setText(fareActivityModel.qualify);
-                mRule.setText(fareActivityModel.getRule);
-                mCondition.setText(fareActivityModel.getCondition);
-                mWay.setText(fareActivityModel.getWay);
-            }
-        }
-
-        @Override
-        public void onErrorExecute(String error) {
-        }
+    /**
+     * 获取返话费活动条件等
+     */
+    private void getFareActvityInfo() {
+        RetrofitFactory.getRetrofit().create(IUserBuyApi.class)
+                .getFareActivityInfo(AppManager.getClientUser().sessionId)
+                .subscribeOn(Schedulers.io())
+                .map(responseBody -> JsonUtils.parseFareActvityInfo(responseBody.string()))
+                .observeOn(AndroidSchedulers.mainThread())
+                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+                .subscribe(fareActivityModel -> {
+                    if (null != fareActivityModel) {
+                        mQualification.setText(fareActivityModel.qualify);
+                        mRule.setText(fareActivityModel.getRule);
+                        mCondition.setText(fareActivityModel.getCondition);
+                        mWay.setText(fareActivityModel.getWay);
+                    }
+                }, throwable -> ToastUtil.showMessage(R.string.network_requests_error));
     }
+
 
     @OnClick(R.id.btn_get_fare)
     public void onViewClicked() {
