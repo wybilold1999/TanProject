@@ -185,6 +185,9 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
                         // All permissions are granted !
                     } else if (permission.shouldShowRequestPermissionRationale) {
                         // At least one denied permission without ask never again
+                        if (!isSecondAccess) {
+                            showAccessLocationDialog();
+                        }
                     } else {
                         // At least one denied permission with ask never again
                         // Need to go to the settings

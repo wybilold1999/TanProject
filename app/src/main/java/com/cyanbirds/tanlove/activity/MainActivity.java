@@ -483,6 +483,9 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 						// `permission.name` is granted !
 					} else if (permission.shouldShowRequestPermissionRationale) {
 						// Denied permission without ask never again
+						if (!isSecondAccess) {
+							showAccessLocationDialog();
+						}
 					} else {
 						// Denied permission with ask never again
 						// Need to go to the settings

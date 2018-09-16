@@ -140,7 +140,7 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 	/**
 	 * 相机权限
 	 */
-	private final int REQUEST_PERMISSION_CAMERA = 1001;
+	private final int REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL = 1001;
 
 	private File mCameraFile;
 	private String AUTHORITY = "com.cyanbirds.tanlove.fileProvider";
@@ -464,14 +464,11 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 						setInputMode();
 					} else if (permission.shouldShowRequestPermissionRationale) {
 						// At least one denied permission without ask never again
+						showPermissionDialog(R.string.open_camera_write_external_permission, REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL);
 					} else {
 						// At least one denied permission with ask never again
 						// Need to go to the settings
-						if (permission.name.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-							showPermissionDialog(R.string.open_write_external, REQUEST_PERMISSION_CAMERA);
-						} else {
-							showPermissionDialog(R.string.open_camera_permission, REQUEST_PERMISSION_CAMERA);
-						}
+						showPermissionDialog(R.string.open_camera_write_external_permission, REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL);
 					}
 				}, throwable -> {
 
@@ -676,7 +673,7 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 				IMChattingHelper.getInstance().sendRedPacketMsg(
 						mClientUser, data.getStringExtra(ValueKey.DATA));
 			}
-		} else if (requestCode == REQUEST_PERMISSION_CAMERA) {
+		} else if (requestCode == REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL) {
 			checkPOpenCamera();
 		}
 	}

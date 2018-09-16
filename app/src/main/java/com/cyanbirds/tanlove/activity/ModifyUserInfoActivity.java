@@ -188,15 +188,16 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 	 */
 	public final static int PHOTO_CUT_RESULT = 106;
 	/**
-	 * 读写文件夹
+	 * 相机和存储权限
 	 */
-	private final int REQUEST_PERMISSION_WRITE = 1000;
+	public final static int REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL = 1000;
 
     private RxPermissions rxPermissions;
 
 	private String AUTHORITY = "com.cyanbirds.tanlove.fileProvider";
 
 	private boolean isUploadPortrait = false;
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -540,27 +541,24 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 		builder.show();
 	}
 
-    private void checkPOpenCamera() {
-        rxPermissions.requestEachCombined(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
-                .subscribe(permission -> { // will emit 1 Permission object
-                    if (permission.granted) {
-                        // All permissions are granted !
-                        openCamera();
-                    } else if (permission.shouldShowRequestPermissionRationale) {
-                        // At least one denied permission without ask never again
-                    } else {
-                        // At least one denied permission with ask never again
-                        // Need to go to the settings
-                        if (permission.name.equals(Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
-                            showPermissionDialog(R.string.open_write_external, REQUEST_PERMISSION_WRITE);
-                        } else {
-                            showPermissionDialog(R.string.open_camera_permission, CAMERA_RESULT);
-                        }
-                    }
-                }, throwable -> {
+	private void checkPOpenCamera() {
+		rxPermissions.requestEachCombined(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
+				.subscribe(permission -> { // will emit 1 Permission object
+					if (permission.granted) {
+						// All permissions are granted !
+						openCamera();
+					} else if (permission.shouldShowRequestPermissionRationale) {
+						// At least one denied permission without ask never again
+						showPermissionDialog(R.string.open_camera_write_external_permission, REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL);
+					} else {
+						// At least one denied permission with ask never again
+						// Need to go to the settings
+						showPermissionDialog(R.string.open_camera_write_external_permission, REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL);
+					}
+				}, throwable -> {
 
-                });
-    }
+				});
+	}
 
     private void showPermissionDialog(int textResId, int requestCode) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
