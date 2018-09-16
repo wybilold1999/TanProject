@@ -134,10 +134,6 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 	 */
 	public final static int SHARE_LOCATION_RESULT = 106;
 	/**
-	 * 发红包
-	 */
-	public static final int  SEND_RED_PACKET = 107;
-	/**
 	 * 相机权限
 	 */
 	private final int REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL = 1001;
@@ -666,12 +662,6 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 			if (null != IMChattingHelper.getInstance().getChatManager()) {
 				IMChattingHelper.getInstance().sendLocationMsg(mClientUser, latitude, longitude,
 						address, imagePath);
-			}
-		} else if (resultCode == RESULT_OK && requestCode == SEND_RED_PACKET) {
-			ToastUtil.showMessage("已发送");
-			if (null != IMChattingHelper.getInstance().getChatManager()) {
-				IMChattingHelper.getInstance().sendRedPacketMsg(
-						mClientUser, data.getStringExtra(ValueKey.DATA));
 			}
 		} else if (requestCode == REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL) {
 			checkPOpenCamera();
