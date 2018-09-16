@@ -78,8 +78,6 @@ public class VipCenterActivity extends BaseActivity {
 	TextView mPreferential;//优惠的说明文字，可以控制什么时候显示
 	@BindView(R.id.vip_7_lay)
 	RelativeLayout mVip7Lay;
-	@BindView(R.id.vip_8_lay)
-	RelativeLayout mVip8Lay;
 	@BindView(R.id.scrollView)
 	NestedScrollView mScrollView;
 	@BindView(R.id.pref_tel_fare_lay)
@@ -179,10 +177,8 @@ public class VipCenterActivity extends BaseActivity {
 	private void setupData() {
 		if (!AppManager.getClientUser().is_vip) {
 			mVip7Lay.setVisibility(View.VISIBLE);
-			mVip8Lay.setVisibility(View.VISIBLE);
 		} else {
 			mVip7Lay.setVisibility(View.GONE);
-			mVip8Lay.setVisibility(View.GONE);
 		}
 		getMemberBuy(NORMAL_VIP);
 	}
