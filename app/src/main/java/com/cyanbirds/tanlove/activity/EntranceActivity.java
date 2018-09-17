@@ -68,7 +68,6 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
         ButterKnife.bind(this);
         saveFirstLauncher();
         setupViews();
-        initLocationClient();
         rxPermissions = new RxPermissions(this);
         requestLocationPermission();
     }
@@ -183,6 +182,7 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
                 .subscribe(permission -> {// will emit 1 Permission object
                     if (permission.granted) {
                         // All permissions are granted !
+                        initLocationClient();
                     } else if (permission.shouldShowRequestPermissionRationale) {
                         // At least one denied permission without ask never again
                         if (!isSecondAccess) {

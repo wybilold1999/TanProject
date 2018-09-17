@@ -120,8 +120,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		requestLocationPermission();
 
 		AppManager.getExecutorService().execute(() -> {
-			initLocationClient();
-
 			if (AppManager.getClientUser().isShowVip) {
 				/**
 				 * 注册小米推送
@@ -136,7 +134,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 				loadData();
 
 				initFareGetTime();
-
 			}
 		});
 
@@ -481,6 +478,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 				.subscribe(permission -> {
 					if (permission.granted) {
 						// `permission.name` is granted !
+						initLocationClient();
 					} else if (permission.shouldShowRequestPermissionRationale) {
 						// Denied permission without ask never again
 						if (!isSecondAccess) {
