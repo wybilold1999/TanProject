@@ -64,7 +64,6 @@ import com.cyanbirds.tanlove.utils.EmoticonUtil;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.cyanbirds.tanlove.utils.FileUtils;
 import com.cyanbirds.tanlove.utils.ImageUtil;
-import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.cyanbirds.tanlove.utils.Utils;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.umeng.analytics.MobclickAgent;
@@ -103,6 +102,7 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 	private RecyclerView mEmoticonRecyclerview;
 	private SwipeRefreshLayout mSwipeRefresh;
 
+    private File mPhotoFile;
 	private String mPhotoDirPath;
 	private ClientUser mClientUser;
 	private Conversation mConversation;
@@ -138,11 +138,12 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 	 */
 	private final int REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL = 1001;
 
-	private File mCameraFile;
 	private String AUTHORITY = "com.cyanbirds.tanlove.fileProvider";
 	public static Handler handler;
 
 	private RxPermissions rxPermissions;
+
+	private boolean isOpenCamara = false;//是否打开相机
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -419,15 +420,19 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 	public void onClick(View v) {
 		switch (v.getId()) {
 			case R.id.openCamera:
-				checkPOpenCamera();
+				isOpenCamara = true;
+				checkPOpenCameraAlbums();
 				break;
 			case R.id.openAlbums:
-				openAlbums();
+				isOpenCamara = false;
+				checkPOpenCameraAlbums();
 				break;
 			case R.id.openEmotion:
+				isOpenCamara = false;
 				setEmojiconMode();
 				break;
 			case R.id.openLocation:
+				isOpenCamara = false;
 				toShareLocation();
 				break;
 			case R.id.tool_view_input_text:
@@ -451,13 +456,17 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 		}
 	}
 
-	private void checkPOpenCamera() {
+	private void checkPOpenCameraAlbums() {
 		rxPermissions.requestEachCombined(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
 				.subscribe(permission -> { // will emit 1 Permission object
 					if (permission.granted) {
 						// All permissions are granted !
-						openCamera();
-						setInputMode();
+						if (isOpenCamara) {
+							openCamera();
+							setInputMode();
+						} else {
+							openAlbums();
+						}
 					} else if (permission.shouldShowRequestPermissionRationale) {
 						// At least one denied permission without ask never again
 						showPermissionDialog(R.string.open_camera_write_external_permission, REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL);
@@ -552,22 +561,22 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 			if (!mPhotoDirFile.exists()) {
 				mPhotoDirFile.mkdir();
 			}
-			mCameraFile = new File(mPhotoDirPath, getPhotoFileName());//照相机的File对象
-			if (!mCameraFile.exists()) {
+            mPhotoFile = new File(mPhotoDirPath, getPhotoFileName());//照相机的File对象
+			if (!mPhotoFile.exists()) {
 				try {
-					mCameraFile.createNewFile();
+                    mPhotoFile.createNewFile();
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
 			}
 			Intent intentFromCapture = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {//7.0及以上
-				Uri uriForFile = FileProvider.getUriForFile(this, AUTHORITY, mCameraFile);
+				Uri uriForFile = FileProvider.getUriForFile(this, AUTHORITY, mPhotoFile);
 				intentFromCapture.putExtra(MediaStore.EXTRA_OUTPUT, uriForFile);
 				intentFromCapture.addFlags(FLAG_GRANT_READ_URI_PERMISSION);
 				intentFromCapture.addFlags(FLAG_GRANT_WRITE_URI_PERMISSION);
 			} else {
-				intentFromCapture.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mCameraFile));
+				intentFromCapture.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mPhotoFile));
 			}
 			startActivityForResult(intentFromCapture, CAMERA_RESULT);
 		}
@@ -600,53 +609,36 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 		if (resultCode == RESULT_OK && requestCode == CAMERA_RESULT) {
 			Uri inputUri;
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-				inputUri = FileProvider.getUriForFile(this, AUTHORITY, mCameraFile);//通过FileProvider创建一个content类型的Uri
+				inputUri = FileProvider.getUriForFile(this, AUTHORITY, mPhotoFile);//通过FileProvider创建一个content类型的Uri
 			} else {
-				inputUri = Uri.fromFile(mCameraFile);
+				inputUri = Uri.fromFile(mPhotoFile);
 			}
 			Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, inputUri);
 			sendBroadcast(intent);
-			if (inputUri != null && mCameraFile.exists()) {
+			if (inputUri != null && mPhotoFile.exists()) {
 				//压缩图片
-				String imgUrl = ImageUtil.compressImage(mCameraFile.getPath(), mPhotoDirPath);
+				String imgUrl = ImageUtil.compressImage(mPhotoFile.getPath(), mPhotoDirPath);
 				Uri uri = Uri.parse("file://" + imgUrl);
 				toImagePreview(uri);
 			}
 		} else if (resultCode == RESULT_OK && requestCode == ALBUMS_RESULT) {
 			if (AppManager.getClientUser().isShowVip) {
 				if (AppManager.getClientUser().is_vip) {
-					Uri uri = data.getData();
-					String url = FileUtils.getPath(this, uri);
-					if (!TextUtils.isEmpty(url)) {
-						String fileUrl = "";
-						if (url.startsWith("/storage")) {
-							fileUrl = url;
-						} else {
-							String extSdCardPath = FileUtils.getPath();
-							fileUrl = extSdCardPath + File.separator + FileUtils.getPath(this, uri);
-						}
-						if (null != IMChattingHelper.getInstance().getChatManager()) {
-							IMChattingHelper.getInstance().sendImgMsg(mClientUser, fileUrl);
-						}
+					Uri originalUri = data.getData();
+					File originalFile = new File(FileUtils.getPath(this, originalUri));
+					if (null != IMChattingHelper.getInstance().getChatManager()) {
+						IMChattingHelper.getInstance().sendImgMsg(mClientUser, originalFile.getAbsolutePath());
 					}
 				} else {
 					showVipDialog();
 				}
 			} else {
-				Uri uri = data.getData();
-				String url = FileUtils.getPath(this, uri);
-				if (!TextUtils.isEmpty(url)) {
-					String fileUrl = "";
-					if (url.startsWith("/storage")) {
-						fileUrl = url;
-					} else {
-						String extSdCardPath = FileUtils.getPath();
-						fileUrl = extSdCardPath + File.separator + FileUtils.getPath(this, uri);
+                if (null != mPhotoFile) {
+					String imgUrl = ImageUtil.compressImage(mPhotoFile.getPath(), mPhotoDirPath);
+					if (null != IMChattingHelper.getInstance().getChatManager() && !TextUtils.isEmpty(imgUrl)) {
+						IMChattingHelper.getInstance().sendImgMsg(mClientUser, imgUrl);
 					}
-					if (null != IMChattingHelper.getInstance().getChatManager()) {
-						IMChattingHelper.getInstance().sendImgMsg(mClientUser, fileUrl);
-					}
-				}
+                }
 			}
 		} else if (resultCode == RESULT_OK
 				&& requestCode == PREVIEW_IMAGE_RESULT) {
@@ -664,7 +656,7 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 						address, imagePath);
 			}
 		} else if (requestCode == REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL) {
-			checkPOpenCamera();
+			checkPOpenCameraAlbums();
 		}
 	}
 
