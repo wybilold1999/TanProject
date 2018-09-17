@@ -3,7 +3,6 @@ package com.cyanbirds.tanlove.fragment;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
@@ -14,6 +13,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.cyanbirds.tanlove.R;
+import com.cyanbirds.tanlove.activity.BandPhoneActivity;
 import com.cyanbirds.tanlove.adapter.HomeTabFragmentAdapter;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.manager.AppManager;
@@ -26,7 +26,6 @@ import java.util.List;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import butterknife.OnClick;
 
 /**
  * 作者：wangyb
@@ -39,8 +38,6 @@ public class HomeLoveFragment extends Fragment {
 	TabLayout mTabLayout;
 	@BindView(R.id.viewpager)
 	ViewPager mViewpager;
-	@BindView(R.id.fab)
-	FloatingActionButton mFab;
 
 	private View rootView;
 
@@ -87,6 +84,11 @@ public class HomeLoveFragment extends Fragment {
 		if (AppManager.getClientUser().versionCode > AppManager.getVersionCode()) {
 			showVersionInfo();
 		}
+		if (AppManager.getClientUser().isShowVip &&
+				AppManager.getClientUser().isShowTd &&
+				!AppManager.getClientUser().isCheckPhone) {//显示vip，并且isShowTd为true且未绑定号码的时候
+			showBandPhoneDialog();
+		}
 	}
 
 	private void showVersionInfo() {
@@ -120,8 +122,20 @@ public class HomeLoveFragment extends Fragment {
 		builder.show();
 	}
 
-	@OnClick(R.id.fab)
-	public void onClick() {
+	private void showBandPhoneDialog() {
+		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+		builder.setTitle(R.string.bangding_phone);
+		builder.setMessage(R.string.band_phone_for_u);
+		builder.setPositiveButton(getResources().getString(R.string.bangding_phone),
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						dialog.dismiss();
+						Intent intent = new Intent(getActivity(), BandPhoneActivity.class);
+						getActivity().startActivity(intent);
+					}
+				});
+		builder.setCancelable(false);
+		builder.show();
 	}
 
 	@Override
