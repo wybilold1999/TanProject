@@ -4,7 +4,6 @@ import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 
 import com.cyanbirds.tanlove.CSApplication;
-import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.helper.IMChattingHelper;
 import com.cyanbirds.tanlove.manager.AppManager;
