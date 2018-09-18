@@ -291,7 +291,13 @@ public class PersonalInfoActivity extends BaseActivity {
 						mAttention.setText("关注");
 						ToastUtil.showMessage(R.string.cancle_attention);
 					}
-				}, throwable -> {});
+				}, throwable -> {
+					if (isAdd) {
+						ToastUtil.showMessage(R.string.attention_faiure);
+					} else {
+						ToastUtil.showMessage(R.string.cancel_follow_faiure);
+					}
+				});
 	}
 
 	private void sendGreet(String userId) {

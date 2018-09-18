@@ -204,6 +204,7 @@
     <string name="like_faiure">喜欢失败</string>
     <string name="attention_success">关注成功</string>
     <string name="attention_faiure">关注失败</string>
+    <string name="cancel_follow_faiure">取消关注失败</string>
     <string name="cancle_attention">取消关注</string>
     <string name="i_like_you">我喜欢你</string>
     <string name="quite_success">退出成功</string>
