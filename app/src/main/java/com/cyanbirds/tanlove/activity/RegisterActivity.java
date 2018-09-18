@@ -195,19 +195,23 @@ public class RegisterActivity extends BaseActivity<IUserLoginLogOut.Presenter> i
     @Override
     public void loginLogOutSuccess(ClientUser clientUser) {
         onHideLoading();
-        File faceLocalFile = new File(FileAccessorUtils.FACE_IMAGE,
-                Md5Util.md5(clientUser.face_url) + ".jpg");
-        if(!faceLocalFile.exists()
-                && !TextUtils.isEmpty(clientUser.face_url)){
-            new DownloadPortraitTask().request(clientUser.face_url,
-                    FileAccessorUtils.FACE_IMAGE,
+        if (clientUser != null) {
+            File faceLocalFile = new File(FileAccessorUtils.FACE_IMAGE,
                     Md5Util.md5(clientUser.face_url) + ".jpg");
-        }
+            if(!faceLocalFile.exists()
+                    && !TextUtils.isEmpty(clientUser.face_url)){
+                new DownloadPortraitTask().request(clientUser.face_url,
+                        FileAccessorUtils.FACE_IMAGE,
+                        Md5Util.md5(clientUser.face_url) + ".jpg");
+            }
 
-        Intent intent = new Intent();
-        intent.setClass(RegisterActivity.this, MainActivity.class);
-        startActivity(intent);
-        finishAll();
+            Intent intent = new Intent();
+            intent.setClass(RegisterActivity.this, MainActivity.class);
+            startActivity(intent);
+            finishAll();
+        } else {
+            ToastUtil.showMessage(R.string.phone_pwd_error);
+        }
     }
 
     private void checkPhoneIsRegister() {

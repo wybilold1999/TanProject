@@ -57,7 +57,6 @@ import com.cyanbirds.tanlove.utils.JsonUtils;
 import com.cyanbirds.tanlove.utils.MsgUtil;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.PushMsgUtil;
-import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.cyanbirds.tanlove.utils.Utils;
 import com.igexin.sdk.PushManager;
 import com.tbruyelle.rxpermissions2.RxPermissions;
@@ -320,7 +319,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 							startActivity(intent);
 						}
 					}
-				}, throwable -> ToastUtil.showMessage(R.string.network_requests_error));
+				}, throwable -> {});
 	}
 
 	/**
@@ -348,7 +347,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 									model.nickname + "给您送了一件礼物");
 						}
 					}
-				}, throwable -> ToastUtil.showMessage(R.string.network_requests_error));
+				}, throwable -> {});
 	}
 
 	private void requestFollowList(String url, int pageNo, int pageSize) {
@@ -374,7 +373,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 									followModel.nickname + "关注了您");
 						}
 					}
-				}, throwable -> ToastUtil.showMessage(R.string.network_requests_error));
+				}, throwable -> {});
 	}
 
 	/**

@@ -92,11 +92,15 @@ public class ModifyPwdActivity extends BaseActivity implements View.OnClickListe
                 .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
                 .subscribe(integer -> {
                     ProgressDialogUtils.getInstance(ModifyPwdActivity.this).dismiss();
-                    ToastUtil.showMessage(R.string.modify_success);
+                    if (integer == 0) {
+                        ToastUtil.showMessage(R.string.modify_success);
+                    } else {
+                        ToastUtil.showMessage(R.string.modify_faiure);
+                    }
                     finish();
                 }, throwable -> {
                     ProgressDialogUtils.getInstance(ModifyPwdActivity.this).dismiss();
-                    ToastUtil.showMessage(R.string.modify_faiure);
+                    ToastUtil.showMessage(R.string.network_requests_error);
                 });
 
     }

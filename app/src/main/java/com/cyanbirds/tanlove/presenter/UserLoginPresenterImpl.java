@@ -68,13 +68,14 @@ public class UserLoginPresenterImpl implements IUserLoginLogOut.Presenter{
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .as(view.bindAutoDispose())
-                .subscribe(clientUser -> {
-                    if (clientUser == null) {
-                        view.onShowNetError();
-                    } else {
-                        view.loginLogOutSuccess(clientUser);
-                    }
-                }, throwable -> view.onShowNetError());
+                .subscribe(clientUser -> view.loginLogOutSuccess(clientUser),
+                        throwable -> {
+                            if (throwable instanceof NullPointerException) {
+                                view.loginLogOutSuccess(null);
+                            } else {
+                                view.onShowNetError();
+                            }
+                        });
 
     }
 
@@ -117,13 +118,14 @@ public class UserLoginPresenterImpl implements IUserLoginLogOut.Presenter{
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .as(view.bindAutoDispose())
-                .subscribe(clientUser -> {
-                    if (clientUser == null) {
-                        view.onShowNetError();
-                    } else {
-                        view.loginLogOutSuccess(clientUser);
-                    }
-                }, throwable -> view.onShowNetError());
+                .subscribe(clientUser -> view.loginLogOutSuccess(clientUser),
+                        throwable -> {
+                            if (throwable instanceof NullPointerException) {
+                                view.loginLogOutSuccess(null);
+                            } else {
+                                view.onShowNetError();
+                            }
+                        });
 
     }
 
@@ -167,13 +169,14 @@ public class UserLoginPresenterImpl implements IUserLoginLogOut.Presenter{
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .as(view.bindAutoDispose())
-                .subscribe(clientUser -> {
-                    if (clientUser == null) {
-                        view.onShowNetError();
-                    } else {
-                        view.loginLogOutSuccess(clientUser);
-                    }
-                }, throwable -> view.onShowNetError());
+                .subscribe(clientUser -> view.loginLogOutSuccess(clientUser),
+                        throwable -> {
+                            if (throwable instanceof NullPointerException) {
+                                view.loginLogOutSuccess(null);
+                            } else {
+                                view.onShowNetError();
+                            }
+                        });
     }
 
     @Override
@@ -219,13 +222,14 @@ public class UserLoginPresenterImpl implements IUserLoginLogOut.Presenter{
                 })
                 .observeOn(AndroidSchedulers.mainThread())
                 .as(view.bindAutoDispose())
-                .subscribe(user -> {
-                    if (user == null) {
-                        view.onShowNetError();
-                    } else {
-                        view.loginLogOutSuccess(user);
-                    }
-                }, throwable -> view.onShowNetError());
+                .subscribe(user -> view.loginLogOutSuccess(user),
+                        throwable -> {
+                            if (throwable instanceof NullPointerException) {
+                                view.loginLogOutSuccess(null);
+                            } else {
+                                view.onShowNetError();
+                            }
+                        });
     }
 
     @Override

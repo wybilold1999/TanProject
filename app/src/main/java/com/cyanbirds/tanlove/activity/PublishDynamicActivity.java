@@ -183,7 +183,14 @@ public class PublishDynamicActivity extends BaseActivity {
 					ToastUtil.showMessage(R.string.publish_success);
 					RxBus.getInstance().post(AppConstants.PUB_DYNAMIC, new PubDycEvent(s));
 					finish();
-				}, throwable -> ProgressDialogUtils.getInstance(PublishDynamicActivity.this).dismiss());
+				}, throwable -> {
+					ProgressDialogUtils.getInstance(PublishDynamicActivity.this).dismiss();
+					if (throwable instanceof NullPointerException) {
+						ToastUtil.showMessage(R.string.publish_dynamic_fail);
+					} else {
+						ToastUtil.showMessage(R.string.network_requests_error);
+					}
+				});
 
 	}
 

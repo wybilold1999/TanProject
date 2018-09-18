@@ -99,10 +99,14 @@ public class RegisterSubmitActivity extends BaseActivity<IUserLoginLogOut.Presen
 	@Override
 	public void loginLogOutSuccess(ClientUser clientUser) {
 		ProgressDialogUtils.getInstance(RegisterSubmitActivity.this).dismiss();
-		hideSoftKeyboard();
-		Intent intent = new Intent(RegisterSubmitActivity.this, MainActivity.class);
-		startActivity(intent);
-		finishAll();
+		if (clientUser != null) {
+			hideSoftKeyboard();
+			Intent intent = new Intent(RegisterSubmitActivity.this, MainActivity.class);
+			startActivity(intent);
+			finishAll();
+		} else {
+			ToastUtil.showMessage(R.string.register_error);
+		}
 	}
 
 	@Override
