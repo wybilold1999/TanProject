@@ -69,7 +69,7 @@ public class RxBus {
 
     public void post(@NonNull Object tag, @NonNull Object content) {
         List<Subject> subjects = subjectMapper.get(tag);
-        if (!subjects.isEmpty()) {
+        if (null != subjects && !subjects.isEmpty()) {
             for (Subject subject : subjects) {
                 subject.onNext(content);
             }

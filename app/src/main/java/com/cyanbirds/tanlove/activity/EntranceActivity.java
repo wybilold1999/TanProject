@@ -68,6 +68,7 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
         ButterKnife.bind(this);
         saveFirstLauncher();
         setupViews();
+        initLocationClient();
         rxPermissions = new RxPermissions(this);
         requestLocationPermission();
     }
@@ -104,10 +105,39 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
         mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
         //获取最近3s内精度最高的一次定位结果：
         mLocationOption.setOnceLocationLatest(true);
+    }
+
+    /**
+     * 开始定位
+     */
+    private void startLocation() {
         //设置定位参数
         mlocationClient.setLocationOption(mLocationOption);
         //启动定位
         mlocationClient.startLocation();
+    }
+
+    /**
+     * 停止定位
+     */
+    private void stopLocation(){
+        // 停止定位
+        mlocationClient.stopLocation();
+    }
+
+    /**
+     * 销毁定位
+     */
+    private void destroyLocation(){
+        if (null != mlocationClient) {
+            /**
+             * 如果AMapLocationClient是在当前Activity实例化的，
+             * 在Activity的onDestroy中一定要执行AMapLocationClient的onDestroy
+             */
+            mlocationClient.onDestroy();
+            mlocationClient = null;
+            mLocationOption = null;
+        }
     }
 
     @Override
@@ -123,6 +153,7 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
                     String.valueOf(aMapLocation.getLongitude()));
             PreferencesUtils.setLatitude(this, curLat);
             PreferencesUtils.setLongitude(this, curLon);
+            stopLocation();
         }
     }
 
@@ -177,12 +208,18 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
         MobclickAgent.onPause(this);
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        destroyLocation();
+    }
+
     private void requestLocationPermission() {
         rxPermissions.requestEachCombined(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
                 .subscribe(permission -> {// will emit 1 Permission object
                     if (permission.granted) {
                         // All permissions are granted !
-                        initLocationClient();
+                        startLocation();
                     } else if (permission.shouldShowRequestPermissionRationale) {
                         // At least one denied permission without ask never again
                         if (!isSecondAccess) {

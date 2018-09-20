@@ -119,6 +119,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		requestLocationPermission();
 
 		AppManager.getExecutorService().execute(() -> {
+			initLocationClient();
 			if (AppManager.getClientUser().isShowVip) {
 				/**
 				 * 注册小米推送
@@ -177,10 +178,39 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
 		//获取最近3s内精度最高的一次定位结果：
 		mLocationOption.setOnceLocationLatest(true);
+	}
+
+	/**
+	 * 开始定位
+	 */
+	private void startLocation() {
 		//设置定位参数
 		mlocationClient.setLocationOption(mLocationOption);
 		//启动定位
 		mlocationClient.startLocation();
+	}
+
+	/**
+	 * 停止定位
+	 */
+	private void stopLocation(){
+		// 停止定位
+		mlocationClient.stopLocation();
+	}
+
+	/**
+	 * 销毁定位
+	 */
+	private void destroyLocation(){
+		if (null != mlocationClient) {
+			/**
+			 * 如果AMapLocationClient是在当前Activity实例化的，
+			 * 在Activity的onDestroy中一定要执行AMapLocationClient的onDestroy
+			 */
+			mlocationClient.onDestroy();
+			mlocationClient = null;
+			mLocationOption = null;
+		}
 	}
 
 	/**
@@ -275,6 +305,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 					String.valueOf(aMapLocation.getLongitude()));
 			PreferencesUtils.setLatitude(this, curLat);
 			PreferencesUtils.setLongitude(this, curLon);
+			stopLocation();
 		}
 
 	}
@@ -477,7 +508,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 				.subscribe(permission -> {
 					if (permission.granted) {
 						// `permission.name` is granted !
-						initLocationClient();
+						startLocation();
 					} else if (permission.shouldShowRequestPermissionRationale) {
 						// Denied permission without ask never again
 						if (!isSecondAccess) {
@@ -518,6 +549,12 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		super.onPause();
 		MobclickAgent.onPageEnd(this.getClass().getName());
 		MobclickAgent.onPause(this);
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		destroyLocation();
 	}
 
 	@Override
