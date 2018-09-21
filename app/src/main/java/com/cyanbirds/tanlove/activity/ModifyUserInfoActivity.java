@@ -233,9 +233,11 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 				mPortraitPhoto.setImageURI(Uri.parse("file://" + clientUser.face_local));
 			} else if (!TextUtils.isEmpty(clientUser.face_url)) {
 				mPortraitPhoto.setImageURI(Uri.parse(clientUser.face_url));
-				new DownloadPortraitTask().request(clientUser.face_url,
-						FileAccessorUtils.getImagePathName().getAbsolutePath(),
-						Md5Util.md5(AppManager.getClientUser().face_url) + ".jpg");
+				if (FileAccessorUtils.getImagePathName() != null && FileAccessorUtils.getImagePathName().exists()) {
+                    new DownloadPortraitTask().request(clientUser.face_url,
+                            FileAccessorUtils.getImagePathName().getAbsolutePath(),
+                            Md5Util.md5(AppManager.getClientUser().face_url) + ".jpg");
+                }
 			}
 			if (AppManager.getClientUser().isShowLovers) {
 				mCardFriend.setVisibility(View.VISIBLE);
@@ -1081,7 +1083,7 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 		if (resultCode == RESULT_OK && requestCode == CAMERA_RESULT) {
 			Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, mPhotoOnSDCardUri);
 			sendBroadcast(intent);
-			if (mPhotoOnSDCardUri != null && mCutFile.exists()) {
+			if (mPhotoOnSDCardUri != null && null != mCutFile && mCutFile.exists()) {
 				Utils.cutPhoto(this, mPhotoOnSDCardUri, mCutFile, PHOTO_CUT_RESULT);
 			}
 		} else if (resultCode == RESULT_OK && requestCode == ALBUMS_RESULT) {
@@ -1094,7 +1096,7 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 			if (mPortraitUri == null && mCutFile != null) {
 				mPortraitUri = FileProvider.getUriForFile(this, AUTHORITY, mCutFile);
 			}
-			if (mPortraitUri != null && mCutFile.exists()) {
+			if (mPortraitUri != null && null != mCutFile && mCutFile.exists()) {
 				ProgressDialogUtils.getInstance(this).show(R.string.dialog_request_uploda);
 				new OSSImgUploadTask().request(AppManager.getFederationToken().bucketName,
 						AppManager.getOSSFacePath(), mCutFile.getAbsolutePath());
