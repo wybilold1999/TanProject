@@ -10,7 +10,6 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Build;
-import android.os.Environment;
 import android.provider.MediaStore;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -151,7 +150,6 @@ public class Utils {
             Log.e("error","The uri is not exist.");
             return;
         }
-
         Intent intent = new Intent("com.android.camera.action.CROP");
         //sdk>=24
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -183,7 +181,6 @@ public class Utils {
         intent.putExtra("return-data", false);
         intent.putExtra("noFaceDetection", false);//去除默认的人脸识别，否则和剪裁匡重叠
         intent.putExtra("outputFormat", "JPEG");
-        //intent.putExtra("outputFormat", Bitmap.CompressFormat.JPEG.toString());// 图片格式
         activity.startActivityForResult(intent, requestCode);//这里就将裁剪后的图片的Uri返回了
     }
 

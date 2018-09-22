@@ -198,6 +198,8 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 
 	private boolean isUploadPortrait = false;
 
+	private boolean isOpenCamara = false;//是否打开相机
+
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -233,11 +235,9 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 				mPortraitPhoto.setImageURI(Uri.parse("file://" + clientUser.face_local));
 			} else if (!TextUtils.isEmpty(clientUser.face_url)) {
 				mPortraitPhoto.setImageURI(Uri.parse(clientUser.face_url));
-				if (FileAccessorUtils.getImagePathName() != null && FileAccessorUtils.getImagePathName().exists()) {
-                    new DownloadPortraitTask().request(clientUser.face_url,
-                            FileAccessorUtils.getImagePathName().getAbsolutePath(),
-                            Md5Util.md5(AppManager.getClientUser().face_url) + ".jpg");
-                }
+				new DownloadPortraitTask().request(clientUser.face_url,
+						FileAccessorUtils.FACE_IMAGE,
+						Md5Util.md5(AppManager.getClientUser().face_url) + ".jpg");
 			}
 			if (AppManager.getClientUser().isShowLovers) {
 				mCardFriend.setVisibility(View.VISIBLE);
@@ -531,10 +531,12 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 					public void onClick(DialogInterface dialog, int which) {
 						switch (which) {
 							case 0:
-                                checkPOpenCamera();
+								isOpenCamara = true;
+								checkPOpenCameraAlbums();
 								break;
 							case 1:
-								openAlbums();
+								isOpenCamara = false;
+								checkPOpenCameraAlbums();
 								break;
 						}
 						dialog.dismiss();
@@ -543,12 +545,16 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 		builder.show();
 	}
 
-	private void checkPOpenCamera() {
+	private void checkPOpenCameraAlbums() {
 		rxPermissions.requestEachCombined(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
 				.subscribe(permission -> { // will emit 1 Permission object
 					if (permission.granted) {
 						// All permissions are granted !
-						openCamera();
+						if (isOpenCamara) {
+							openCamera();
+						} else {
+							openAlbums();
+						}
 					} else if (permission.shouldShowRequestPermissionRationale) {
 						// At least one denied permission without ask never again
 						showPermissionDialog(R.string.open_camera_write_external_permission, REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL);
@@ -1072,7 +1078,6 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 			intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
 			startActivityForResult(intent, ALBUMS_RESULT);
 		} else {
-			//intent.putExtra(MediaStore.EXTRA_OUTPUT, Uri.fromFile(mGalleryFile));
 			startActivityForResult(intent, ALBUMS_RESULT);
 		}
 	}
@@ -1102,7 +1107,7 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 						AppManager.getOSSFacePath(), mCutFile.getAbsolutePath());
 			}
 		} else if (requestCode == REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL) {
-			checkPOpenCamera();
+			checkPOpenCameraAlbums();
 		}
 	}
 

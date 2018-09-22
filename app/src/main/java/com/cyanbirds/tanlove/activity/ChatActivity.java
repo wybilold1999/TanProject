@@ -634,13 +634,6 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 				} else {
 					showVipDialog();
 				}
-			} else {
-                if (null != mPhotoFile) {
-					String imgUrl = ImageUtil.compressImage(mPhotoFile.getPath(), mPhotoDirPath);
-					if (null != IMChattingHelper.getInstance().getChatManager() && !TextUtils.isEmpty(imgUrl)) {
-						IMChattingHelper.getInstance().sendImgMsg(mClientUser, imgUrl);
-					}
-                }
 			}
 		} else if (resultCode == RESULT_OK
 				&& requestCode == PREVIEW_IMAGE_RESULT) {
