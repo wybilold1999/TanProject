@@ -561,7 +561,7 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 			mPhotoDirPath = Environment.getExternalStorageDirectory()+"/Android/data/com.cyanbirds.tanlove/files/";
 			File mPhotoDirFile = new File(mPhotoDirPath);
 			if (!mPhotoDirFile.exists()) {
-				mPhotoDirFile.mkdir();
+				mPhotoDirFile.mkdirs();
 			}
             mPhotoFile = new File(mPhotoDirPath, getPhotoFileName());//照相机的File对象
 			if (!mPhotoFile.exists()) {

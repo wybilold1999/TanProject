@@ -200,7 +200,7 @@ public class FileAccessorUtils {
 
 		File directory = new File(CACHE_PATH);
 		if (!directory.exists() && !directory.mkdirs()) {
-			directory.mkdir();
+			directory.mkdirs();
 		}
 		return directory;
 	}

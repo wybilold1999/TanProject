@@ -85,7 +85,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
 	private void dumpExceptionToSDCard(Throwable ex) throws IOException {
 		File crashFileDir = FileAccessorUtils.getCrashPathName();
 		if (!crashFileDir.exists()) {
-			crashFileDir.mkdir();
+			crashFileDir.mkdirs();
 		}
 		long currentTime = System.currentTimeMillis();
 		String crashTime = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss")

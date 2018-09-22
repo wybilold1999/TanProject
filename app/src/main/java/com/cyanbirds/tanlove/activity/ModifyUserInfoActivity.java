@@ -1018,10 +1018,10 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 			String mPhotoDirPath = Environment.getExternalStorageDirectory()+"/Android/data/com.cyanbirds.tanlove/files/";
 			File mPhotoDirFile = new File(mPhotoDirPath);
 			if (!mPhotoDirFile.exists()) {
-				mPhotoDirFile.mkdir();
+				mPhotoDirFile.mkdirs();
 			}
 			mCutFile = new File(mPhotoDirPath, getPhotoFileName());//照相机的File对象
-			if (!mCutFile.exists()) {
+			if (mPhotoDirFile.exists() && !mCutFile.exists()) {
 				try {
 					mCutFile.createNewFile();
 				} catch (IOException e) {
@@ -1058,8 +1058,12 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 	 * 打开相册
 	 */
 	private void openAlbums() {
-		String mAlbumsFilePath = Environment.getExternalStorageDirectory()+"/Android/data/com.cyanbirds.tanlove/files/";
-		mCutFile = new File(mAlbumsFilePath, "cutphoto.png");
+		String mPhotoDirPath = Environment.getExternalStorageDirectory()+"/Android/data/com.cyanbirds.tanlove/files/";
+		File mPhotoDirFile = new File(mPhotoDirPath);
+		if (!mPhotoDirFile.exists()) {
+			mPhotoDirFile.mkdirs();
+		}
+		mCutFile = new File(mPhotoDirPath, "cutphoto.png");
 		if (!mCutFile.exists()) {
 			try {
 				mCutFile.createNewFile();
@@ -1094,7 +1098,12 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 		} else if (resultCode == RESULT_OK && requestCode == ALBUMS_RESULT) {
 			Uri originalUri = data.getData();
 			File originalFile = new File(FileUtils.getPath(this, originalUri));
-			Uri dataUri = FileProvider.getUriForFile(this, AUTHORITY, originalFile);
+			Uri dataUri;
+			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+				dataUri = FileProvider.getUriForFile(this, AUTHORITY, originalFile);
+			} else {
+				dataUri = originalUri;
+			}
 			Utils.cutPhoto(this, dataUri, mCutFile, PHOTO_CUT_RESULT);
 		} else if (resultCode == RESULT_OK && requestCode == PHOTO_CUT_RESULT) {
 			mPortraitUri = data.getData();
