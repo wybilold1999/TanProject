@@ -48,7 +48,7 @@ import mehdi.sakout.fancybuttons.FancyButton;
 /**
  * Created by Administrator on 2016/4/23.
  */
-public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> implements View.OnClickListener, IUserLoginLogOut.View{
+public class LoginActivity_bak extends BaseActivity<IUserLoginLogOut.Presenter> implements View.OnClickListener, IUserLoginLogOut.View{
     EditText loginAccount;
     EditText loginPwd;
     FancyButton btnLogin;
@@ -84,12 +84,12 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
     }
 
     private void setupView() {
-        loginAccount = findViewById(R.id.login_account);
-        loginPwd = findViewById(R.id.login_pwd);
-        btnLogin = findViewById(R.id.btn_login);
-        forgetPwd = findViewById(R.id.forget_pwd);
-        weiXinLogin = findViewById(R.id.weixin_login);
-        qqLogin = findViewById(R.id.qq_login);
+        loginAccount = (EditText) findViewById(R.id.login_account);
+        loginPwd = (EditText) findViewById(R.id.login_pwd);
+        btnLogin = (FancyButton) findViewById(R.id.btn_login);
+        forgetPwd = (TextView) findViewById(R.id.forget_pwd);
+        weiXinLogin = (ImageView) findViewById(R.id.weixin_login);
+        qqLogin = (ImageView) findViewById(R.id.qq_login);
 
     }
 
@@ -172,12 +172,12 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
 
     @Override
     public void onShowLoading() {
-        ProgressDialogUtils.getInstance(LoginActivity.this).show(R.string.dialog_request_login);
+        ProgressDialogUtils.getInstance(LoginActivity_bak.this).show(R.string.dialog_request_login);
     }
 
     @Override
     public void onHideLoading() {
-        ProgressDialogUtils.getInstance(LoginActivity.this).dismiss();
+        ProgressDialogUtils.getInstance(LoginActivity_bak.this).dismiss();
     }
 
     @Override
@@ -201,7 +201,7 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
             }
 
             Intent intent = new Intent();
-            intent.setClass(LoginActivity.this, MainActivity.class);
+            intent.setClass(LoginActivity_bak.this, MainActivity.class);
             startActivity(intent);
             finishAll();
         } else {
@@ -246,13 +246,13 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
 
         @Override
         public void onError(UiError e) {
-            Util.toastMessage(LoginActivity.this, "onError: " + e.errorDetail);
+            Util.toastMessage(LoginActivity_bak.this, "onError: " + e.errorDetail);
             Util.dismissDialog();
         }
 
         @Override
         public void onCancel() {
-            Util.toastMessage(LoginActivity.this, "取消授权");
+            Util.toastMessage(LoginActivity_bak.this, "取消授权");
         }
     }
 
@@ -309,7 +309,7 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
         @Override
         public void onPostExecute(String s) {
             AppManager.getClientUser().face_local = s;
-            PreferencesUtils.setFaceLocal(LoginActivity.this, s);
+            PreferencesUtils.setFaceLocal(LoginActivity_bak.this, s);
         }
 
         @Override

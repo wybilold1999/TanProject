@@ -37,7 +37,7 @@ import mehdi.sakout.fancybuttons.FancyButton;
  * @Date:2015年5月12日上午11:43:42
  *
  */
-public class InputNewPwdActivity extends BaseActivity<IUserLoginLogOut.Presenter> implements
+public class InputNewPwdActivity_bak extends BaseActivity<IUserLoginLogOut.Presenter> implements
 		OnClickListener,IUserLoginLogOut.View {
 
 	private EditText mPassword;
@@ -66,9 +66,9 @@ public class InputNewPwdActivity extends BaseActivity<IUserLoginLogOut.Presenter
 	 * 设置视图
 	 */
 	private void setupViews() {
-		mPassword = findViewById(R.id.password);
-		mConfirmPassword = findViewById(R.id.confirm_password);
-		mLogin = findViewById(R.id.login);
+		mPassword = (EditText) findViewById(R.id.password);
+		mConfirmPassword = (EditText) findViewById(R.id.confirm_password);
+		mLogin = (FancyButton) findViewById(R.id.login);
 	}
 
 	/**
@@ -109,10 +109,10 @@ public class InputNewPwdActivity extends BaseActivity<IUserLoginLogOut.Presenter
 
 	@Override
 	public void loginLogOutSuccess(ClientUser clientUser) {
-		ProgressDialogUtils.getInstance(InputNewPwdActivity.this).dismiss();
+		ProgressDialogUtils.getInstance(InputNewPwdActivity_bak.this).dismiss();
 		hideSoftKeyboard();
 		Intent intent = new Intent();
-		intent.setClass(InputNewPwdActivity.this, MainActivity.class);
+		intent.setClass(InputNewPwdActivity_bak.this, MainActivity.class);
 		startActivity(intent);
 		finishAll();
 	}
@@ -137,11 +137,11 @@ public class InputNewPwdActivity extends BaseActivity<IUserLoginLogOut.Presenter
 				.as(this.bindAutoDispose())
 				.subscribe(integer -> {
 					if (integer == 0) {
-						ProgressDialogUtils.getInstance(InputNewPwdActivity.this).dismiss();
-						ProgressDialogUtils.getInstance(InputNewPwdActivity.this).show(R.string.dialog_request_login);
+						ProgressDialogUtils.getInstance(InputNewPwdActivity_bak.this).dismiss();
+						ProgressDialogUtils.getInstance(InputNewPwdActivity_bak.this).show(R.string.dialog_request_login);
 						presenter.onUserLogin(mPhone, AppManager.getClientUser().userPwd, mCurrrentCity);
 					} else {
-						ProgressDialogUtils.getInstance(InputNewPwdActivity.this).dismiss();
+						ProgressDialogUtils.getInstance(InputNewPwdActivity_bak.this).dismiss();
 						ToastUtil.showMessage(obj.get("msg").getAsString());
 					}
 				}, throwable -> onShowNetError());

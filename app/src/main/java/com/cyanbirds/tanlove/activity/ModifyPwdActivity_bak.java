@@ -32,7 +32,7 @@ import mehdi.sakout.fancybuttons.FancyButton;
  * @datetime 2015-12-26 14:55 GMT+8
  * @email 395044952@qq.com
  */
-public class ModifyPwdActivity extends BaseActivity implements View.OnClickListener{
+public class ModifyPwdActivity_bak extends BaseActivity implements View.OnClickListener{
     private FancyButton mSure;
     private EditText mPassword;
     private EditText mPwdAgain;
@@ -52,9 +52,9 @@ public class ModifyPwdActivity extends BaseActivity implements View.OnClickListe
     }
 
     private void setupView(){
-        mSure = findViewById(R.id.btn_sure);
-        mPassword = findViewById(R.id.new_pwd);
-        mPwdAgain = findViewById(R.id.new_pwd_again);
+        mSure = (FancyButton) findViewById(R.id.btn_sure);
+        mPassword = (EditText) findViewById(R.id.new_pwd);
+        mPwdAgain = (EditText) findViewById(R.id.new_pwd_again);
     }
 
     private void setupEvent(){
@@ -91,7 +91,7 @@ public class ModifyPwdActivity extends BaseActivity implements View.OnClickListe
                 .observeOn(AndroidSchedulers.mainThread())
                 .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
                 .subscribe(integer -> {
-                    ProgressDialogUtils.getInstance(ModifyPwdActivity.this).dismiss();
+                    ProgressDialogUtils.getInstance(ModifyPwdActivity_bak.this).dismiss();
                     if (integer == 0) {
                         ToastUtil.showMessage(R.string.modify_success);
                     } else {
@@ -99,7 +99,7 @@ public class ModifyPwdActivity extends BaseActivity implements View.OnClickListe
                     }
                     finish();
                 }, throwable -> {
-                    ProgressDialogUtils.getInstance(ModifyPwdActivity.this).dismiss();
+                    ProgressDialogUtils.getInstance(ModifyPwdActivity_bak.this).dismiss();
                     ToastUtil.showMessage(R.string.network_requests_error);
                 });
 

@@ -50,8 +50,6 @@ public class SettingActivity extends BaseActivity<IUserLoginLogOut.Presenter> im
     RelativeLayout mBandingPhoneLay;
     @BindView(R.id.modify_pwd_lay)
     RelativeLayout mModifyPwdLay;
-    @BindView(R.id.get_fare_info_lay)
-    RelativeLayout mGetFareInfoLay;
     @BindView(R.id.quit)
     RelativeLayout mQuit;
 
@@ -99,15 +97,10 @@ public class SettingActivity extends BaseActivity<IUserLoginLogOut.Presenter> im
         } else {
             mSwitchVibrate.setChecked(false);
         }
-        if (PreferencesUtils.getIsHasGetFareActivity(this)) {
-            mGetFareInfoLay.setVisibility(View.VISIBLE);
-        } else {
-            mGetFareInfoLay.setVisibility(View.GONE);
-        }
     }
 
     @OnClick({R.id.switch_msg, R.id.switch_msg_content, R.id.switch_voice, R.id.switch_vibrate,
-            R.id.banding_phone_lay, R.id.modify_pwd_lay, R.id.get_fare_info_lay, R.id.quit})
+            R.id.banding_phone_lay, R.id.modify_pwd_lay, R.id.quit})
     public void onViewClicked(View view) {
         Intent intent = new Intent();
         switch (view.getId()) {
@@ -153,10 +146,6 @@ public class SettingActivity extends BaseActivity<IUserLoginLogOut.Presenter> im
                 break;
             case R.id.modify_pwd_lay:
                 intent.setClass(this, ModifyPwdActivity.class);
-                startActivity(intent);
-                break;
-            case R.id.get_fare_info_lay:
-                intent.setClass(this, GetTelFareRuleActivity.class);
                 startActivity(intent);
                 break;
             case R.id.quit:

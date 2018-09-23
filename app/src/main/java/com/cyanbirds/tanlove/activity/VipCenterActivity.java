@@ -234,10 +234,8 @@ public class VipCenterActivity extends BaseActivity {
 						}
 						if (array.size() == 0) {
 							mPrefTelFareLay.setVisibility(View.VISIBLE);
-							PreferencesUtils.setIsHasGetFareActivity(VipCenterActivity.this, false);
 						} else {
 							mPrefTelFareLay.setVisibility(View.GONE);
-							PreferencesUtils.setIsHasGetFareActivity(VipCenterActivity.this, true);
 						}
 					}
 					getUserName(1, 100);
@@ -346,16 +344,6 @@ public class VipCenterActivity extends BaseActivity {
 						Snackbar.make(findViewById(R.id.vip_layout),
 								"您已经是会员了，赶快去聊天吧", Snackbar.LENGTH_SHORT)
 								.show();
-						if (mMemberBuy != null) {
-							if (mMemberBuy.price > 200) {
-								PreferencesUtils.setRewardCount(VipCenterActivity.this, 3);
-							}
-							if (mMemberBuy.price > 150) {
-								PreferencesUtils.setWhichVip(VipCenterActivity.this, 0);
-							} else {
-								PreferencesUtils.setWhichVip(VipCenterActivity.this, 1);
-							}
-						}
 					}
 				}, throwable -> {});
 	}

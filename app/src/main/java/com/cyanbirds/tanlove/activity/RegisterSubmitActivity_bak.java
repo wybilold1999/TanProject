@@ -30,7 +30,7 @@ import mehdi.sakout.fancybuttons.FancyButton;
  * @Date:2015年5月12日上午11:43:42
  *
  */
-public class RegisterSubmitActivity extends BaseActivity<IUserLoginLogOut.Presenter> implements
+public class RegisterSubmitActivity_bak extends BaseActivity<IUserLoginLogOut.Presenter> implements
 		OnClickListener,IUserLoginLogOut.View {
 
 	private EditText mNickname;
@@ -59,10 +59,10 @@ public class RegisterSubmitActivity extends BaseActivity<IUserLoginLogOut.Presen
 	 * 设置视图
 	 */
 	private void setupViews() {
-		mNickname = findViewById(R.id.nickname);
-		mPassword = findViewById(R.id.password);
-		mConfirmPassword = findViewById(R.id.confirm_password);
-		mRegister = findViewById(R.id.register);
+		mNickname = (EditText) findViewById(R.id.nickname);
+		mPassword = (EditText) findViewById(R.id.password);
+		mConfirmPassword = (EditText) findViewById(R.id.confirm_password);
+		mRegister = (FancyButton) findViewById(R.id.register);
 	}
 
 	/**
@@ -98,10 +98,10 @@ public class RegisterSubmitActivity extends BaseActivity<IUserLoginLogOut.Presen
 
 	@Override
 	public void loginLogOutSuccess(ClientUser clientUser) {
-		ProgressDialogUtils.getInstance(RegisterSubmitActivity.this).dismiss();
+		ProgressDialogUtils.getInstance(RegisterSubmitActivity_bak.this).dismiss();
 		if (clientUser != null) {
 			hideSoftKeyboard();
-			Intent intent = new Intent(RegisterSubmitActivity.this, MainActivity.class);
+			Intent intent = new Intent(RegisterSubmitActivity_bak.this, MainActivity.class);
 			startActivity(intent);
 			finishAll();
 		} else {

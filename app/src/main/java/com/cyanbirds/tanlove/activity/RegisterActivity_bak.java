@@ -1,13 +1,14 @@
 package com.cyanbirds.tanlove.activity;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;
@@ -18,11 +19,13 @@ import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.eventtype.LocationEvent;
 import com.cyanbirds.tanlove.eventtype.WeinXinEvent;
 import com.cyanbirds.tanlove.manager.AppManager;
+import com.cyanbirds.tanlove.net.IUserApi;
+import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 import com.cyanbirds.tanlove.net.request.DownloadFileRequest;
 import com.cyanbirds.tanlove.presenter.UserLoginPresenterImpl;
-import com.cyanbirds.tanlove.utils.AESEncryptorUtil;
 import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
+import com.cyanbirds.tanlove.utils.JsonUtils;
 import com.cyanbirds.tanlove.utils.Md5Util;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
@@ -42,95 +45,91 @@ import org.json.JSONObject;
 
 import java.io.File;
 
+import cn.smssdk.SMSSDK;
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
+import io.reactivex.schedulers.Schedulers;
 import mehdi.sakout.fancybuttons.FancyButton;
 
 /**
  * Created by Administrator on 2016/4/23.
  */
-public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> implements View.OnClickListener, IUserLoginLogOut.View{
-    EditText loginAccount;
-    EditText loginPwd;
-    FancyButton btnLogin;
-    TextView forgetPwd;
-    ImageView weiXinLogin;
+public class RegisterActivity_bak extends BaseActivity<IUserLoginLogOut.Presenter> implements View.OnClickListener, IUserLoginLogOut.View{
+
+    EditText phoneNum;
+    FancyButton next;
     ImageView qqLogin;
+    ImageView weiXinLogin;
+    ImageView mSelectMan;
+    ImageView mSelectLady;
+
+    /**
+     * 相册返回
+     */
+    public final static int ALBUMS_RESULT = 102;
 
     public static Tencent mTencent;
     private UserInfo mInfo;
     private String token;
     private String openId;
 
-    private String mPhoneNum;
+    private ClientUser mClientUser;
     private String channelId;
     private boolean activityIsRunning;
     private String mCurrrentCity;//定位到的城市
 
     private Observable<?> observable;
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_login);
+        setContentView(R.layout.activity_register);
         rxBusSub();
         Toolbar toolbar = getActionBarToolbar();
         if (toolbar != null) {
             toolbar.setNavigationIcon(R.mipmap.ic_up);
         }
+        if (mTencent == null) {
+            mTencent = Tencent.createInstance(AppConstants.mAppid, this);
+        }
+
         channelId = CheckUtil.getAppMetaData(this, "UMENG_CHANNEL");
+        mCurrrentCity = getIntent().getStringExtra(ValueKey.LOCATION);
+
         setupView();
         setupEvent();
-        setupData();
     }
 
     private void setupView() {
-        loginAccount = findViewById(R.id.login_account);
-        loginPwd = findViewById(R.id.login_pwd);
-        btnLogin = findViewById(R.id.btn_login);
-        forgetPwd = findViewById(R.id.forget_pwd);
+        phoneNum = findViewById(R.id.phone_num);
+        next = findViewById(R.id.next);
         weiXinLogin = findViewById(R.id.weixin_login);
         qqLogin = findViewById(R.id.qq_login);
+        mSelectMan = findViewById(R.id.select_man);
+        mSelectLady = findViewById(R.id.select_lady);
 
     }
 
     private void setupEvent() {
-        btnLogin.setOnClickListener(this);
-        forgetPwd.setOnClickListener(this);
+        next.setOnClickListener(this);
+        mSelectMan.setOnClickListener(this);
+        mSelectLady.setOnClickListener(this);
         qqLogin.setOnClickListener(this);
         weiXinLogin.setOnClickListener(this);
     }
 
-    private void setupData(){
-        if (mTencent == null) {
-            mTencent = Tencent.createInstance(AppConstants.mAppid, this);
-        }
-        mPhoneNum = getIntent().getStringExtra(ValueKey.PHONE_NUMBER);
-        if(!TextUtils.isEmpty(mPhoneNum)){
-            loginAccount.setText(mPhoneNum);
-            loginAccount.setSelection(mPhoneNum.length());
-        }
-        mCurrrentCity = getIntent().getStringExtra(ValueKey.LOCATION);
-    }
-
     @Override
     public void onClick(View view) {
-        Intent intent = new Intent();
         switch (view.getId()) {
-            case R.id.btn_login:
+            case R.id.next:
                 if(checkInput()){
-                    String cryptLoginPwd = AESEncryptorUtil.crypt(loginPwd.getText().toString().trim(),
-                            AppConstants.SECURITY_KEY);
-                    onShowLoading();
-                    presenter.onUserLogin(loginAccount.getText().toString().trim(),
-                            cryptLoginPwd, mCurrrentCity);
+                    ProgressDialogUtils.getInstance(this).show(R.string.dialog_request_sms_code);
+                    checkPhoneIsRegister();
                 }
                 break;
-            case R.id.forget_pwd:
-                //0=注册1=找回密码2=验证绑定手机
-                intent.setClass(this, FindPasswordActivity.class);
-                intent.putExtra(ValueKey.LOCATION, mCurrrentCity);
-                intent.putExtra(ValueKey.INPUT_PHONE_TYPE, 1);
-                startActivity(intent);
+            case R.id.portrait :
+                openAlbums();
                 break;
             case R.id.qq_login:
                 ProgressDialogUtils.getInstance(this).show(R.string.wait);
@@ -138,6 +137,12 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
                         mTencent.getQQToken().getOpenId() == null) {
                     mTencent.login(this, "all", loginListener);
                 }
+                break;
+            case R.id.select_man :
+                showSelectSexDialog(R.id.select_man);
+                break;
+            case R.id.select_lady :
+                showSelectSexDialog(R.id.select_lady);
                 break;
             case R.id.weixin_login:
                 ProgressDialogUtils.getInstance(this).show(R.string.wait);
@@ -172,25 +177,25 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
 
     @Override
     public void onShowLoading() {
-        ProgressDialogUtils.getInstance(LoginActivity.this).show(R.string.dialog_request_login);
+        ProgressDialogUtils.getInstance(RegisterActivity_bak.this).show(R.string.dialog_request_login);
     }
 
     @Override
     public void onHideLoading() {
-        ProgressDialogUtils.getInstance(LoginActivity.this).dismiss();
+        ProgressDialogUtils.getInstance(RegisterActivity_bak.this).dismiss();
     }
 
     @Override
-    public void onShowNetError() {
-        onHideLoading();
-        ToastUtil.showMessage(R.string.network_requests_error);
+    public void setPresenter(IUserLoginLogOut.Presenter presenter) {
+        if (presenter == null) {
+            this.presenter = new UserLoginPresenterImpl(this);
+        }
     }
 
     @Override
     public void loginLogOutSuccess(ClientUser clientUser) {
         onHideLoading();
         if (clientUser != null) {
-            hideSoftKeyboard();
             File faceLocalFile = new File(FileAccessorUtils.FACE_IMAGE,
                     Md5Util.md5(clientUser.face_url) + ".jpg");
             if(!faceLocalFile.exists()
@@ -201,7 +206,7 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
             }
 
             Intent intent = new Intent();
-            intent.setClass(LoginActivity.this, MainActivity.class);
+            intent.setClass(RegisterActivity_bak.this, MainActivity.class);
             startActivity(intent);
             finishAll();
         } else {
@@ -209,11 +214,40 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
         }
     }
 
-    @Override
-    public void setPresenter(IUserLoginLogOut.Presenter presenter) {
-        if (presenter == null) {
-            this.presenter = new UserLoginPresenterImpl(this);
-        }
+    private void checkPhoneIsRegister() {
+        RetrofitFactory.getRetrofit().create(IUserApi.class)
+                .checkIsRegister(phoneNum.getText().toString().trim())
+                .subscribeOn(Schedulers.io())
+                .map(responseBody -> JsonUtils.parseCheckIsRegister(responseBody.string()))
+                .observeOn(AndroidSchedulers.mainThread())
+                .as(this.bindAutoDispose())
+                .subscribe(aBoolean -> {
+                    onHideLoading();
+                    hideSoftKeyboard();
+                    if(aBoolean){
+                        ToastUtil.showMessage(R.string.phone_already_register);
+                    } else {
+                        //获取验证码
+                        String phone_num = phoneNum.getText().toString().trim();
+                        mClientUser.mobile = phone_num;
+                        mClientUser.currentCity = mCurrrentCity;
+                        SMSSDK.getVerificationCode("86", phone_num);
+                        Intent intent = new Intent(RegisterActivity_bak.this, RegisterCaptchaActivity.class);
+                        intent.putExtra(ValueKey.PHONE_NUMBER, phone_num);
+                        intent.putExtra(ValueKey.INPUT_PHONE_TYPE, 0);
+                        intent.putExtra(ValueKey.USER, mClientUser);
+                        startActivity(intent);
+                    }
+                }, throwable -> onShowNetError());
+    }
+
+    /**
+     * 打开相册
+     */
+    private void openAlbums() {
+        Intent openAlbumIntent = new Intent(Intent.ACTION_GET_CONTENT);
+        openAlbumIntent.setType("image/*");
+        startActivityForResult(openAlbumIntent, ALBUMS_RESULT);
     }
 
     IUiListener loginListener = new BaseUiListener() {
@@ -246,17 +280,17 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
 
         @Override
         public void onError(UiError e) {
-            Util.toastMessage(LoginActivity.this, "onError: " + e.errorDetail);
+            Util.toastMessage(RegisterActivity_bak.this, "onError: " + e.errorDetail);
             Util.dismissDialog();
         }
 
         @Override
         public void onCancel() {
-            Util.toastMessage(LoginActivity.this, "取消授权");
+            Util.toastMessage(RegisterActivity_bak.this, "取消授权");
         }
     }
 
-    public  void initOpenidAndToken(JSONObject jsonObject) {
+    public void initOpenidAndToken(JSONObject jsonObject) {
         try {
             token = jsonObject.getString(Constants.PARAM_ACCESS_TOKEN);
             String expires = jsonObject.getString(Constants.PARAM_EXPIRES_IN);
@@ -304,12 +338,49 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
         }
     }
 
+    private void showSelectSexDialog(final int sexId){
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.select_sex);
+        if(R.id.select_man == sexId) {
+            builder.setMessage(String.format(getResources().getString(R.string.select_sex_tips), "男生"));
+        } else {
+            builder.setMessage(String.format(getResources().getString(R.string.select_sex_tips), "女生"));
+        }
+        builder.setNegativeButton(getResources().getString(R.string.cancel),
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        dialog.dismiss();
+                    }
+                });
+        builder.setPositiveButton(getResources().getString(R.string.ok),
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int id) {
+                        mSelectMan.setEnabled(false);
+                        mSelectLady.setEnabled(false);
+                        if(mClientUser == null){
+                            mClientUser = new ClientUser();
+                        }
+                        if (sexId == R.id.select_man) {
+                            mClientUser.sex = "男";
+                            mSelectMan.setImageResource(R.mipmap.radio_men_focused_bg);
+                        } else {
+                            mClientUser.sex = "女";
+                            mSelectLady.setImageResource(R.mipmap.radio_women_focused_bg);
+                        }
+                        dialog.dismiss();
+                        mClientUser.age = 20;
+                    }
+                });
+        builder.show();
+    }
+
+
 
     class DownloadPortraitTask extends DownloadFileRequest {
         @Override
         public void onPostExecute(String s) {
             AppManager.getClientUser().face_local = s;
-            PreferencesUtils.setFaceLocal(LoginActivity.this, s);
+            PreferencesUtils.setFaceLocal(RegisterActivity_bak.this, s);
         }
 
         @Override
@@ -323,11 +394,15 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
     private boolean checkInput() {
         String message = "";
         boolean bool = true;
-        if (TextUtils.isEmpty(loginAccount.getText().toString())) {
-            message = getResources().getString(R.string.input_phone_or_account);
+        if(mSelectMan.isEnabled() && mSelectLady.isEnabled()){
+            message = getResources().getString(R.string.please_select_sex);
             bool = false;
-        } else if (TextUtils.isEmpty(loginPwd.getText().toString())) {
-            message = getResources().getString(R.string.input_password);
+        } else if (TextUtils.isEmpty(phoneNum.getText().toString())) {
+            message = getResources().getString(R.string.input_phone);
+            bool = false;
+        } else if (!CheckUtil.isMobileNO(phoneNum.getText().toString())) {
+            message = getResources().getString(
+                    R.string.input_phone_number_error);
             bool = false;
         }
         if (!bool)
@@ -339,6 +414,7 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
     protected void onResume() {
         super.onResume();
         activityIsRunning = true;
+
         MobclickAgent.onPageStart(this.getClass().getName());
         MobclickAgent.onResume(this);
     }

@@ -66,7 +66,6 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_entrance);
         ButterKnife.bind(this);
-        saveFirstLauncher();
         setupViews();
         initLocationClient();
         rxPermissions = new RxPermissions(this);
@@ -77,19 +76,8 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
      * 设置视图
      */
     private void setupViews() {
-        mLogin = (FancyButton) findViewById(R.id.login);
-        mRegister = (FancyButton) findViewById(R.id.register);
-    }
-
-    /**
-     * 保存是否第一次启动
-     */
-    private void saveFirstLauncher() {
-        try {
-            PreferencesUtils.setIsFirstLauncher(this, false);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        mLogin = findViewById(R.id.login);
+        mRegister = findViewById(R.id.register);
     }
 
     /**

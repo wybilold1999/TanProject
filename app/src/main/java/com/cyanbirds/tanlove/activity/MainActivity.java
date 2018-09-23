@@ -51,7 +51,6 @@ import com.cyanbirds.tanlove.service.MyIntentService;
 import com.cyanbirds.tanlove.service.MyPushService;
 import com.cyanbirds.tanlove.ui.widget.CustomViewPager;
 import com.cyanbirds.tanlove.utils.CheckUtil;
-import com.cyanbirds.tanlove.utils.DateUtil;
 import com.cyanbirds.tanlove.utils.DensityUtil;
 import com.cyanbirds.tanlove.utils.JsonUtils;
 import com.cyanbirds.tanlove.utils.MsgUtil;
@@ -67,14 +66,10 @@ import com.umeng.analytics.MobclickAgent;
 import com.xiaomi.mipush.sdk.MiPushClient;
 import com.yuntongxun.ecsdk.ECInitParams;
 
-import java.util.Calendar;
-
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import q.rorbin.badgeview.Badge;
 import q.rorbin.badgeview.QBadgeView;
-
-import static com.cyanbirds.tanlove.utils.DateUtil.TIMESTAMP_PATTERN;
 
 public class MainActivity extends BaseActivity implements MessageUnReadListener.OnMessageUnReadListener, AMapLocationListener {
 
@@ -133,7 +128,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 
 				loadData();
 
-				initFareGetTime();
 			}
 		});
 
@@ -143,25 +137,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 			mHandler.postDelayed(() -> requestFollowList("followFormeList", 1, 1), 1500 * 10);
 		} else {
 			SDKCoreHelper.init(CSApplication.getInstance(), ECInitParams.LoginMode.FORCE_LOGIN);
-		}
-	}
-
-	/**
-	 * 初始化当月是否可以领取话费
-	 */
-	private void initFareGetTime() {
-		Calendar calendar = Calendar.getInstance();
-		calendar.set(Calendar.DAY_OF_MONTH, calendar.getActualMaximum(Calendar.DAY_OF_MONTH));
-		calendar.set(Calendar.HOUR_OF_DAY, 23);
-		calendar.set(Calendar.MINUTE, 59);
-		calendar.set(Calendar.SECOND, 59);
-		String lastDay = DateUtil.formatDateByFormat(calendar.getTime(), TIMESTAMP_PATTERN);
-		try {
-			if (System.currentTimeMillis() > Long.parseLong(lastDay)) {
-				PreferencesUtils.setIsCanGetFare(this, true);
-			}
-		} catch (Exception e) {
-
 		}
 	}
 
