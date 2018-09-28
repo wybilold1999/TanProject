@@ -16,6 +16,7 @@ import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.ClientUser;
+import com.cyanbirds.tanlove.eventtype.LocationEvent;
 import com.cyanbirds.tanlove.eventtype.WeinXinEvent;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.IUserApi;
@@ -73,7 +74,6 @@ public class RegisterActivity extends BaseActivity<IUserLoginLogOut.Presenter> i
     private String openId;
 
     private ClientUser mClientUser;
-    private String channelId;
     private boolean activityIsRunning;
     private String mCurrrentCity;//定位到的城市
 
@@ -93,7 +93,6 @@ public class RegisterActivity extends BaseActivity<IUserLoginLogOut.Presenter> i
             mTencent = Tencent.createInstance(AppConstants.mAppid, this);
         }
 
-        channelId = CheckUtil.getAppMetaData(this, "UMENG_CHANNEL");
         mCurrrentCity = getIntent().getStringExtra(ValueKey.LOCATION);
 
         setupView();
@@ -163,9 +162,15 @@ public class RegisterActivity extends BaseActivity<IUserLoginLogOut.Presenter> i
     private void rxBusSub() {
         observable = RxBus.getInstance().register(AppConstants.CITY_WE_CHAT_RESP_CODE);
         observable.subscribe(o -> {
-            WeinXinEvent event = (WeinXinEvent) o;
-            onShowLoading();
-            presenter.onWXLogin(event.code, channelId, mCurrrentCity);
+            if (o instanceof LocationEvent) {
+                LocationEvent event = (LocationEvent) o;
+                mCurrrentCity = event.city;
+            } else {
+                ProgressDialogUtils.getInstance(this).dismiss();
+                WeinXinEvent event = (WeinXinEvent) o;
+                onShowLoading();
+                presenter.onWXLogin(event.code);
+            }
         });
     }
 
@@ -309,7 +314,7 @@ public class RegisterActivity extends BaseActivity<IUserLoginLogOut.Presenter> i
                     if (activityIsRunning) {
                         onShowLoading();
                     }
-                    presenter.onQQLogin(token, openId, channelId, mCurrrentCity);
+                    presenter.onQQLogin(token, openId);
                 }
 
                 @Override

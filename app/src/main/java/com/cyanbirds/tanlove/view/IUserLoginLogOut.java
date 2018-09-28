@@ -11,9 +11,9 @@ public interface IUserLoginLogOut {
     }
 
     interface Presenter extends IBasePresenter {
-        void onUserLogin(String account, String pwd, String city);
-        void onWXLogin(String code, String channelId, String city);
-        void onQQLogin(String token, String openId, String channelId, String city);
+        void onUserLogin(String account, String pwd);
+        void onWXLogin(String code);
+        void onQQLogin(String token, String openId);
         void onRegist(ClientUser clientUser, String channel);
         void onLogOut();
     }

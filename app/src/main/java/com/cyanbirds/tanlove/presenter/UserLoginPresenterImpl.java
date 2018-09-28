@@ -30,7 +30,7 @@ public class UserLoginPresenterImpl implements IUserLoginLogOut.Presenter{
     }
 
     @Override
-    public void onUserLogin(String account, String pwd, String city) {
+    public void onUserLogin(String account, String pwd) {
         ArrayMap<String, String> params = new ArrayMap<>();
         params.put("account", account);
         params.put("pwd", pwd);
@@ -39,15 +39,11 @@ public class UserLoginPresenterImpl implements IUserLoginLogOut.Presenter{
         params.put("systemVersion", AppManager.getDeviceSystemVersion());
         params.put("deviceId", AppManager.getDeviceId());
         params.put("channel", CheckUtil.getAppMetaData(CSApplication.getInstance(), "UMENG_CHANNEL"));
-        if (!TextUtils.isEmpty(city)) {
-            params.put("currentCity", city);
-        } else {
-            params.put("currentCity", "");
-        }
         params.put("province", PreferencesUtils.getCurrentProvince(CSApplication.getInstance()));
         params.put("latitude", PreferencesUtils.getLatitude(CSApplication.getInstance()));
         params.put("longitude", PreferencesUtils.getLongitude(CSApplication.getInstance()));
         params.put("loginTime", String.valueOf(PreferencesUtils.getLoginTime(CSApplication.getInstance())));
+        params.put("currentCity", PreferencesUtils.getCurrentCity(CSApplication.getInstance()));
         RetrofitFactory.getRetrofit().create(IUserApi.class)
                 .userLogin(AppManager.getClientUser().sessionId, params)
                 .subscribeOn(Schedulers.io())
@@ -57,7 +53,7 @@ public class UserLoginPresenterImpl implements IUserLoginLogOut.Presenter{
                 })
                 .doOnNext(clientUser -> {
                     MobclickAgent.onProfileSignIn(String.valueOf(clientUser.userId));
-                    clientUser.currentCity = city;
+                    clientUser.currentCity = PreferencesUtils.getCurrentCity(CSApplication.getInstance());
                     clientUser.latitude = PreferencesUtils.getLatitude(CSApplication.getInstance());
                     clientUser.longitude = PreferencesUtils.getLongitude(CSApplication.getInstance());
                     AppManager.setClientUser(clientUser);
@@ -80,24 +76,20 @@ public class UserLoginPresenterImpl implements IUserLoginLogOut.Presenter{
     }
 
     @Override
-    public void onWXLogin(String code, String channelId, String city) {
+    public void onWXLogin(String code) {
         ArrayMap<String, String> params = new ArrayMap<>();
         params.put("code", code);
         params.put("device_name", AppManager.getDeviceName());
-        params.put("channel", channelId);
+        params.put("channel", CheckUtil.getAppMetaData(CSApplication.getInstance(), "UMENG_CHANNEL"));
         params.put("platform", "weichat");
         params.put("version", String.valueOf(AppManager.getVersionCode()));
         params.put("os_version", AppManager.getDeviceSystemVersion());
         params.put("device_id", AppManager.getDeviceId());
-        if (!TextUtils.isEmpty(city)) {
-            params.put("currentCity", city);
-        } else {
-            params.put("currentCity", "");
-        }
         params.put("province", PreferencesUtils.getCurrentProvince(CSApplication.getInstance()));
         params.put("latitude", PreferencesUtils.getLatitude(CSApplication.getInstance()));
         params.put("longitude", PreferencesUtils.getLongitude(CSApplication.getInstance()));
         params.put("loginTime", String.valueOf(PreferencesUtils.getLoginTime(CSApplication.getInstance())));
+        params.put("currentCity", PreferencesUtils.getCurrentCity(CSApplication.getInstance()));
         RetrofitFactory.getRetrofit().create(IUserApi.class)
                 .wxLogin(AppManager.getClientUser().sessionId, params)
                 .subscribeOn(Schedulers.io())
@@ -107,7 +99,7 @@ public class UserLoginPresenterImpl implements IUserLoginLogOut.Presenter{
                 })
                 .doOnNext(clientUser -> {
                     MobclickAgent.onProfileSignIn(String.valueOf(clientUser.userId));
-                    clientUser.currentCity = city;
+                    clientUser.currentCity = PreferencesUtils.getCurrentCity(CSApplication.getInstance());
                     clientUser.latitude = PreferencesUtils.getLatitude(CSApplication.getInstance());
                     clientUser.longitude = PreferencesUtils.getLongitude(CSApplication.getInstance());
                     AppManager.setClientUser(clientUser);
@@ -130,25 +122,21 @@ public class UserLoginPresenterImpl implements IUserLoginLogOut.Presenter{
     }
 
     @Override
-    public void onQQLogin(String token, String openId, String channelId, String city) {
+    public void onQQLogin(String token, String openId) {
         ArrayMap<String, String> params = new ArrayMap<>();
         params.put("token", token);
         params.put("openid", openId);
-        params.put("channel", channelId);
+        params.put("channel", CheckUtil.getAppMetaData(CSApplication.getInstance(), "UMENG_CHANNEL"));
         params.put("platform", "qq");
         params.put("device_name", AppManager.getDeviceName());
         params.put("version", String.valueOf(AppManager.getVersionCode()));
         params.put("os_version", AppManager.getDeviceSystemVersion());
         params.put("device_id", AppManager.getDeviceId());
-        if (!TextUtils.isEmpty(city)) {
-            params.put("currentCity", city);
-        } else {
-            params.put("currentCity", "");
-        }
         params.put("province", PreferencesUtils.getCurrentProvince(CSApplication.getInstance()));
         params.put("latitude", PreferencesUtils.getLatitude(CSApplication.getInstance()));
         params.put("longitude", PreferencesUtils.getLongitude(CSApplication.getInstance()));
         params.put("loginTime", String.valueOf(PreferencesUtils.getLoginTime(CSApplication.getInstance())));
+        params.put("currentCity", PreferencesUtils.getCurrentCity(CSApplication.getInstance()));
         RetrofitFactory.getRetrofit().create(IUserApi.class)
                 .qqLogin(AppManager.getClientUser().sessionId, params)
                 .subscribeOn(Schedulers.io())
@@ -158,7 +146,7 @@ public class UserLoginPresenterImpl implements IUserLoginLogOut.Presenter{
                 })
                 .doOnNext(clientUser -> {
                     MobclickAgent.onProfileSignIn(String.valueOf(clientUser.userId));
-                    clientUser.currentCity = city;
+                    clientUser.currentCity = PreferencesUtils.getCurrentCity(CSApplication.getInstance());
                     clientUser.latitude = PreferencesUtils.getLatitude(CSApplication.getInstance());
                     clientUser.longitude = PreferencesUtils.getLongitude(CSApplication.getInstance());
                     AppManager.setClientUser(clientUser);

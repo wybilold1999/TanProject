@@ -2,7 +2,6 @@ package com.cyanbirds.tanlove.utils;
 
 import android.os.Environment;
 
-
 import com.cyanbirds.tanlove.R;
 
 import java.io.File;
@@ -34,9 +33,6 @@ public class FileAccessorUtils {
 	/** 视频存储路径 */
 	public static final String VIDEO_PATH = getExternalStorePath()
 			+ "/tanlove/.video";
-	/** 缓存路径 */
-	public static final String CACHE_PATH = getExternalStorePath()
-			+ "/tanlove/.cache";
 	/** crash路径 */
 	public static final String CRASH_PATH = getExternalStorePath()
 			+ "/tanlove/.crash";
@@ -183,24 +179,6 @@ public class FileAccessorUtils {
 		if (!directory.exists() && !directory.mkdirs()) {
 			ToastUtil.showMessage("Path to file could not be created");
 			return null;
-		}
-		return directory;
-	}
-
-	/**
-	 * 返回缓存目录
-	 *
-	 * @return
-	 */
-	public static File getCachePathName() {
-		if (!isExistExternalStore()) {
-			ToastUtil.showMessage(R.string.media_ejected);
-			return null;
-		}
-
-		File directory = new File(CACHE_PATH);
-		if (!directory.exists() && !directory.mkdirs()) {
-			directory.mkdirs();
 		}
 		return directory;
 	}

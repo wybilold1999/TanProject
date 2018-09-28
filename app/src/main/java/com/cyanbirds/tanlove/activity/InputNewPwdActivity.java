@@ -139,7 +139,7 @@ public class InputNewPwdActivity extends BaseActivity<IUserLoginLogOut.Presenter
 					if (integer == 0) {
 						ProgressDialogUtils.getInstance(InputNewPwdActivity.this).dismiss();
 						ProgressDialogUtils.getInstance(InputNewPwdActivity.this).show(R.string.dialog_request_login);
-						presenter.onUserLogin(mPhone, AppManager.getClientUser().userPwd, mCurrrentCity);
+						presenter.onUserLogin(mPhone, AppManager.getClientUser().userPwd);
 					} else {
 						ProgressDialogUtils.getInstance(InputNewPwdActivity.this).dismiss();
 						ToastUtil.showMessage(obj.get("msg").getAsString());
