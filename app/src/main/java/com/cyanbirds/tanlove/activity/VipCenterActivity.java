@@ -82,6 +82,8 @@ public class VipCenterActivity extends BaseActivity {
 	NestedScrollView mScrollView;
 	@BindView(R.id.pref_tel_fare_lay)
 	LinearLayout mPrefTelFareLay;
+	@BindView(R.id.cum_qq)
+	TextView mCumQQ;
 
 	private MemberBuyAdapter mAdapter;
 
@@ -100,7 +102,6 @@ public class VipCenterActivity extends BaseActivity {
 	private List<Integer> array;
 
 	private String mPref;//优惠信息
-	private MemberBuy mMemberBuy;
 
 	private Observable<?> observable;
 
@@ -179,6 +180,11 @@ public class VipCenterActivity extends BaseActivity {
 			mVip7Lay.setVisibility(View.VISIBLE);
 		} else {
 			mVip7Lay.setVisibility(View.GONE);
+		}
+		if (AppManager.getClientUser().isShowDownloadVip) {
+			mCumQQ.setVisibility(View.VISIBLE);
+		} else {
+			mCumQQ.setVisibility(View.GONE);
 		}
 		getMemberBuy(NORMAL_VIP);
 	}
@@ -288,7 +294,6 @@ public class VipCenterActivity extends BaseActivity {
 	}
 
 	private void showPayDialog(final MemberBuy memberBuy) {
-		mMemberBuy = memberBuy;
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setTitle(getResources().getString(R.string.pay_type));
 		builder.setNegativeButton(getResources().getString(R.string.cancel),

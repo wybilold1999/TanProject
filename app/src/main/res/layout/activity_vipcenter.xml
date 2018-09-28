@@ -60,6 +60,7 @@
                 app:roundedCornerRadius="0dp"/>
 
             <TextView
+                android:id="@+id/cum_qq"
                 android:layout_width="match_parent"
                 android:layout_height="22dp"
                 android:gravity="center_vertical"
