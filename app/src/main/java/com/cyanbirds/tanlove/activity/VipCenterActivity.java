@@ -184,7 +184,7 @@ public class VipCenterActivity extends BaseActivity {
 		if (AppManager.getClientUser().isShowDownloadVip) {
 			mCumQQ.setVisibility(View.VISIBLE);
 		} else {
-			mCumQQ.setVisibility(View.GONE);
+			mCumQQ.setVisibility(View.INVISIBLE);
 		}
 		getMemberBuy(NORMAL_VIP);
 	}
