@@ -1,5 +1,6 @@
 package com.cyanbirds.tanlove.activity;
 
+import android.Manifest;
 import android.arch.lifecycle.Lifecycle;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -31,9 +32,11 @@ import com.cyanbirds.tanlove.utils.ImageUtil;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
 import com.cyanbirds.tanlove.utils.RxBus;
 import com.cyanbirds.tanlove.utils.ToastUtil;
+import com.cyanbirds.tanlove.utils.Utils;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.uber.autodispose.AutoDispose;
 import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
 import com.umeng.analytics.MobclickAgent;
@@ -45,6 +48,8 @@ import butterknife.BindView;
 import butterknife.ButterKnife;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
+
+import static com.cyanbirds.tanlove.activity.ModifyUserInfoActivity.REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL;
 
 /**
  * 作者：wangyb
@@ -64,6 +69,8 @@ public class PublishDynamicActivity extends BaseActivity {
 
 	public static final int CHOOSE_IMG_RESULT = 0;
 
+	private RxPermissions rxPermissions;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -73,6 +80,7 @@ public class PublishDynamicActivity extends BaseActivity {
 			mToolbar.setNavigationIcon(R.mipmap.ic_up);
 		}
 		ButterKnife.bind(this);
+		rxPermissions = new RxPermissions(this);
 		setupView();
 		setupData();
 	}
@@ -86,12 +94,38 @@ public class PublishDynamicActivity extends BaseActivity {
 		mAdapter = new PublishImageAdapter(photoList){
 			@Override
 			public void openGallery() {
-				Intent intent = new Intent(PublishDynamicActivity.this, PhotoChoserActivity.class);
-				intent.putStringArrayListExtra(ValueKey.IMAGE_URL, (ArrayList<String>) photoList);
-				startActivityForResult(intent, CHOOSE_IMG_RESULT);
+				requestPermission();
 			}
 		};
 		mRecyclerview.setAdapter(mAdapter);
+	}
+
+	private void requestPermission() {
+		rxPermissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+				.subscribe(granted -> {
+					if (granted) { // Always true pre-M
+						toIntent();
+					} else {
+						// Oups permission denied
+						showPermissionDialog(R.string.open_camera_write_external_permission, REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL);
+					}
+				});
+	}
+
+	private void toIntent() {
+		Intent intent = new Intent(PublishDynamicActivity.this, PhotoChoserActivity.class);
+		intent.putStringArrayListExtra(ValueKey.IMAGE_URL, (ArrayList<String>) photoList);
+		startActivityForResult(intent, CHOOSE_IMG_RESULT);
+	}
+
+	private void showPermissionDialog(int textResId, int requestCode) {
+		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setMessage(textResId);
+		builder.setPositiveButton(R.string.ok, (dialog, i) -> {
+			dialog.dismiss();
+			Utils.goToSetting(this, requestCode);
+		});
+		builder.show();
 	}
 
 	@Override
@@ -204,6 +238,8 @@ public class PublishDynamicActivity extends BaseActivity {
 				photoList.addAll(imgUrls);
 				mAdapter.notifyDataSetChanged();
 			}
+		} else if (resultCode == RESULT_OK && requestCode == REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL) {
+			requestPermission();
 		}
 	}
 

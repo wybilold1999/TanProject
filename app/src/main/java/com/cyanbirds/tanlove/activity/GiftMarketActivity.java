@@ -8,6 +8,7 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.widget.ImageView;
@@ -114,7 +115,9 @@ public class GiftMarketActivity extends BaseActivity implements View.OnClickList
 				mVipAmount.setText(gift.vip_amount + "金币");
 			}
 			mAmount.setText(String.format(getResources().getString(R.string.org_price), gift.amount));
-			mMyPortrait.setImageURI(Uri.parse(AppManager.getClientUser().face_url));
+			if (!TextUtils.isEmpty(AppManager.getClientUser().face_url)) {
+				mMyPortrait.setImageURI(Uri.parse(AppManager.getClientUser().face_url));
+			}
 			if (giftUser != null) {
 				mOtherPortrait.setImageURI(Uri.parse(giftUser.face_url));
 			}

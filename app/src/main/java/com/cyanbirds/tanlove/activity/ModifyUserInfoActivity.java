@@ -1126,7 +1126,9 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 	class OSSImgUploadTask extends OSSImagUploadRequest {
 		@Override
 		public void onPostExecute(String s) {
-			ProgressDialogUtils.getInstance(ModifyUserInfoActivity.this).dismiss();
+			if (null != ModifyUserInfoActivity.this && !ModifyUserInfoActivity.this.isFinishing()) {
+				ProgressDialogUtils.getInstance(ModifyUserInfoActivity.this).dismiss();
+			}
 			clientUser.face_url = AppConstants.OSS_IMG_ENDPOINT + s;
 			clientUser.face_local = mPortraitUri.getPath();
 			mPortraitPhoto.setImageURI(clientUser.face_url);

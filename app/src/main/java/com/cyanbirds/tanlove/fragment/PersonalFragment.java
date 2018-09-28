@@ -315,7 +315,7 @@ public class PersonalFragment extends Fragment {
 	private void changeUserInfo(UserEvent event) {
 		ClientUser clientUser = AppManager.getClientUser();
 		if (clientUser != null) {
-			if (!TextUtils.isEmpty(clientUser.face_url)) {
+			if (!TextUtils.isEmpty(clientUser.face_url) && null != mPortrait) {
 				mPortrait.setImageURI(Uri.parse(clientUser.face_url));
 			}
 			if (!TextUtils.isEmpty(clientUser.signature)) {
