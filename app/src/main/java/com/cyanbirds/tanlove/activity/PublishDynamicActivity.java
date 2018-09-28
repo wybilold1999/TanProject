@@ -109,7 +109,7 @@ public class PublishDynamicActivity extends BaseActivity {
 						// Oups permission denied
 						showPermissionDialog(R.string.open_camera_write_external_permission, REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL);
 					}
-				});
+				}, throwable -> {});
 	}
 
 	private void toIntent() {

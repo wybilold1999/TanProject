@@ -1,5 +1,6 @@
 package com.cyanbirds.tanlove.activity;
 
+import android.Manifest;
 import android.arch.lifecycle.Lifecycle;
 import android.content.Intent;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import com.cyanbirds.tanlove.utils.Md5Util;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.PushMsgUtil;
 import com.cyanbirds.tanlove.utils.ToastUtil;
+import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;
 import com.uber.autodispose.AutoDispose;
 import com.uber.autodispose.AutoDisposeConverter;
@@ -50,6 +52,7 @@ public class LauncherActivity extends AppCompatActivity {
     private final int SHOW_TIME_MIN = 1500;// 最小显示时间
     private final int LONG_SCUESS = 0;
     private final int LONG_FAIURE = 1;
+    private RxPermissions rxPermissions;
 
     private Handler mHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
@@ -74,8 +77,19 @@ public class LauncherActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mStartTime = System.currentTimeMillis();// 记录开始时间
+        rxPermissions = new RxPermissions(this);
+        requestPermission();
         init();
         loadData();
+    }
+
+    private void requestPermission() {
+        rxPermissions.request(Manifest.permission.READ_PHONE_STATE)
+                .subscribe(granted -> {
+                    if (granted) { // Always true pre-M
+                    } else {
+                    }
+                }, throwable -> {});
     }
 
     Runnable mainActivity = () -> {

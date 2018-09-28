@@ -280,7 +280,9 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 					String.valueOf(aMapLocation.getLongitude()));
 			PreferencesUtils.setLatitude(this, curLat);
 			PreferencesUtils.setLongitude(this, curLon);
-			stopLocation();
+			if (!TextUtils.isEmpty(aMapLocation.getCity())) {
+				stopLocation();
+			}
 		}
 
 	}

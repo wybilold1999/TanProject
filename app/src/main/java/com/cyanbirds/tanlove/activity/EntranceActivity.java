@@ -137,11 +137,13 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
             PreferencesUtils.setCurrentCity(this, mCurrrentCity);
             PreferencesUtils.setCurrentProvince(EntranceActivity.this, aMapLocation.getProvince());
             RxBus.getInstance().post(AppConstants.CITY_WE_CHAT_RESP_CODE, new LocationEvent(mCurrrentCity));
-            uploadCityInfoRequest(aMapLocation.getCity(), String.valueOf(aMapLocation.getLatitude()),
+            uploadCityInfoRequest(mCurrrentCity, String.valueOf(aMapLocation.getLatitude()),
                     String.valueOf(aMapLocation.getLongitude()));
             PreferencesUtils.setLatitude(this, curLat);
             PreferencesUtils.setLongitude(this, curLon);
-            stopLocation();
+            if (!TextUtils.isEmpty(mCurrrentCity)) {
+                stopLocation();
+            }
         }
     }
 
