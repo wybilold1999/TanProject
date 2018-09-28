@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.util.ArrayMap;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -27,6 +28,7 @@ import com.cyanbirds.tanlove.utils.Md5Util;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.PushMsgUtil;
 import com.cyanbirds.tanlove.utils.ToastUtil;
+import com.cyanbirds.tanlove.utils.Utils;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;
 import com.uber.autodispose.AutoDispose;
@@ -53,6 +55,10 @@ public class LauncherActivity extends AppCompatActivity {
     private final int LONG_SCUESS = 0;
     private final int LONG_FAIURE = 1;
     private RxPermissions rxPermissions;
+    /**
+     * 手机权限
+     */
+    public final static int REQUEST_PERMISSION_READ_PHONE_STATE = 1000;
 
     private Handler mHandler = new Handler() {
         public void handleMessage(android.os.Message msg) {
@@ -78,18 +84,34 @@ public class LauncherActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         mStartTime = System.currentTimeMillis();// 记录开始时间
         rxPermissions = new RxPermissions(this);
+        getKeys();
         requestPermission();
-        init();
-        loadData();
     }
 
     private void requestPermission() {
         rxPermissions.request(Manifest.permission.READ_PHONE_STATE)
                 .subscribe(granted -> {
                     if (granted) { // Always true pre-M
+                        init();
+                        loadData();
                     } else {
+                        showPermissionDialog();
                     }
                 }, throwable -> {});
+    }
+
+    private void showPermissionDialog() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setMessage(R.string.can_not_use_app);
+        builder.setPositiveButton(R.string.ok, (dialog, i) -> {
+            dialog.dismiss();
+            Utils.goToSetting(this, REQUEST_PERMISSION_READ_PHONE_STATE);
+        });
+        builder.setNegativeButton(R.string.cancel, (dialog, i) -> {
+            dialog.dismiss();
+            finish();
+        });
+        builder.show();
     }
 
     Runnable mainActivity = () -> {
@@ -101,7 +123,6 @@ public class LauncherActivity extends AppCompatActivity {
     };
 
     private void init() {
-        getKeys();
         if (AppManager.isLogin()) {//是否已经登录
             login();
         } else {
@@ -288,6 +309,14 @@ public class LauncherActivity extends AppCompatActivity {
         super.onPause();
         MobclickAgent.onPageEnd(this.getClass().getName());
         MobclickAgent.onPause(this);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_PERMISSION_READ_PHONE_STATE) {
+            requestPermission();
+        }
     }
 
     public <X> AutoDisposeConverter<X> bindAutoDispose() {

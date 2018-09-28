@@ -238,7 +238,7 @@ public class PublishDynamicActivity extends BaseActivity {
 				photoList.addAll(imgUrls);
 				mAdapter.notifyDataSetChanged();
 			}
-		} else if (resultCode == RESULT_OK && requestCode == REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL) {
+		} else if (requestCode == REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL) {
 			requestPermission();
 		}
 	}

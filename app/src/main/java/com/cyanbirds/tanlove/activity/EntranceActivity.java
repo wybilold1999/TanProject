@@ -16,15 +16,12 @@ import com.amap.api.location.AMapLocationListener;
 import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
-import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
-import com.cyanbirds.tanlove.eventtype.LocationEvent;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.IUserApi;
 import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
-import com.cyanbirds.tanlove.utils.RxBus;
 import com.cyanbirds.tanlove.utils.Utils;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.uber.autodispose.AutoDispose;
@@ -136,7 +133,6 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
             mCurrrentCity = aMapLocation.getCity();
             PreferencesUtils.setCurrentCity(this, mCurrrentCity);
             PreferencesUtils.setCurrentProvince(EntranceActivity.this, aMapLocation.getProvince());
-            RxBus.getInstance().post(AppConstants.CITY_WE_CHAT_RESP_CODE, new LocationEvent(mCurrrentCity));
             uploadCityInfoRequest(mCurrrentCity, String.valueOf(aMapLocation.getLatitude()),
                     String.valueOf(aMapLocation.getLongitude()));
             PreferencesUtils.setLatitude(this, curLat);

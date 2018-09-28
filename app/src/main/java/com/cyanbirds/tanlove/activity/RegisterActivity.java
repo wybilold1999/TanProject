@@ -16,7 +16,6 @@ import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.ClientUser;
-import com.cyanbirds.tanlove.eventtype.LocationEvent;
 import com.cyanbirds.tanlove.eventtype.WeinXinEvent;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.IUserApi;
@@ -164,14 +163,9 @@ public class RegisterActivity extends BaseActivity<IUserLoginLogOut.Presenter> i
     private void rxBusSub() {
         observable = RxBus.getInstance().register(AppConstants.CITY_WE_CHAT_RESP_CODE);
         observable.subscribe(o -> {
-            if (o instanceof LocationEvent) {
-                LocationEvent event = (LocationEvent) o;
-                mCurrrentCity = event.city;
-            } else {
-                WeinXinEvent event = (WeinXinEvent) o;
-                onShowLoading();
-                presenter.onWXLogin(event.code, channelId, mCurrrentCity);
-            }
+            WeinXinEvent event = (WeinXinEvent) o;
+            onShowLoading();
+            presenter.onWXLogin(event.code, channelId, mCurrrentCity);
         });
     }
 
