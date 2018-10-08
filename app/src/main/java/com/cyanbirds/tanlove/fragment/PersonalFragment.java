@@ -121,8 +121,6 @@ public class PersonalFragment extends Fragment {
 	@BindView(R.id.give_vip)
 	RelativeLayout mGiveVipLay;
 
-	Unbinder unbinder;
-
 	private View rootView;
 
 	private ClientUser clientUser;
@@ -134,7 +132,7 @@ public class PersonalFragment extends Fragment {
 							 Bundle savedInstanceState) {
 		if (rootView == null) {
 			rootView = inflater.inflate(R.layout.fragment_personal, null);
-			unbinder = ButterKnife.bind(this, rootView);
+			ButterKnife.bind(this, rootView);
 			rxBusSub();
 			setupData();
 			setHasOptionsMenu(true);
@@ -318,22 +316,15 @@ public class PersonalFragment extends Fragment {
 			if (!TextUtils.isEmpty(clientUser.face_url) && null != mPortrait) {
 				mPortrait.setImageURI(Uri.parse(clientUser.face_url));
 			}
-			if (!TextUtils.isEmpty(clientUser.signature)) {
+			if (!TextUtils.isEmpty(clientUser.signature) && null != signature) {
 				signature.setText(clientUser.signature);
 			}
-			if (!TextUtils.isEmpty(clientUser.user_name)) {
+			if (!TextUtils.isEmpty(clientUser.user_name) && null != userName) {
 				userName.setText(clientUser.user_name);
 			}
 		}
 	}
 
-	@Override
-	public void onDestroy() {
-		super.onDestroy();
-		if (unbinder != null) {
-			unbinder.unbind();
-		}
-	}
 
 	@Override
 	public void onResume() {

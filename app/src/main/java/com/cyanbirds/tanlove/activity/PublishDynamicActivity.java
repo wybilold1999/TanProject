@@ -101,15 +101,22 @@ public class PublishDynamicActivity extends BaseActivity {
 	}
 
 	private void requestPermission() {
-		rxPermissions.request(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-				.subscribe(granted -> {
-					if (granted) { // Always true pre-M
+	    rxPermissions.requestEachCombined(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)
+                .subscribe(permission -> {// will emit 1 Permission object
+                    if (permission.granted) {
+                        // All permissions are granted !
 						toIntent();
-					} else {
-						// Oups permission denied
-						showPermissionDialog(R.string.open_camera_write_external_permission, REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL);
-					}
-				}, throwable -> {});
+                    } else if (permission.shouldShowRequestPermissionRationale) {
+                        // At least one denied permission without ask never again
+                        showPermissionDialog(R.string.open_camera_write_external_permission, REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL);
+                    } else {
+                        // At least one denied permission with ask never again
+                        // Need to go to the settings
+                        showPermissionDialog(R.string.open_camera_write_external_permission, REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL);
+                    }
+                }, throwable -> {
+
+                });
 	}
 
 	private void toIntent() {
