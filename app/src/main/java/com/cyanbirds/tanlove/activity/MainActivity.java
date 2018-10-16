@@ -110,11 +110,11 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		}
 		updateConversationUnRead();
 
-		rxPermissions = new RxPermissions(this);
+		initLocationClient();
 		requestLocationPermission();
 
 		AppManager.getExecutorService().execute(() -> {
-			initLocationClient();
+
 			if (AppManager.getClientUser().isShowVip) {
 				/**
 				 * 注册小米推送
@@ -481,26 +481,34 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	}
 
 	private void requestLocationPermission() {
-		rxPermissions.requestEach(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
-				.subscribe(permission -> {
-					if (permission.granted) {
-						// `permission.name` is granted !
-						startLocation();
-					} else if (permission.shouldShowRequestPermissionRationale) {
-						// Denied permission without ask never again
-						if (!isSecondAccess) {
-							showAccessLocationDialog();
+		if (!CheckUtil.isGetPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) &&
+				!CheckUtil.isGetPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
+			if (rxPermissions == null) {
+				rxPermissions = new RxPermissions(this);
+			}
+			rxPermissions.requestEachCombined(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+					.subscribe(permission -> {// will emit 1 Permission object
+						if (permission.granted) {
+							// All permissions are granted !
+							startLocation();
+						} else if (permission.shouldShowRequestPermissionRationale) {
+							// At least one denied permission without ask never again
+							if (!isSecondAccess) {
+								showAccessLocationDialog();
+							}
+						} else {
+							// At least one denied permission with ask never again
+							// Need to go to the settings
+							if (!isSecondAccess) {
+								showAccessLocationDialog();
+							}
 						}
-					} else {
-						// Denied permission with ask never again
-						// Need to go to the settings
-						if (!isSecondAccess) {
-							showAccessLocationDialog();
-						}
-					}
-				}, throwable -> {
+					}, throwable -> {
 
-				});
+					});
+		} else {
+			startLocation();
+		}
 	}
 
 	private void showAccessLocationDialog() {

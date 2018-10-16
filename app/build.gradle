@@ -9,7 +9,7 @@ android {
     defaultConfig {
         applicationId "com.cyanbirds.tanlove"
         minSdkVersion 15
-        targetSdkVersion 22
+        targetSdkVersion 27
         versionCode 60
         versionName "1.7.0"
         flavorDimensions "60"

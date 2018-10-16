@@ -60,6 +60,7 @@ import com.cyanbirds.tanlove.listener.MessageStatusReportListener.OnMessageStatu
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.manager.NotificationManager;
 import com.cyanbirds.tanlove.ui.widget.WrapperLinearLayoutManager;
+import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.EmoticonUtil;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.cyanbirds.tanlove.utils.FileUtils;
@@ -277,7 +278,6 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 	}
 
 	private void setupData() {
-		rxPermissions = new RxPermissions(this);
 		mClientUser = (ClientUser) getIntent().getSerializableExtra(ValueKey.USER);
 		if (mClientUser != null) {
 			mConversation = ConversationSqlManager.getInstance(this)
@@ -457,27 +457,40 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 	}
 
 	private void checkPOpenCameraAlbums() {
-		rxPermissions.requestEachCombined(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
-				.subscribe(permission -> { // will emit 1 Permission object
-					if (permission.granted) {
-						// All permissions are granted !
-						if (isOpenCamara) {
-							openCamera();
-							setInputMode();
+		if (!CheckUtil.isGetPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) &&
+				!CheckUtil.isGetPermission(this, Manifest.permission.CAMERA)) {
+			if (rxPermissions == null) {
+				rxPermissions = new RxPermissions(this);
+			}
+			rxPermissions.requestEachCombined(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
+					.subscribe(permission -> {// will emit 1 Permission object
+						if (permission.granted) {
+							// All permissions are granted !
+							if (isOpenCamara) {
+								openCamera();
+								setInputMode();
+							} else {
+								openAlbums();
+							}
+						} else if (permission.shouldShowRequestPermissionRationale) {
+							// At least one denied permission without ask never again
+							showPermissionDialog(R.string.open_camera_write_external_permission, REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL);
 						} else {
-							openAlbums();
+							// At least one denied permission with ask never again
+							// Need to go to the settings
+							showPermissionDialog(R.string.open_camera_write_external_permission, REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL);
 						}
-					} else if (permission.shouldShowRequestPermissionRationale) {
-						// At least one denied permission without ask never again
-						showPermissionDialog(R.string.open_camera_write_external_permission, REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL);
-					} else {
-						// At least one denied permission with ask never again
-						// Need to go to the settings
-						showPermissionDialog(R.string.open_camera_write_external_permission, REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL);
-					}
-				}, throwable -> {
+					}, throwable -> {
 
-				});
+					});
+		} else {
+			if (isOpenCamara) {
+				openCamera();
+				setInputMode();
+			} else {
+				openAlbums();
+			}
+		}
 	}
 
 	private void sendTextMsg() {

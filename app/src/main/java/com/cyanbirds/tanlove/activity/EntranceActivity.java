@@ -65,7 +65,6 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
         ButterKnife.bind(this);
         setupViews();
         initLocationClient();
-        rxPermissions = new RxPermissions(this);
         requestLocationPermission();
     }
 
@@ -201,26 +200,34 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
     }
 
     private void requestLocationPermission() {
-        rxPermissions.requestEachCombined(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
-                .subscribe(permission -> {// will emit 1 Permission object
-                    if (permission.granted) {
-                        // All permissions are granted !
-                        startLocation();
-                    } else if (permission.shouldShowRequestPermissionRationale) {
-                        // At least one denied permission without ask never again
-                        if (!isSecondAccess) {
-                            showAccessLocationDialog();
+        if (!CheckUtil.isGetPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) &&
+                !CheckUtil.isGetPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
+            if (rxPermissions == null) {
+                rxPermissions = new RxPermissions(this);
+            }
+            rxPermissions.requestEachCombined(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+                    .subscribe(permission -> {// will emit 1 Permission object
+                        if (permission.granted) {
+                            // All permissions are granted !
+                            startLocation();
+                        } else if (permission.shouldShowRequestPermissionRationale) {
+                            // At least one denied permission without ask never again
+                            if (!isSecondAccess) {
+                                showAccessLocationDialog();
+                            }
+                        } else {
+                            // At least one denied permission with ask never again
+                            // Need to go to the settings
+                            if (!isSecondAccess) {
+                                showAccessLocationDialog();
+                            }
                         }
-                    } else {
-                        // At least one denied permission with ask never again
-                        // Need to go to the settings
-                        if (!isSecondAccess) {
-                            showAccessLocationDialog();
-                        }
-                    }
-                }, throwable -> {
+                    }, throwable -> {
 
-                });
+                    });
+        } else {
+            startLocation();
+        }
     }
 
     private void showAccessLocationDialog() {

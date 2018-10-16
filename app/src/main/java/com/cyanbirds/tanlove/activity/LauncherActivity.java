@@ -83,21 +83,28 @@ public class LauncherActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mStartTime = System.currentTimeMillis();// 记录开始时间
-        rxPermissions = new RxPermissions(this);
         getKeys();
         requestPermission();
     }
 
     private void requestPermission() {
-        rxPermissions.request(Manifest.permission.READ_PHONE_STATE)
-                .subscribe(granted -> {
-                    if (granted) { // Always true pre-M
-                        init();
-                        loadData();
-                    } else {
-                        showPermissionDialog();
-                    }
-                }, throwable -> {});
+        if (!CheckUtil.isGetPermission(this, Manifest.permission.READ_PHONE_STATE)) {
+            if (rxPermissions == null) {
+                rxPermissions = new RxPermissions(this);
+            }
+            rxPermissions.request(Manifest.permission.READ_PHONE_STATE)
+                    .subscribe(granted -> {
+                        if (granted) { // Always true pre-M
+                            init();
+                            loadData();
+                        } else {
+                            showPermissionDialog();
+                        }
+                    }, throwable -> {});
+        } else {
+            init();
+            loadData();
+        }
     }
 
     private void showPermissionDialog() {

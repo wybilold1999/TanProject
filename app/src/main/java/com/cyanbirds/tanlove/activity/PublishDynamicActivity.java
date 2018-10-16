@@ -4,7 +4,10 @@ import android.Manifest;
 import android.arch.lifecycle.Lifecycle;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.util.ArrayMap;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.GridLayoutManager;
@@ -27,6 +30,7 @@ import com.cyanbirds.tanlove.net.IUserDynamic;
 import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 import com.cyanbirds.tanlove.net.request.OSSImagUploadRequest;
 import com.cyanbirds.tanlove.utils.AESOperator;
+import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.cyanbirds.tanlove.utils.ImageUtil;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
@@ -101,22 +105,27 @@ public class PublishDynamicActivity extends BaseActivity {
 	}
 
 	private void requestPermission() {
-	    rxPermissions.requestEachCombined(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)
-                .subscribe(permission -> {// will emit 1 Permission object
-                    if (permission.granted) {
-                        // All permissions are granted !
-						toIntent();
-                    } else if (permission.shouldShowRequestPermissionRationale) {
-                        // At least one denied permission without ask never again
-                        showPermissionDialog(R.string.open_camera_write_external_permission, REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL);
-                    } else {
-                        // At least one denied permission with ask never again
-                        // Need to go to the settings
-                        showPermissionDialog(R.string.open_camera_write_external_permission, REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL);
-                    }
-                }, throwable -> {
+	    if (!CheckUtil.isGetPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) &&
+                !CheckUtil.isGetPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
+            rxPermissions.requestEachCombined(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)
+                    .subscribe(permission -> {// will emit 1 Permission object
+                        if (permission.granted) {
+                            // All permissions are granted !
+                            toIntent();
+                        } else if (permission.shouldShowRequestPermissionRationale) {
+                            // At least one denied permission without ask never again
+                            showPermissionDialog(R.string.open_camera_write_external_permission, REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL);
+                        } else {
+                            // At least one denied permission with ask never again
+                            // Need to go to the settings
+                            showPermissionDialog(R.string.open_camera_write_external_permission, REQUEST_PERMISSION_CAMERA_WRITE_EXTERNAL);
+                        }
+                    }, throwable -> {
 
-                });
+                    });
+        } else {
+	    	toIntent();
+		}
 	}
 
 	private void toIntent() {
@@ -132,6 +141,7 @@ public class PublishDynamicActivity extends BaseActivity {
 			dialog.dismiss();
 			Utils.goToSetting(this, requestCode);
 		});
+		builder.setCancelable(false);
 		builder.show();
 	}
 
