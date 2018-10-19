@@ -110,8 +110,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		}
 		updateConversationUnRead();
 
-		initLocationClient();
-		requestLocationPermission();
+		locationSuccess();
 
 		AppManager.getExecutorService().execute(() -> {
 
@@ -139,6 +138,22 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 			SDKCoreHelper.init(CSApplication.getInstance(), ECInitParams.LoginMode.FORCE_LOGIN);
 		}
 	}
+
+	/**
+	 * 判断是否定位成功。成功就不定位了，直接上传城市
+	 */
+	private void locationSuccess() {
+		String currentCity = AppManager.getClientUser().currentCity;
+		curLat = AppManager.getClientUser().latitude;
+		curLon = AppManager.getClientUser().longitude;
+		if (!TextUtils.isEmpty(currentCity) && !TextUtils.isEmpty(curLat) && !TextUtils.isEmpty(curLon)) {
+			uploadCityInfoRequest(currentCity, curLat, curLon);
+		} else {
+			initLocationClient();
+			requestLocationPermission();
+		}
+	}
+
 
 	/**
 	 * 初始化定位
