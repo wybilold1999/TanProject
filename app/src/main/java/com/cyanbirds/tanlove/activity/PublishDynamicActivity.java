@@ -105,7 +105,7 @@ public class PublishDynamicActivity extends BaseActivity {
 	}
 
 	private void requestPermission() {
-	    if (!CheckUtil.isGetPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) &&
+	    if (!CheckUtil.isGetPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ||
                 !CheckUtil.isGetPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
             rxPermissions.requestEachCombined(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE)
                     .subscribe(permission -> {// will emit 1 Permission object

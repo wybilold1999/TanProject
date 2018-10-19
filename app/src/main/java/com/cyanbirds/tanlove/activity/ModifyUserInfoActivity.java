@@ -546,12 +546,15 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 	}
 
 	private void checkPOpenCameraAlbums() {
-		if (!CheckUtil.isGetPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) &&
-				!CheckUtil.isGetPermission(this, Manifest.permission.CAMERA)) {
+		if (!CheckUtil.isGetPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ||
+				!CheckUtil.isGetPermission(this, Manifest.permission.CAMERA) ||
+				!CheckUtil.isGetPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)) {
 			if (rxPermissions == null) {
 				rxPermissions = new RxPermissions(this);
 			}
-			rxPermissions.requestEachCombined(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
+			rxPermissions.requestEachCombined(Manifest.permission.WRITE_EXTERNAL_STORAGE,
+					Manifest.permission.CAMERA,
+					Manifest.permission.READ_EXTERNAL_STORAGE)
 					.subscribe(permission -> {// will emit 1 Permission object
 						if (permission.granted) {
 							// All permissions are granted !

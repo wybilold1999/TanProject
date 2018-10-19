@@ -457,7 +457,7 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 	}
 
 	private void checkPOpenCameraAlbums() {
-		if (!CheckUtil.isGetPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) &&
+		if (!CheckUtil.isGetPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) ||
 				!CheckUtil.isGetPermission(this, Manifest.permission.CAMERA)) {
 			if (rxPermissions == null) {
 				rxPermissions = new RxPermissions(this);
