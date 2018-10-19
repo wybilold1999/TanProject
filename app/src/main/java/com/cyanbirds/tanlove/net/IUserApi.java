@@ -94,6 +94,10 @@ public interface IUserApi {
     @POST("user/homeLoveList")
     Observable<ResponseBody> getHomeLoveList(@Header("token") String token, @FieldMap ArrayMap<String, String> params);
 
+    @FormUrlEncoded
+    @POST("user/realUserHomeList")
+    Observable<ResponseBody> getRealUserHomeList(@Header("token") String token, @FieldMap ArrayMap<String, String> params);
+
     /**
      * 上传城市信息
      * @param token

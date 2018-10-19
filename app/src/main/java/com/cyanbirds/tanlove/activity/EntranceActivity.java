@@ -205,7 +205,9 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
             if (rxPermissions == null) {
                 rxPermissions = new RxPermissions(this);
             }
-            rxPermissions.requestEachCombined(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
+            rxPermissions.requestEachCombined(Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.ACCESS_COARSE_LOCATION,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.CAMERA)
                     .subscribe(permission -> {// will emit 1 Permission object
                         if (permission.granted) {
                             // All permissions are granted !

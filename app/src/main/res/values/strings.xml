@@ -419,4 +419,10 @@
     <string name="publish_dynamic_fail">发布动态失败，请稍后再试</string>
     <string name="can_not_use_app">禁止使用该权限将无法使用该软件,请在权限选项中打开该权限</string>
 
+    <string name="channel"><Data><![CDATA[渠道：<font color="#ff0000"><b>%1$s</b></font>]]></Data></string>
+    <string name="city"><Data><![CDATA[城市：<font color="#ff0000"><b>%1$s</b></font>]]></Data></string>
+    <string name="channel_list">渠道列表</string>
+    <string name="permission_list">权限列表</string>
+    <string name="check_personal_info">查看用户详情</string>
+
 </resources>
