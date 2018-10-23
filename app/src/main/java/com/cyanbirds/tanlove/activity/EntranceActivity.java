@@ -4,7 +4,6 @@ import android.Manifest;
 import android.arch.lifecycle.Lifecycle;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v4.util.ArrayMap;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.view.View;
@@ -13,7 +12,6 @@ import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
-import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.ValueKey;
@@ -21,6 +19,7 @@ import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.IUserApi;
 import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 import com.cyanbirds.tanlove.utils.CheckUtil;
+import com.cyanbirds.tanlove.utils.JsonUtils;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.Utils;
 import com.tbruyelle.rxpermissions2.RxPermissions;
@@ -34,6 +33,8 @@ import butterknife.OnClick;
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.schedulers.Schedulers;
 import mehdi.sakout.fancybuttons.FancyButton;
+
+import static com.cyanbirds.tanlove.config.AppConstants.BAIDU_LOCATION_API;
 
 /**
  * @ClassName:EntranceActivity
@@ -64,6 +65,7 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
         setContentView(R.layout.activity_entrance);
         ButterKnife.bind(this);
         setupViews();
+        getIPAddress();
         initLocationClient();
         requestLocationPermission();
     }
@@ -74,6 +76,31 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
     private void setupViews() {
         mLogin = findViewById(R.id.login);
         mRegister = findViewById(R.id.register);
+    }
+
+    private void getIPAddress() {
+        RetrofitFactory.getRetrofit().create(IUserApi.class)
+                .getIPAddress()
+                .subscribeOn(Schedulers.io())
+                .map(responseBody -> JsonUtils.parseIPJson(responseBody.string()))
+                .observeOn(AndroidSchedulers.mainThread())
+                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+                .subscribe(ipAddress -> {
+                    if (!TextUtils.isEmpty(ipAddress)) {
+                        getCityByIP(ipAddress);
+                    }
+                }, throwable -> {});
+    }
+
+    private void getCityByIP(String ip) {
+        String url = BAIDU_LOCATION_API + ip;
+        RetrofitFactory.getRetrofit().create(IUserApi.class)
+                .getCityByIP(url)
+                .subscribeOn(Schedulers.io())
+                .map(responseBody -> JsonUtils.parseCityJson(responseBody.string()))
+                .observeOn(AndroidSchedulers.mainThread())
+                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
+                .subscribe(result -> {}, throwable -> {});
     }
 
     /**
@@ -132,28 +159,13 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
             mCurrrentCity = aMapLocation.getCity();
             PreferencesUtils.setCurrentCity(this, mCurrrentCity);
             PreferencesUtils.setCurrentProvince(EntranceActivity.this, aMapLocation.getProvince());
-            uploadCityInfoRequest(mCurrrentCity, String.valueOf(aMapLocation.getLatitude()),
-                    String.valueOf(aMapLocation.getLongitude()));
             PreferencesUtils.setLatitude(this, curLat);
             PreferencesUtils.setLongitude(this, curLon);
             if (!TextUtils.isEmpty(mCurrrentCity)) {
                 stopLocation();
+                PreferencesUtils.setIsLocationSuccess(this, true);
             }
         }
-    }
-
-    private void uploadCityInfoRequest(String city, String lat, String lon) {
-        ArrayMap<String, String> params = new ArrayMap<>();
-        params.put("channel", CheckUtil.getAppMetaData(CSApplication.getInstance(), "UMENG_CHANNEL"));
-        params.put("currentCity", city);
-        params.put("latitude", lat);
-        params.put("longitude", lon);
-        RetrofitFactory.getRetrofit().create(IUserApi.class)
-                .uploadCityInfo(params, AppManager.getClientUser().sessionId)
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
-                .subscribe(responseBody -> {} , throwable -> {});
     }
 
     @OnClick({R.id.login, R.id.register})

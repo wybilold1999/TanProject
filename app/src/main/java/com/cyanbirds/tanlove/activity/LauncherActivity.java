@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.util.ArrayMap;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
@@ -28,7 +27,6 @@ import com.cyanbirds.tanlove.utils.Md5Util;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.PushMsgUtil;
 import com.cyanbirds.tanlove.utils.ToastUtil;
-import com.cyanbirds.tanlove.utils.Utils;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;
 import com.uber.autodispose.AutoDispose;
@@ -117,20 +115,6 @@ public class LauncherActivity extends AppCompatActivity {
             init();
             loadData();
         }
-    }
-
-    private void showPermissionDialog() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setMessage(R.string.can_not_use_app);
-        builder.setPositiveButton(R.string.ok, (dialog, i) -> {
-            dialog.dismiss();
-            Utils.goToSetting(this, REQUEST_PERMISSION_READ_PHONE_STATE);
-        });
-        builder.setNegativeButton(R.string.cancel, (dialog, i) -> {
-            dialog.dismiss();
-            finish();
-        });
-        builder.show();
     }
 
     Runnable mainActivity = () -> {

@@ -60,6 +60,8 @@ public class PreferencesUtils {
 	public static final String SETTINGS_LONGITUDE = "com.cyanbird.tanlove_longitude";
 	/** 是否上传好评截图*/
 	public static final String SETTINGS_APP_COMMENT = "com.cyanbirds.tanlove_app_comment";
+	/** 高德定位是否成功 **/
+	public static final String SETTINGS_LOCATION_SUCCESS = "com.cyanbirds.tanlove_location_success";
 
 	/**
 	 * 获取RL账号
@@ -524,6 +526,20 @@ public class PreferencesUtils {
 		SharedPreferences sp = PreferenceManager
 				.getDefaultSharedPreferences(context);
 		sp.edit().putBoolean(SETTINGS_APP_COMMENT, isUpload)
+				.commit();
+	}
+
+	public static boolean getIsLocationSuccess(final Context context) {
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sp.getBoolean(SETTINGS_LOCATION_SUCCESS, false);
+	}
+
+	public static void setIsLocationSuccess(final Context context,
+											 final Boolean isSuccess) {
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		sp.edit().putBoolean(SETTINGS_LOCATION_SUCCESS, isSuccess)
 				.commit();
 	}
 

@@ -60,6 +60,11 @@ public class AppConstants {
 	 */
 	public static final String OSS_IMG_ENDPOINT = "http://real-love-server.img-cn-shenzhen.aliyuncs.com/";
 
+	/**
+	 * 百度api定位
+	 */
+	public static final String BAIDU_LOCATION_API = "http://api.map.baidu.com/location/ip?ak=icuYvoz6ZrKLTKC6m53hquZUzZlHUypg&coor=bd09ll&ip=";
+
 	public static final String WX_PAY_PLATFORM = "wxpay";
 
 	public static final String ALI_PAY_PLATFORM = "alipay";

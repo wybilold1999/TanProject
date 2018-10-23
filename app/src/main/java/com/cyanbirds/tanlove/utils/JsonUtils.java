@@ -3,15 +3,12 @@ package com.cyanbirds.tanlove.utils;
 import android.text.TextUtils;
 
 import com.cyanbirds.tanlove.CSApplication;
-import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.entity.AllKeys;
 import com.cyanbirds.tanlove.entity.ClientUser;
-import com.cyanbirds.tanlove.entity.FareActivityModel;
 import com.cyanbirds.tanlove.entity.FederationToken;
 import com.cyanbirds.tanlove.entity.FollowLoveModel;
 import com.cyanbirds.tanlove.entity.FollowModel;
 import com.cyanbirds.tanlove.entity.Gift;
-import com.cyanbirds.tanlove.entity.IdentifyCard;
 import com.cyanbirds.tanlove.entity.LoveModel;
 import com.cyanbirds.tanlove.entity.MemberBuy;
 import com.cyanbirds.tanlove.entity.PictureModel;
@@ -25,6 +22,8 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.google.gson.reflect.TypeToken;
+
+import org.json.JSONObject;
 
 import java.lang.reflect.Type;
 import java.util.ArrayList;
@@ -484,24 +483,49 @@ public class JsonUtils {
     }
 
     /**
-     * 获取返话费活动条件等
-     * @param json
+     * 根据api解析返回的ip地址
+     * @param result
      * @return
      */
-    public static FareActivityModel parseFareActvityInfo(String json) {
-        try {
-            String decryptData = AESOperator.getInstance().decrypt(json);
-            JsonObject obj = new JsonParser().parse(decryptData).getAsJsonObject();
-            int code = obj.get("code").getAsInt();
-            if (code != 0) {
-                return null;
+    public static String parseIPJson(String result) {
+        int start = result.indexOf("{");
+        int end = result.indexOf("}");
+        String json = result.substring(start, end + 1);
+        String ipAddress = "";
+        if (json != null) {
+            try {
+                JSONObject jsonObject = new JSONObject(json);
+                ipAddress = jsonObject.optString("cip");
+            } catch (Exception e) {
+                e.printStackTrace();
             }
-            Gson gson = new Gson();
-            FareActivityModel activityModel = gson.fromJson(obj.getAsJsonObject("data"), FareActivityModel.class);
-            return activityModel;
-        } catch (Exception e) {
         }
-        return null;
+        return ipAddress;
+    }
+
+    /**
+     * 解析根据ip地址返回的地址
+     * @param result
+     * @return
+     */
+    public static String parseCityJson(String result) {
+        try {
+            JSONObject jsonObject = new JSONObject(result);
+            JSONObject content = jsonObject.optJSONObject("content");
+            JSONObject addressDetail = content.optJSONObject("address_detail");
+            String city = addressDetail.optString("city");
+            String province = addressDetail.optString("province");
+            JSONObject point = content.optJSONObject("point");
+            String lat = point.optString("y");
+            String lon = point.optString("x");
+            PreferencesUtils.setCurrentCity(CSApplication.getInstance(), city);
+            PreferencesUtils.setCurrentProvince(CSApplication.getInstance(), province);
+            PreferencesUtils.setLatitude(CSApplication.getInstance(), lat);
+            PreferencesUtils.setLongitude(CSApplication.getInstance(), lon);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return "";
     }
 
 }

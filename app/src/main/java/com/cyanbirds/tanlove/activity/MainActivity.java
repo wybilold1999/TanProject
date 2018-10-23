@@ -146,7 +146,8 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		String currentCity = AppManager.getClientUser().currentCity;
 		curLat = AppManager.getClientUser().latitude;
 		curLon = AppManager.getClientUser().longitude;
-		if (!TextUtils.isEmpty(currentCity) && !TextUtils.isEmpty(curLat) && !TextUtils.isEmpty(curLon)) {
+		boolean isLocSuc = PreferencesUtils.getIsLocationSuccess(this);
+		if (isLocSuc && !TextUtils.isEmpty(currentCity) && !TextUtils.isEmpty(curLat) && !TextUtils.isEmpty(curLon)) {
 			uploadCityInfoRequest(currentCity, curLat, curLon);
 		} else {
 			initLocationClient();
@@ -281,20 +282,22 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	@Override
 	public void onLocationChanged(AMapLocation aMapLocation) {
 		if (aMapLocation != null && !TextUtils.isEmpty(aMapLocation.getCity())) {
-			PreferencesUtils.setCurrentCity(this, aMapLocation.getCity());
 			ClientUser clientUser = AppManager.getClientUser();
 			clientUser.latitude = String.valueOf(aMapLocation.getLatitude());
 			clientUser.longitude = String.valueOf(aMapLocation.getLongitude());
 			AppManager.setClientUser(clientUser);
 			curLat = clientUser.latitude;
 			curLon = clientUser.longitude;
-			if (TextUtils.isEmpty(PreferencesUtils.getCurrentProvince(this))) {
-				PreferencesUtils.setCurrentProvince(this, aMapLocation.getProvince());
-			}
+
 			uploadCityInfoRequest(aMapLocation.getCity(), String.valueOf(aMapLocation.getLatitude()),
 					String.valueOf(aMapLocation.getLongitude()));
+
+			PreferencesUtils.setCurrentCity(this, aMapLocation.getCity());
+			PreferencesUtils.setCurrentProvince(this, aMapLocation.getProvince());
 			PreferencesUtils.setLatitude(this, curLat);
 			PreferencesUtils.setLongitude(this, curLon);
+			PreferencesUtils.setIsLocationSuccess(this, true);
+
 			if (!TextUtils.isEmpty(aMapLocation.getCity())) {
 				stopLocation();
 			}

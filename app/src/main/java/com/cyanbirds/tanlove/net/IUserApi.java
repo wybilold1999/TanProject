@@ -10,7 +10,9 @@ import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.Header;
+import retrofit2.http.Headers;
 import retrofit2.http.POST;
+import retrofit2.http.Url;
 
 public interface IUserApi {
 
@@ -119,5 +121,20 @@ public interface IUserApi {
     @FormUrlEncoded
     @POST("user/uploadToken")
     Call<ResponseBody> uploadToken(@FieldMap ArrayMap<String, String> params, @Header("token") String token);
+
+    /**
+     * 根据api查询ip地址
+     * @return
+     */
+    @GET("http://pv.sohu.com/cityjson?ie=utf-8")
+    Observable<ResponseBody> getIPAddress();
+
+    /**
+     * 根据ip获取城市
+     * @param url
+     * @return
+     */
+    @GET
+    Observable<ResponseBody> getCityByIP(@Url String url);
 
 }
