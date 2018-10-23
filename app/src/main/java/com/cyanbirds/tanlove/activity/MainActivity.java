@@ -529,6 +529,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 	private void showAccessLocationDialog() {
 		isSecondAccess = true;
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(R.string.permission_request);
 		builder.setMessage(R.string.access_location);
 		builder.setPositiveButton(R.string.ok, (dialog, i) -> {
 			dialog.dismiss();

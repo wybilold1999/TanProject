@@ -585,6 +585,7 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 
     private void showPermissionDialog(int textResId, int requestCode) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
+		builder.setTitle(R.string.permission_request);
         builder.setMessage(textResId);
         builder.setPositiveButton(R.string.ok, (dialog, i) -> {
             dialog.dismiss();

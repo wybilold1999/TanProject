@@ -88,19 +88,31 @@ public class LauncherActivity extends AppCompatActivity {
     }
 
     private void requestPermission() {
-        if (!CheckUtil.isGetPermission(this, Manifest.permission.READ_PHONE_STATE)) {
+        if (!CheckUtil.isGetPermission(this, Manifest.permission.READ_PHONE_STATE) ||
+                !CheckUtil.isGetPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE)) {
             if (rxPermissions == null) {
                 rxPermissions = new RxPermissions(this);
             }
-            rxPermissions.request(Manifest.permission.READ_PHONE_STATE)
-                    .subscribe(granted -> {
-                        if (granted) { // Always true pre-M
+            rxPermissions.requestEachCombined(Manifest.permission.READ_PHONE_STATE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    .subscribe(permission -> {// will emit 1 Permission object
+                        if (permission.granted) {
+                            // All permissions are granted !
+                            init();
+                            loadData();
+                        } else if (permission.shouldShowRequestPermissionRationale) {
+                            // At least one denied permission without ask never again
                             init();
                             loadData();
                         } else {
-                            showPermissionDialog();
+                            // At least one denied permission with ask never again
+                            // Need to go to the settings
+                            init();
+                            loadData();
                         }
-                    }, throwable -> {});
+                    }, throwable -> {
+
+                    });
         } else {
             init();
             loadData();
