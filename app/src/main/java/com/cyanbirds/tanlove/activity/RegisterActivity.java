@@ -193,6 +193,12 @@ public class RegisterActivity extends BaseActivity<IUserLoginLogOut.Presenter> i
     }
 
     @Override
+    public void onShowNetError() {
+        onHideLoading();
+        ToastUtil.showMessage(R.string.network_requests_error);
+    }
+
+    @Override
     public void setPresenter(IUserLoginLogOut.Presenter presenter) {
         if (presenter == null) {
             this.presenter = new UserLoginPresenterImpl(this);
@@ -431,6 +437,12 @@ public class RegisterActivity extends BaseActivity<IUserLoginLogOut.Presenter> i
     protected void onStop() {
         super.onStop();
         ProgressDialogUtils.getInstance(this).dismiss();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        RxBus.getInstance().unregister(AppConstants.CITY_WE_CHAT_RESP_CODE, observable);
     }
 
     @Override

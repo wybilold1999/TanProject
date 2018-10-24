@@ -461,4 +461,10 @@ public class PersonalInfoActivity extends BaseActivity {
 		MobclickAgent.onPageEnd(this.getClass().getName());
 		MobclickAgent.onPause(this);
 	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		RxBus.getInstance().unregister(AppConstants.UPDATE_USER_INFO, observable);
+	}
 }

@@ -371,6 +371,12 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
     }
 
     @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        RxBus.getInstance().unregister(AppConstants.CITY_WE_CHAT_RESP_CODE, observable);
+    }
+
+    @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK
                 && event.getAction() == KeyEvent.ACTION_DOWN) {

@@ -337,4 +337,10 @@ public class PersonalFragment extends Fragment {
 		super.onPause();
 		MobclickAgent.onPageEnd(this.getClass().getName());
 	}
+
+	@Override
+	public void onDestroy() {
+		super.onDestroy();
+		RxBus.getInstance().unregister(AppConstants.UPDATE_USER_INFO, observable);
+	}
 }

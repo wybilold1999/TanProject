@@ -38,7 +38,6 @@ import com.cyanbirds.tanlove.ui.widget.WrapperLinearLayoutManager;
 import com.cyanbirds.tanlove.utils.AESOperator;
 import com.cyanbirds.tanlove.utils.DensityUtil;
 import com.cyanbirds.tanlove.utils.JsonUtils;
-import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.RxBus;
 import com.cyanbirds.tanlove.utils.ToastUtil;
 import com.google.gson.Gson;
@@ -454,5 +453,11 @@ public class VipCenterActivity extends BaseActivity {
 		super.onPause();
 		MobclickAgent.onPageEnd(this.getClass().getName());
 		MobclickAgent.onPause(this);
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		RxBus.getInstance().unregister(AppConstants.CITY_WE_CHAT_RESP_CODE, observable);
 	}
 }

@@ -557,6 +557,7 @@ public class TabPersonalFragment extends Fragment implements GeocodeSearch.OnGeo
 		if (mapView != null) {
 			mapView.onDestroy();
 		}
+		RxBus.getInstance().unregister(AppConstants.UPDATE_USER_INFO, observable);
 	}
 
 	@Override
