@@ -90,6 +90,9 @@ public class UserLoginPresenterImpl implements IUserLoginLogOut.Presenter{
         params.put("longitude", PreferencesUtils.getLongitude(CSApplication.getInstance()));
         params.put("loginTime", String.valueOf(PreferencesUtils.getLoginTime(CSApplication.getInstance())));
         params.put("currentCity", PreferencesUtils.getCurrentCity(CSApplication.getInstance()));
+        if (!TextUtils.isEmpty(AppManager.getClientUser().sex)) {
+            params.put("sex", AppManager.getClientUser().sex);
+        }
         RetrofitFactory.getRetrofit().create(IUserApi.class)
                 .wxLogin(AppManager.getClientUser().sessionId, params)
                 .subscribeOn(Schedulers.io())
@@ -137,6 +140,9 @@ public class UserLoginPresenterImpl implements IUserLoginLogOut.Presenter{
         params.put("longitude", PreferencesUtils.getLongitude(CSApplication.getInstance()));
         params.put("loginTime", String.valueOf(PreferencesUtils.getLoginTime(CSApplication.getInstance())));
         params.put("currentCity", PreferencesUtils.getCurrentCity(CSApplication.getInstance()));
+        if (!TextUtils.isEmpty(AppManager.getClientUser().sex)) {
+            params.put("sex", AppManager.getClientUser().sex);
+        }
         RetrofitFactory.getRetrofit().create(IUserApi.class)
                 .qqLogin(AppManager.getClientUser().sessionId, params)
                 .subscribeOn(Schedulers.io())
@@ -173,7 +179,7 @@ public class UserLoginPresenterImpl implements IUserLoginLogOut.Presenter{
         params.put("upwd", clientUser.userPwd);
         params.put("nickname", clientUser.user_name);
         params.put("phone", clientUser.mobile);
-        params.put("sex", "男".equals(clientUser.sex) ? "1" : "0");
+        params.put("sex", clientUser.sex);
         params.put("age", String.valueOf(clientUser.age));
         params.put("channel", channel);
         params.put("regDeviceName", AppManager.getDeviceName());

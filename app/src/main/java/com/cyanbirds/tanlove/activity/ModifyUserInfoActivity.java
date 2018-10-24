@@ -250,7 +250,7 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 				mNickName.setText(clientUser.user_name);
 			}
 			if (!TextUtils.isEmpty(clientUser.sex)) {
-				mSex.setText(clientUser.sex);
+				mSex.setText("1".equals(clientUser.sex) ? "男" : "女");
 			}
 			if (!TextUtils.isEmpty(String.valueOf(clientUser.age))) {
 				mAge.setText(String.valueOf(clientUser.age));
@@ -733,7 +733,7 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 	 */
 	private void showLableDialog() {
 		mVals.clear();
-		if ("男".equals(AppManager.getClientUser().sex)) {
+		if ("1".equals(AppManager.getClientUser().sex)) {
 			commonDialog(R.string.lable,
 					getResources().getStringArray(R.array.male_lable), null, mLableFlowlayout, mLableText);
 		} else {
@@ -747,7 +747,7 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 	 */
 	private void showPartDialog() {
 		mVals.clear();
-		if ("男".equals(AppManager.getClientUser().sex)) {
+		if ("1".equals(AppManager.getClientUser().sex)) {
 			commonDialog(R.string.satisfacies_part,
 					getResources().getStringArray(R.array.male_sex_part), null, mPartFlowlayout, mPartText);
 		} else {
@@ -823,7 +823,7 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 				String lableTag = ";" + clientUser.personality_tag;
 				if (!TextUtils.isEmpty(lableTag)) {
 					String[] lableArray = null;
-					if ("男".equals(AppManager.getClientUser().sex)) {
+					if ("1".equals(AppManager.getClientUser().sex)) {
 						lableArray = getResources().getStringArray(R.array.male_lable);
 					} else {
 						lableArray = getResources().getStringArray(R.array.female_lable);
@@ -844,7 +844,7 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 				String partTag = ";" + clientUser.part_tag;
 				if (!TextUtils.isEmpty(partTag)) {
 					String[] partArray = null;
-					if ("男".equals(AppManager.getClientUser().sex)) {
+					if ("1".equals(AppManager.getClientUser().sex)) {
 						partArray = getResources().getStringArray(R.array.male_sex_part);
 					} else {
 						partArray = getResources().getStringArray(R.array.female_sex_part);

@@ -173,7 +173,7 @@ public class FindLoveFragment extends Fragment implements OnRefreshListener, Vie
         mAdapter.setOnItemClickListener(mOnItemClickListener);
         mRecyclerView.setAdapter(mAdapter);
         mProgress.setVisibility(View.VISIBLE);
-        if("男".equals(AppManager.getClientUser().sex)){
+        if("1".equals(AppManager.getClientUser().sex)){
             GENDER = "FeMale";
         } else {
             GENDER = "Male";

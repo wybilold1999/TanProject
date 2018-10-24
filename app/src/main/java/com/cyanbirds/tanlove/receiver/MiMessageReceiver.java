@@ -192,7 +192,7 @@ public class MiMessageReceiver extends PushMessageReceiver {
             if (message.getResultCode() == ErrorCode.SUCCESS) {//注册成功
                 if (!"-1".equals(AppManager.getClientUser().userId)) {
                     MiPushClient.setAlias(context, AppManager.getClientUser().userId, null);
-                    if ("男".equals(AppManager.getClientUser().sex)) {
+                    if ("1".equals(AppManager.getClientUser().sex)) {
                         MiPushClient.subscribe(context, "female", null);
                     } else {
                         MiPushClient.subscribe(context, "male", null);

@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.view.KeyEvent;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -47,7 +48,8 @@ import mehdi.sakout.fancybuttons.FancyButton;
 /**
  * Created by Administrator on 2016/4/23.
  */
-public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> implements View.OnClickListener, IUserLoginLogOut.View{
+public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> implements View.OnClickListener, IUserLoginLogOut.View {
+
     EditText loginAccount;
     EditText loginPwd;
     FancyButton btnLogin;
@@ -60,8 +62,8 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
     private String token;
     private String openId;
 
-    private String mPhoneNum;
     private boolean activityIsRunning;
+    private String mPhoneNum;
     private String mCurrrentCity;//定位到的城市
 
     private Observable<?> observable;
@@ -162,8 +164,14 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
             } else {
                 ProgressDialogUtils.getInstance(this).dismiss();
                 WeinXinEvent event = (WeinXinEvent) o;
-                onShowLoading();
-                presenter.onWXLogin(event.code);
+                if (!TextUtils.isEmpty(AppManager.getClientUser().sex)) {
+                    onShowLoading();
+                    presenter.onWXLogin(event.code);
+                } else {
+                    Intent intent = new Intent(this, SelectSexActivity.class);
+                    intent.putExtra("code", event.code);
+                    startActivity(intent);
+                }
             }
         });
     }
@@ -276,10 +284,17 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
                 }
                 @Override
                 public void onComplete(final Object response) {
-                    if (activityIsRunning) {
-                        onShowLoading();
+                    if (!TextUtils.isEmpty(AppManager.getClientUser().sex)) {
+                        if (activityIsRunning) {
+                            onShowLoading();
+                        }
+                        presenter.onQQLogin(token, openId);
+                    } else {
+                        Intent intent = new Intent(LoginActivity.this, SelectSexActivity.class);
+                        intent.putExtra("token", token);
+                        intent.putExtra("openId", openId);
+                        startActivity(intent);
                     }
-                    presenter.onQQLogin(token, openId);
                 }
 
                 @Override
@@ -353,5 +368,14 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
     protected void onStop() {
         super.onStop();
         ProgressDialogUtils.getInstance(this).dismiss();
+    }
+
+    @Override
+    public boolean onKeyDown(int keyCode, KeyEvent event) {
+        if (keyCode == KeyEvent.KEYCODE_BACK
+                && event.getAction() == KeyEvent.ACTION_DOWN) {
+            finish();
+        }
+        return super.onKeyDown(keyCode, event);
     }
 }

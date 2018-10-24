@@ -482,6 +482,7 @@ public class AppManager {
 			clientUser.face_local = face_local;
 			clientUser.sessionId = sessionId;
 			clientUser.currentCity = PreferencesUtils.getCurrentCity(mContext);
+			clientUser.sex = PreferencesUtils.getSettingsSex(mContext);
 			setClientUser(clientUser);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -501,6 +502,7 @@ public class AppManager {
 			PreferencesUtils.setSessionId(mContext, getClientUser().sessionId);
 			PreferencesUtils.setIsLogin(mContext, true);
 			PreferencesUtils.setCurrentCity(mContext, getClientUser().currentCity);
+			PreferencesUtils.setSettingsSex(mContext, getClientUser().sex);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

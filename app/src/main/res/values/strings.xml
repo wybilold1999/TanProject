@@ -419,5 +419,6 @@
     <string name="publish_dynamic_fail">发布动态失败，请稍后再试</string>
     <string name="can_not_use_app">禁止使用该权限将无法使用该软件,请在权限选项中打开该权限</string>
     <string name="permission_request">权限申请</string>
+    <string name="selected_sex_not_modify">请选择您的性别，选择确定后将无法更改</string>
 
 </resources>

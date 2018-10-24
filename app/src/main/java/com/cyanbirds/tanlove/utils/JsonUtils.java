@@ -48,7 +48,7 @@ public class JsonUtils {
             ClientUser clientUser = AppManager.getClientUser();
             clientUser.userId = data.get("uid").getAsString();
             clientUser.userPwd = data.get("upwd").getAsString();
-            clientUser.sex = data.get("sex").getAsInt() == 1 ? "男" : (data.get("sex").getAsInt() == 0 ? "女" : "all");
+            clientUser.sex = data.get("sex").getAsInt() == 1 ? "1" : (data.get("sex").getAsInt() == 0 ? "1" : "all");
             clientUser.mobile = data.get("phone") == null ? "" : data.get("phone").getAsString();
             clientUser.qq_no = data.get("qq").getAsString();
             clientUser.weixin_no = data.get("wechat").getAsString();
@@ -245,7 +245,7 @@ public class JsonUtils {
             JsonObject data = new JsonParser().parse(dataString).getAsJsonObject();
             ClientUser clientUser = new ClientUser();
             clientUser.userId = data.get("uid").getAsString();
-            clientUser.sex = data.get("sex").getAsInt() == 1 ? "男" : "女";
+            clientUser.sex = data.get("sex").getAsInt() == 1 ? "1" : "0";
             clientUser.user_name = data.get("nickname").getAsString();
             clientUser.city = data.get("city").getAsString();
             clientUser.distance = data.get("distance").getAsString();
@@ -460,7 +460,7 @@ public class JsonUtils {
                 ClientUser clientUser = new ClientUser();
                 JsonObject jsonObject = data.get(i).getAsJsonObject();
                 clientUser.userId = jsonObject.get("uid").getAsString();
-                clientUser.sex = jsonObject.get("sex").getAsInt() == 1 ? "男" : "女";
+                clientUser.sex = jsonObject.get("sex").getAsInt() == 1 ? "1" : "0";
                 clientUser.user_name = jsonObject.get("nickname").getAsString();
                 clientUser.is_vip = jsonObject.get("isVip").getAsBoolean();
                 clientUser.state_marry = jsonObject.get("emotionStatus").getAsString();

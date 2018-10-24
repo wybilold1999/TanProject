@@ -62,6 +62,8 @@ public class PreferencesUtils {
 	public static final String SETTINGS_APP_COMMENT = "com.cyanbirds.tanlove_app_comment";
 	/** 高德定位是否成功 **/
 	public static final String SETTINGS_LOCATION_SUCCESS = "com.cyanbirds.tanlove_location_success";
+	/** 性别 0：女生 1：男生 **/
+	public static final String SETTINGS_SEX = "com.cyanbirds.tanlove_sex";
 
 	/**
 	 * 获取RL账号
@@ -541,6 +543,18 @@ public class PreferencesUtils {
 				.getDefaultSharedPreferences(context);
 		sp.edit().putBoolean(SETTINGS_LOCATION_SUCCESS, isSuccess)
 				.commit();
+	}
+
+	public static String getSettingsSex(final Context context) {
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		return sp.getString(SETTINGS_SEX, "");
+	}
+
+	public static void setSettingsSex(final Context context, final String sex) {
+		SharedPreferences sp = PreferenceManager
+				.getDefaultSharedPreferences(context);
+		sp.edit().putString(SETTINGS_SEX, sex).commit();
 	}
 
 }
