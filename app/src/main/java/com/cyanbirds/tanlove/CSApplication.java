@@ -1,7 +1,9 @@
 package com.cyanbirds.tanlove;
 
 import android.graphics.Bitmap;
+import android.preference.PreferenceManager;
 import android.support.multidex.MultiDexApplication;
+import android.text.TextUtils;
 import android.util.SparseIntArray;
 
 import com.cyanbirds.tanlove.config.AppConstants;
@@ -24,11 +26,13 @@ import com.mob.MobSDK;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.tencent.mm.sdk.openapi.IWXAPI;
 import com.tencent.mm.sdk.openapi.WXAPIFactory;
+import com.tencent.mmkv.MMKV;
 
 import java.util.HashSet;
 import java.util.Set;
 
 import static com.cyanbirds.tanlove.config.AppConstants.BUGLY_ID;
+import static com.cyanbirds.tanlove.utils.PreferencesUtils.SETTINGS_RL_ACCOUNT;
 
 /**
  * 
@@ -54,19 +58,21 @@ public class CSApplication extends MultiDexApplication {
 	public void onCreate() {
 		super.onCreate();
 		sApplication = this;
-		AppManager.getExecutorService().execute(new Runnable() {
-			@Override
-			public void run() {
-				AppManager.setContext(sApplication);
-				AppManager.setUserInfo();
-
-				registerActivityLifecycleCallbacks(AppActivityLifecycleCallbacks.getInstance());
-
-				initFresco();
-
-				registerWeiXin();
-
+		AppManager.getExecutorService().execute(() -> {
+			MMKV.initialize(sApplication);
+			AppManager.setMMKV(MMKV.defaultMMKV());
+			AppManager.setContext(sApplication);
+			if (TextUtils.isEmpty(AppManager.getMMKV().decodeString(SETTINGS_RL_ACCOUNT))) {
+				AppManager.getMMKV().importFromSharedPreferences(PreferenceManager.getDefaultSharedPreferences(sApplication));
 			}
+
+			AppManager.setUserInfo();
+
+			registerActivityLifecycleCallbacks(AppActivityLifecycleCallbacks.getInstance());
+
+			initFresco();
+
+			registerWeiXin();
 		});
 
 		//初始化短信sdk

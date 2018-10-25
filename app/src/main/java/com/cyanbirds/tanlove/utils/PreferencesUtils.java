@@ -65,97 +65,6 @@ public class PreferencesUtils {
 	/** 性别 0：女生 1：男生 **/
 	public static final String SETTINGS_SEX = "com.cyanbirds.tanlove_sex";
 
-	/**
-	 * 获取RL账号
-	 *
-	 * @return
-	 */
-	public static String getAccount(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getString(SETTINGS_RL_ACCOUNT, "");
-	}
-
-	/**
-	 * 保存RL账号
-	 *
-	 * @param context
-	 * @param account
-	 */
-	public static void setAccount(final Context context, final String account) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putString(SETTINGS_RL_ACCOUNT, account).commit();
-	}
-
-	/**
-	 * 获取保存的密码
-	 *
-	 * @param context
-	 * @return
-	 */
-	public static String getPassword(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getString(SETTINGS_RL_PASSWORD, "");
-	}
-
-	/**
-	 * 保存密码
-	 *
-	 * @param context
-	 */
-	public static void setPassword(final Context context, final String password) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putString(SETTINGS_RL_PASSWORD, password).commit();
-	}
-
-	/**
-	 * 获取用户手机号码
-	 *
-	 * @param context
-	 * @return
-	 */
-	public static String getUserMobile(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getString(SETTINGS_RL_USER_MOBILE, "");
-	}
-
-	/**
-	 * 保存用户手机号码
-	 *
-	 * @param context
-	 */
-	public static void setUserMobile(final Context context, final String faceUrl) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putString(SETTINGS_RL_USER_MOBILE, faceUrl).commit();
-	}
-
-	/**
-	 * 获取用户名称
-	 *
-	 * @param context
-	 * @return
-	 */
-	public static String getUserName(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getString(SETTINGS_RL_USER_USER_NAME, "");
-	}
-
-	/**
-	 * 保存用户名称
-	 *
-	 * @param context
-	 */
-	public static void setUserName(final Context context, final String username) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putString(SETTINGS_RL_USER_USER_NAME, username).commit();
-	}
 
 	/**
 	 * 获取用户是否第一次登录
@@ -164,11 +73,7 @@ public class PreferencesUtils {
 	 * @return
 	 */
 	public static boolean getFirstLogin(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getBoolean(
-				SETTINGS_RL_FIRST_LOGIN + "_"
-						+ AppManager.getClientUser().userId, true);
+		return AppManager.getMMKV().decodeBool(SETTINGS_RL_FIRST_LOGIN + "_" + AppManager.getClientUser().userId, true);
 	}
 
 	/**
@@ -178,13 +83,7 @@ public class PreferencesUtils {
 	 */
 	public static void setFirstLogin(final Context context,
 									 final Boolean firstLogin) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit()
-				.putBoolean(
-						SETTINGS_RL_FIRST_LOGIN + "_"
-								+ AppManager.getClientUser().userId, firstLogin)
-				.commit();
+		AppManager.getMMKV().encode(SETTINGS_RL_FIRST_LOGIN + "_" + AppManager.getClientUser().userId, firstLogin);
 	}
 
 	/**
@@ -194,9 +93,7 @@ public class PreferencesUtils {
 	 * @return
 	 */
 	public static boolean getIsLogin(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getBoolean(SETTINGS_RL_IS_LOGIN, false);
+		return AppManager.getMMKV().decodeBool(SETTINGS_RL_IS_LOGIN, false);
 	}
 
 	/**
@@ -205,22 +102,9 @@ public class PreferencesUtils {
 	 * @param context
 	 */
 	public static void setIsLogin(final Context context, final Boolean isLogin) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putBoolean(SETTINGS_RL_IS_LOGIN, isLogin).commit();
+		AppManager.getMMKV().encode(SETTINGS_RL_IS_LOGIN, isLogin);
 	}
 
-	/**
-	 * 获取本地头像地址
-	 *
-	 * @param context
-	 * @return
-	 */
-	public static String getFaceLocal(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getString(SETTINGS_RL_FACE_LOCAL, "");
-	}
 
 	/**
 	 * 保存本地头像地址
@@ -229,33 +113,7 @@ public class PreferencesUtils {
 	 * @return
 	 */
 	public static void setFaceLocal(final Context context, final String face_local) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putString(SETTINGS_RL_FACE_LOCAL, face_local).commit();
-	}
-
-	/**
-	 *
-	 * 获取sessionId
-	 * @param context
-	 * @return
-	 */
-	public static String getSessionid(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getString(SETTINGS_RL_SESSIONID, "");
-	}
-
-	/**
-	 * 保存sessionId
-	 *
-	 * @param context
-	 */
-	public static void setSessionId(final Context context,
-							 final String sessionId) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putString(SETTINGS_RL_SESSIONID, sessionId).commit();
+		AppManager.getMMKV().encode(SETTINGS_RL_FACE_LOCAL, face_local);
 	}
 
 	/**
@@ -265,9 +123,7 @@ public class PreferencesUtils {
 	 * @return
 	 */
 	public static boolean getNewMessageNotice(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getBoolean(SETTINGS_RL_NEW_MESSAGE_NOTICE, true);
+		return AppManager.getMMKV().decodeBool(SETTINGS_RL_NEW_MESSAGE_NOTICE, true);
 	}
 
 	/**
@@ -275,10 +131,8 @@ public class PreferencesUtils {
 	 *
 	 * @param context
 	 */
-	public static void setNewMessageNotice(final Context context, final Boolean isLogin) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putBoolean(SETTINGS_RL_NEW_MESSAGE_NOTICE, isLogin).commit();
+	public static void setNewMessageNotice(final Context context, final Boolean msgNotice) {
+		AppManager.getMMKV().encode(SETTINGS_RL_NEW_MESSAGE_NOTICE, msgNotice);
 	}
 
 	/**
@@ -288,9 +142,7 @@ public class PreferencesUtils {
 	 * @return
 	 */
 	public static boolean getShowMessageInfo(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getBoolean(SETTINGS_RL_NOTICE_MESSAGE_INFO, true);
+		return AppManager.getMMKV().decodeBool(SETTINGS_RL_NOTICE_MESSAGE_INFO, true);
 	}
 
 	/**
@@ -298,10 +150,8 @@ public class PreferencesUtils {
 	 *
 	 * @param context
 	 */
-	public static void setShowMessageInfo(final Context context, final Boolean isLogin) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putBoolean(SETTINGS_RL_NOTICE_MESSAGE_INFO, isLogin).commit();
+	public static void setShowMessageInfo(final Context context, final Boolean showMsgInfo) {
+		AppManager.getMMKV().encode(SETTINGS_RL_NOTICE_MESSAGE_INFO, showMsgInfo);
 	}
 
 	/**
@@ -311,9 +161,7 @@ public class PreferencesUtils {
 	 * @return
 	 */
 	public static boolean getNoticeVoice(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getBoolean(SETTINGS_RL_NOTICE_VOICE, true);
+		return AppManager.getMMKV().decodeBool(SETTINGS_RL_NOTICE_VOICE, true);
 	}
 
 	/**
@@ -321,10 +169,8 @@ public class PreferencesUtils {
 	 *
 	 * @param context
 	 */
-	public static void setNoticeVoice(final Context context, final Boolean isLogin) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putBoolean(SETTINGS_RL_NOTICE_VOICE, isLogin).commit();
+	public static void setNoticeVoice(final Context context, final Boolean voice) {
+		AppManager.getMMKV().encode(SETTINGS_RL_NOTICE_VOICE, voice);
 	}
 
 	/**
@@ -334,9 +180,7 @@ public class PreferencesUtils {
 	 * @return
 	 */
 	public static boolean getNoticeShock(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getBoolean(SETTINGS_RL_NOTICE_SHOCK, true);
+		return AppManager.getMMKV().decodeBool(SETTINGS_RL_NOTICE_SHOCK, true);
 	}
 
 	/**
@@ -344,10 +188,8 @@ public class PreferencesUtils {
 	 *
 	 * @param context
 	 */
-	public static void setNoticeShock(final Context context, final Boolean isLogin) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putBoolean(SETTINGS_RL_NOTICE_SHOCK, isLogin).commit();
+	public static void setNoticeShock(final Context context, final Boolean shock) {
+		AppManager.getMMKV().encode(SETTINGS_RL_NOTICE_SHOCK, shock);
 	}
 
 	/**
@@ -357,9 +199,7 @@ public class PreferencesUtils {
 	 * @return
 	 */
 	public static boolean getEarpiecePlayVoice(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getBoolean(SETTINGS_RL_EARPIECE_PLAY_VOICE, false);
+		return AppManager.getMMKV().decodeBool(SETTINGS_RL_EARPIECE_PLAY_VOICE, false);
 	}
 
 	/**
@@ -368,9 +208,7 @@ public class PreferencesUtils {
 	 * @param context
 	 */
 	public static void setEarpiecePlayVoice(final Context context, final Boolean isLogin) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putBoolean(SETTINGS_RL_EARPIECE_PLAY_VOICE, isLogin).commit();
+		AppManager.getMMKV().encode(SETTINGS_RL_EARPIECE_PLAY_VOICE, isLogin);
 	}
 
 	/**
@@ -379,18 +217,14 @@ public class PreferencesUtils {
 	 * @return
 	 */
 	public static String getCurrentCity(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getString(SETTINGS_CURRENT_CITY, "");
+		return AppManager.getMMKV().decodeString(SETTINGS_CURRENT_CITY, "");
 	}
 
 	/**
 	 * @param context
 	 */
 	public static void setCurrentCity(final Context context, final String city) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putString(SETTINGS_CURRENT_CITY, city).commit();
+		AppManager.getMMKV().encode(SETTINGS_CURRENT_CITY, city);
 	}
 
 	/**
@@ -399,18 +233,14 @@ public class PreferencesUtils {
 	 * @return
 	 */
 	public static String getLoveMeUserId(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getString(SETTINGS_LOVE_ME_USER_ID, "");
+		return AppManager.getMMKV().decodeString(SETTINGS_LOVE_ME_USER_ID, "");
 	}
 
 	/**
 	 * @param context
 	 */
 	public static void setLoveMeUserId(final Context context, final String userId) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putString(SETTINGS_LOVE_ME_USER_ID, userId).commit();
+		AppManager.getMMKV().encode(SETTINGS_LOVE_ME_USER_ID, userId);
 	}
 
 	/**
@@ -419,18 +249,14 @@ public class PreferencesUtils {
 	 * @return
 	 */
 	public static String getAttentionMeUserId(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getString(SETTINGS_ATTENTION_ME_USER_ID, "");
+		return AppManager.getMMKV().decodeString(SETTINGS_ATTENTION_ME_USER_ID, "");
 	}
 
 	/**
 	 * @param context
 	 */
 	public static void setAttentionMeUserId(final Context context, final String userId) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putString(SETTINGS_ATTENTION_ME_USER_ID, userId).commit();
+		AppManager.getMMKV().encode(SETTINGS_ATTENTION_ME_USER_ID, userId);
 	}
 
 	/**
@@ -439,18 +265,14 @@ public class PreferencesUtils {
 	 * @return
 	 */
 	public static String getGiftMeUserId(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getString(SETTINGS_GIFT_ME_USER_ID, "");
+		return AppManager.getMMKV().decodeString(SETTINGS_GIFT_ME_USER_ID, "");
 	}
 
 	/**
 	 * @param context
 	 */
 	public static void setGiftMeUserId(final Context context, final String userId) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putString(SETTINGS_GIFT_ME_USER_ID, userId).commit();
+		AppManager.getMMKV().encode(SETTINGS_GIFT_ME_USER_ID, userId);
 	}
 
 	/**
@@ -459,18 +281,14 @@ public class PreferencesUtils {
 	 * @return
 	 */
 	public static long getLoginTime(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getLong(SETTINGS_LOGIN_TIME, -1);
+		return AppManager.getMMKV().decodeLong(SETTINGS_LOGIN_TIME, -1);
 	}
 
 	/**
 	 * @param context
 	 */
 	public static void setLoginTime(final Context context, final long loginTime) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putLong(SETTINGS_LOGIN_TIME, loginTime).commit();
+		AppManager.getMMKV().encode(SETTINGS_LOGIN_TIME, loginTime);
 	}
 
 	/**
@@ -479,82 +297,48 @@ public class PreferencesUtils {
 	 * @return
 	 */
 	public static String getCurrentProvince(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getString(SETTINGS_CURRENT_PROVINCE, "");
+		return AppManager.getMMKV().decodeString(SETTINGS_CURRENT_PROVINCE, "");
 	}
 
 	/**
 	 * @param context
 	 */
 	public static void setCurrentProvince(final Context context, final String province) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putString(SETTINGS_CURRENT_PROVINCE, province).commit();
+		AppManager.getMMKV().encode(SETTINGS_CURRENT_PROVINCE, province);
 	}
 
 	public static void setLatitude(final Context context, final String lat) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putString(SETTINGS_LATITUDE, lat).commit();
+		AppManager.getMMKV().encode(SETTINGS_LATITUDE, lat);
 	}
 
 	public static String getLatitude(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getString(SETTINGS_LATITUDE, "");
+		return AppManager.getMMKV().decodeString(SETTINGS_LATITUDE, "");
 	}
 
 	public static void setLongitude(final Context context, final String longitude) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putString(SETTINGS_LONGITUDE, longitude).commit();
+		AppManager.getMMKV().encode(SETTINGS_LONGITUDE, longitude);
 	}
 
 	public static String getLongitude(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getString(SETTINGS_LONGITUDE, "");
+		return AppManager.getMMKV().decodeString(SETTINGS_LONGITUDE, "");
 	}
 
 	public static boolean getIsUploadCommentImg(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getBoolean(SETTINGS_APP_COMMENT, false);
+		return AppManager.getMMKV().decodeBool(SETTINGS_APP_COMMENT, false);
 	}
 
 	public static void setIsUploadCommentImg(final Context context,
 									   final Boolean isUpload) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putBoolean(SETTINGS_APP_COMMENT, isUpload)
-				.commit();
+		AppManager.getMMKV().encode(SETTINGS_APP_COMMENT, isUpload);
 	}
 
 	public static boolean getIsLocationSuccess(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getBoolean(SETTINGS_LOCATION_SUCCESS, false);
+		return AppManager.getMMKV().decodeBool(SETTINGS_LOCATION_SUCCESS, false);
 	}
 
 	public static void setIsLocationSuccess(final Context context,
 											 final Boolean isSuccess) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putBoolean(SETTINGS_LOCATION_SUCCESS, isSuccess)
-				.commit();
-	}
-
-	public static String getSettingsSex(final Context context) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		return sp.getString(SETTINGS_SEX, "");
-	}
-
-	public static void setSettingsSex(final Context context, final String sex) {
-		SharedPreferences sp = PreferenceManager
-				.getDefaultSharedPreferences(context);
-		sp.edit().putString(SETTINGS_SEX, sex).commit();
+		AppManager.getMMKV().encode(SETTINGS_LOCATION_SUCCESS, isSuccess);
 	}
 
 }

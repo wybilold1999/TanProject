@@ -19,6 +19,7 @@ import com.cyanbirds.tanlove.entity.FederationToken;
 import com.cyanbirds.tanlove.entity.IMessage;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.tencent.mm.sdk.openapi.IWXAPI;
+import com.tencent.mmkv.MMKV;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -29,6 +30,16 @@ import java.io.LineNumberReader;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+
+import static com.cyanbirds.tanlove.utils.PreferencesUtils.SETTINGS_CURRENT_CITY;
+import static com.cyanbirds.tanlove.utils.PreferencesUtils.SETTINGS_RL_ACCOUNT;
+import static com.cyanbirds.tanlove.utils.PreferencesUtils.SETTINGS_RL_FACE_LOCAL;
+import static com.cyanbirds.tanlove.utils.PreferencesUtils.SETTINGS_RL_IS_LOGIN;
+import static com.cyanbirds.tanlove.utils.PreferencesUtils.SETTINGS_RL_PASSWORD;
+import static com.cyanbirds.tanlove.utils.PreferencesUtils.SETTINGS_RL_SESSIONID;
+import static com.cyanbirds.tanlove.utils.PreferencesUtils.SETTINGS_RL_USER_MOBILE;
+import static com.cyanbirds.tanlove.utils.PreferencesUtils.SETTINGS_RL_USER_USER_NAME;
+import static com.cyanbirds.tanlove.utils.PreferencesUtils.SETTINGS_SEX;
 
 /**
  * 
@@ -64,6 +75,8 @@ public class AppManager {
 
 	private static IWXAPI sIWX_PAY_API;
 	private static IWXAPI sIWXAPI;
+
+	private static MMKV sMMKV;
 
 	private static ExecutorService mExecutorService;
 
@@ -370,17 +383,6 @@ public class AppManager {
 		return false;
 	}
 
-	/**
-	 * 获取手机IMEI
-	 * 
-	 * @return
-	 */
-	public static String getImei() {
-		String imei = ((TelephonyManager) mContext
-				.getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
-		return imei;
-	}
-
 	public static void installApk(File file) {
 		Intent intent = new Intent(Intent.ACTION_VIEW);
 		intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
@@ -405,8 +407,14 @@ public class AppManager {
 	 * @return
 	 */
 	public static boolean isLogin() {
-		if (getClientUser() == null || TextUtils.isEmpty(getClientUser().userId) // &&Integer.parseInt(getClientUser().userId) <= 0)
+		/*if (getClientUser() == null || TextUtils.isEmpty(getClientUser().userId)
 				|| !PreferencesUtils.getIsLogin(mContext)) {
+			return false;
+		}
+
+		return true;*/
+		if (getClientUser() == null || TextUtils.isEmpty(getClientUser().userId)
+				|| !sMMKV.decodeBool(SETTINGS_RL_IS_LOGIN, false)) {
 			return false;
 		}
 
@@ -440,6 +448,14 @@ public class AppManager {
 		sIWX_PAY_API = IWX_PAY_API;
 	}
 
+	public static MMKV getMMKV() {
+		return sMMKV;
+	}
+
+	public static void setMMKV(MMKV MMKV) {
+		sMMKV = MMKV;
+	}
+
 	public static String getProcessName(int pid) {
 		BufferedReader reader = null;
 		try {
@@ -468,7 +484,7 @@ public class AppManager {
 	 */
 	public static void setUserInfo() {
 		try {
-			String userId = PreferencesUtils.getAccount(mContext);
+			/*String userId = PreferencesUtils.getAccount(mContext);
 			String mobile = PreferencesUtils.getUserMobile(mContext);
 			String pwd = PreferencesUtils.getPassword(mContext);
 			String userName = PreferencesUtils.getUserName(mContext);
@@ -482,7 +498,22 @@ public class AppManager {
 			clientUser.face_local = face_local;
 			clientUser.sessionId = sessionId;
 			clientUser.currentCity = PreferencesUtils.getCurrentCity(mContext);
-			clientUser.sex = PreferencesUtils.getSettingsSex(mContext);
+			clientUser.sex = PreferencesUtils.getSettingsSex(mContext);*/
+			String userId = sMMKV.decodeString(SETTINGS_RL_ACCOUNT, "");
+			String mobile = sMMKV.decodeString(SETTINGS_RL_USER_MOBILE, "");
+			String pwd = sMMKV.decodeString(SETTINGS_RL_PASSWORD, "");
+			String userName = sMMKV.decodeString(SETTINGS_RL_USER_USER_NAME, "");
+			String face_local = sMMKV.decodeString(SETTINGS_RL_FACE_LOCAL, "");
+			String sessionId = sMMKV.decodeString(SETTINGS_RL_SESSIONID, "");
+			ClientUser clientUser = new ClientUser();
+			clientUser.userId = userId;
+			clientUser.mobile = mobile;
+			clientUser.userPwd = pwd;
+			clientUser.user_name = userName;
+			clientUser.face_local = face_local;
+			clientUser.sessionId = sessionId;
+			clientUser.currentCity = sMMKV.decodeString(SETTINGS_CURRENT_CITY, "");
+			clientUser.sex = sMMKV.decodeString(SETTINGS_SEX, "");
 			setClientUser(clientUser);
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -494,7 +525,16 @@ public class AppManager {
 	 */
 	public static void saveUserInfo() {
 		try {
-			PreferencesUtils.setAccount(mContext, getClientUser().userId);
+			sMMKV.encode(SETTINGS_RL_ACCOUNT, getClientUser().userId);
+			sMMKV.encode(SETTINGS_RL_PASSWORD, getClientUser().userPwd);
+			sMMKV.encode(SETTINGS_RL_FACE_LOCAL, getClientUser().face_local);
+			sMMKV.encode(SETTINGS_RL_USER_MOBILE, getClientUser().mobile);
+			sMMKV.encode(SETTINGS_RL_USER_USER_NAME, getClientUser().user_name);
+			sMMKV.encode(SETTINGS_RL_SESSIONID, getClientUser().sessionId);
+			sMMKV.encode(SETTINGS_RL_IS_LOGIN, true);
+			sMMKV.encode(SETTINGS_CURRENT_CITY, getClientUser().currentCity);
+			sMMKV.encode(SETTINGS_SEX, getClientUser().sex);
+			/*PreferencesUtils.setAccount(mContext, getClientUser().userId);
 			PreferencesUtils.setPassword(mContext, getClientUser().userPwd);
 			PreferencesUtils.setFaceLocal(mContext, getClientUser().face_local);
 			PreferencesUtils.setUserMobile(mContext, getClientUser().mobile);
@@ -502,7 +542,7 @@ public class AppManager {
 			PreferencesUtils.setSessionId(mContext, getClientUser().sessionId);
 			PreferencesUtils.setIsLogin(mContext, true);
 			PreferencesUtils.setCurrentCity(mContext, getClientUser().currentCity);
-			PreferencesUtils.setSettingsSex(mContext, getClientUser().sex);
+			PreferencesUtils.setSettingsSex(mContext, getClientUser().sex);*/
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
