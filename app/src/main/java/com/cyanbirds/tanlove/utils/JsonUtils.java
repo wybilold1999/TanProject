@@ -48,7 +48,7 @@ public class JsonUtils {
             ClientUser clientUser = AppManager.getClientUser();
             clientUser.userId = data.get("uid").getAsString();
             clientUser.userPwd = data.get("upwd").getAsString();
-            clientUser.sex = data.get("sex").getAsInt() == 1 ? "1" : (data.get("sex").getAsInt() == 0 ? "1" : "all");
+            clientUser.sex = data.get("sex").getAsInt() == 1 ? "1" : (data.get("sex").getAsInt() == 0 ? "0" : "all");
             clientUser.mobile = data.get("phone") == null ? "" : data.get("phone").getAsString();
             clientUser.qq_no = data.get("qq").getAsString();
             clientUser.weixin_no = data.get("wechat").getAsString();

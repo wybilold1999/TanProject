@@ -8,7 +8,7 @@ android {
 
     defaultConfig {
         applicationId "com.cyanbirds.tanlove"
-        minSdkVersion 15
+        minSdkVersion 16
         targetSdkVersion 27
         versionCode 60
         versionName "1.7.0"
@@ -194,4 +194,6 @@ dependencies {
     implementation 'com.amap.api:location:latest.integration'
 
     implementation 'com.rengwuxian.materialedittext:library:2.1.4'
+
+    implementation 'com.tencent:mmkv:1.0.12'
 }
