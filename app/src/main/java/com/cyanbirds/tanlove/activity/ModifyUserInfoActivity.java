@@ -1112,15 +1112,17 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 				Utils.cutPhoto(this, mPhotoOnSDCardUri, mCutFile, PHOTO_CUT_RESULT);
 			}
 		} else if (resultCode == RESULT_OK && requestCode == ALBUMS_RESULT) {
-			Uri originalUri = data.getData();
-			File originalFile = new File(FileUtils.getPath(this, originalUri));
-			Uri dataUri;
-			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
-				dataUri = FileProvider.getUriForFile(this, AUTHORITY, originalFile);
-			} else {
-				dataUri = originalUri;
+			if (mCutFile != null) {
+				Uri originalUri = data.getData();
+				File originalFile = new File(FileUtils.getPath(this, originalUri));
+				Uri dataUri;
+				if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+					dataUri = FileProvider.getUriForFile(this, AUTHORITY, originalFile);
+				} else {
+					dataUri = originalUri;
+				}
+				Utils.cutPhoto(this, dataUri, mCutFile, PHOTO_CUT_RESULT);
 			}
-			Utils.cutPhoto(this, dataUri, mCutFile, PHOTO_CUT_RESULT);
 		} else if (resultCode == RESULT_OK && requestCode == PHOTO_CUT_RESULT) {
 			mPortraitUri = data.getData();
 			if (mPortraitUri == null && mCutFile != null) {
