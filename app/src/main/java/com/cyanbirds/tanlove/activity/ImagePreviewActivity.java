@@ -1,6 +1,5 @@
 package com.cyanbirds.tanlove.activity;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -88,20 +87,20 @@ public class ImagePreviewActivity extends BaseActivity {
 	private void showTurnOnVipDialog(){
 		AlertDialog.Builder builder = new AlertDialog.Builder(this);
 		builder.setMessage(R.string.un_send_msg);
-		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
+		builder.setPositiveButton(R.string.ok, ((dialog, i) -> {
+			dialog.dismiss();
+			Intent intent = new Intent(ImagePreviewActivity.this, VipCenterActivity.class);
+			startActivity(intent);
+		}));
+		if (AppManager.getClientUser().isShowGiveVip) {
+			builder.setNegativeButton(R.string.free_give_vip, ((dialog, i) -> {
 				dialog.dismiss();
-				Intent intent = new Intent(ImagePreviewActivity.this, VipCenterActivity.class);
+				Intent intent = new Intent(ImagePreviewActivity.this, GiveVipActivity.class);
 				startActivity(intent);
-			}
-		});
-		builder.setNegativeButton(R.string.until_single, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-			}
-		});
+			}));
+		} else {
+			builder.setNegativeButton(R.string.until_single, ((dialog, i) -> dialog.dismiss()));
+		}
 		builder.show();
 	}
 

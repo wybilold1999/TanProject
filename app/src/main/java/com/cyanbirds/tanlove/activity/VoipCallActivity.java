@@ -138,25 +138,27 @@ public class VoipCallActivity extends BaseActivity {
     private void showTurnOnVipDialog(String tips) {
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
         builder.setMessage(tips);
-        builder.setPositiveButton(getResources().getString(R.string.ok),
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int id) {
-                        dialog.dismiss();
-                        Intent intent = new Intent(VoipCallActivity.this, VipCenterActivity.class);
-                        startActivity(intent);
-                        finish();
-                    }
-                });
-        builder.setNegativeButton(getResources().getString(R.string.cancel),
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.dismiss();
-                        if (!TextUtils.isEmpty(from)) {
-                            finish();
-                        }
-                    }
-                });
+        builder.setPositiveButton(R.string.ok, ((dialog, i) -> {
+            dialog.dismiss();
+            Intent intent = new Intent(VoipCallActivity.this, VipCenterActivity.class);
+            startActivity(intent);
+            finish();
+        }));
+        if (AppManager.getClientUser().isShowGiveVip) {
+            builder.setNegativeButton(R.string.free_give_vip, ((dialog, i) -> {
+                dialog.dismiss();
+                Intent intent = new Intent(VoipCallActivity.this, GiveVipActivity.class);
+                startActivity(intent);
+                finish();
+            }));
+        } else {
+            builder.setNegativeButton(R.string.until_single, ((dialog, i) -> {
+                dialog.dismiss();
+                if (!TextUtils.isEmpty(from)) {
+                    finish();
+                }
+            }));
+        }
         if (!TextUtils.isEmpty(from)) {
             builder.setCancelable(false);
         }

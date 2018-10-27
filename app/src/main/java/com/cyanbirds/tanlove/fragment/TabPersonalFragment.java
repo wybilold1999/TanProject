@@ -33,6 +33,7 @@ import com.amap.api.services.geocoder.GeocodeSearch;
 import com.amap.api.services.geocoder.RegeocodeQuery;
 import com.amap.api.services.geocoder.RegeocodeResult;
 import com.cyanbirds.tanlove.R;
+import com.cyanbirds.tanlove.activity.GiveVipActivity;
 import com.cyanbirds.tanlove.activity.VipCenterActivity;
 import com.cyanbirds.tanlove.adapter.TabPersonalPhotosAdapter;
 import com.cyanbirds.tanlove.config.AppConstants;
@@ -518,20 +519,20 @@ public class TabPersonalFragment extends Fragment implements GeocodeSearch.OnGeo
 	private void showTurnOnVipDialog(String socialTpe) {
 		AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 		builder.setMessage(String.format(getResources().getString(R.string.social_id_need_vip), socialTpe));
-		builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
+		builder.setPositiveButton(R.string.ok, ((dialog, i) -> {
+			dialog.dismiss();
+			Intent intent = new Intent(getActivity(), VipCenterActivity.class);
+			startActivity(intent);
+		}));
+		if (AppManager.getClientUser().isShowGiveVip) {
+			builder.setNegativeButton(R.string.free_give_vip, ((dialog, i) -> {
 				dialog.dismiss();
-				Intent intent = new Intent(getActivity(), VipCenterActivity.class);
+				Intent intent = new Intent(getActivity(), GiveVipActivity.class);
 				startActivity(intent);
-			}
-		});
-		builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				dialog.dismiss();
-			}
-		});
+			}));
+		} else {
+			builder.setNegativeButton(R.string.until_single, ((dialog, i) -> dialog.dismiss()));
+		}
 		builder.show();
 	}
 
