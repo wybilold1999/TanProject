@@ -18,6 +18,7 @@ import android.widget.TextView;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.AboutActivity;
 import com.cyanbirds.tanlove.activity.AttentionMeActivity;
+import com.cyanbirds.tanlove.activity.CustomServiceActivity;
 import com.cyanbirds.tanlove.activity.FeedBackActivity;
 import com.cyanbirds.tanlove.activity.GiveVipActivity;
 import com.cyanbirds.tanlove.activity.LoveFormeActivity;
@@ -116,6 +117,8 @@ public class PersonalFragment extends Fragment {
 	CardView mFeedBackCard;
 	@BindView(R.id.feedback)
 	RelativeLayout mFeedBack;
+	@BindView(R.id.custom_service)
+	RelativeLayout mCustomService;
 	@BindView(R.id.my_appointment_lay)
 	RelativeLayout mAppointmentLay;
 	@BindView(R.id.give_vip)
@@ -215,11 +218,9 @@ public class PersonalFragment extends Fragment {
 			if (clientUser.isShowVip) {
 				mVipCard.setVisibility(View.VISIBLE);
 				vipLay.setVisibility(View.VISIBLE);
-				mFeedBackCard.setVisibility(View.GONE);
 			} else {
 				mVipCard.setVisibility(View.GONE);
 				vipLay.setVisibility(View.GONE);
-				mFeedBackCard.setVisibility(View.VISIBLE);
 			}
 			if (clientUser.isShowAppointment) {
 				mAppointmentLay.setVisibility(View.VISIBLE);
@@ -254,7 +255,7 @@ public class PersonalFragment extends Fragment {
 	@OnClick({
 			R.id.head_portrait_lay, R.id.vip_lay, R.id.my_attention,
 			R.id.attentioned_user, R.id.good_user, R.id.setting, R.id.about, R.id.my_gifts,
-			R.id.feedback, R.id.my_appointment_lay, R.id.give_vip})
+			R.id.feedback, R.id.custom_service, R.id.my_appointment_lay, R.id.give_vip})
 	public void onClick(View view) {
 		Intent intent = new Intent();
 		switch (view.getId()) {
@@ -296,6 +297,10 @@ public class PersonalFragment extends Fragment {
 				break;
 			case R.id.feedback:
 				intent.setClass(getActivity(), FeedBackActivity.class);
+				startActivity(intent);
+				break;
+			case R.id.custom_service:
+				intent.setClass(getActivity(), CustomServiceActivity.class);
 				startActivity(intent);
 				break;
 			case R.id.my_appointment_lay:
