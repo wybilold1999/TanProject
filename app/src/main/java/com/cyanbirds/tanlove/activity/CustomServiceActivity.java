@@ -22,8 +22,6 @@ public class CustomServiceActivity extends BaseActivity {
     @BindView(R.id.tv_vip)
     TextView mVipTv;
 
-    private int limit = 100;//最多允许输入
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
