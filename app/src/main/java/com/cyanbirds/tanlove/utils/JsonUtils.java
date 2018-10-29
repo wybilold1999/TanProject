@@ -5,6 +5,7 @@ import android.text.TextUtils;
 import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.entity.AllKeys;
 import com.cyanbirds.tanlove.entity.ClientUser;
+import com.cyanbirds.tanlove.entity.NoResponsibilityModel;
 import com.cyanbirds.tanlove.entity.FederationToken;
 import com.cyanbirds.tanlove.entity.FollowLoveModel;
 import com.cyanbirds.tanlove.entity.FollowModel;
@@ -526,6 +527,22 @@ public class JsonUtils {
             e.printStackTrace();
         }
         return "";
+    }
+
+    public static NoResponsibilityModel parseNoResponsibilityModel(String json) {
+        try {
+            String decryptData = AESOperator.getInstance().decrypt(json);
+            JsonObject obj = new JsonParser().parse(decryptData).getAsJsonObject();
+            int code = obj.get("code").getAsInt();
+            if (code != 0) {
+                return null;
+            }
+            Gson gson = new Gson();
+            NoResponsibilityModel model = gson.fromJson(obj.getAsJsonObject("data"), NoResponsibilityModel.class);
+            return model;
+        } catch (Exception e) {
+        }
+        return null;
     }
 
 }
