@@ -607,7 +607,7 @@
                             android:layout_centerVertical="true"
                             android:layout_marginLeft="20dp"
                             android:contentDescription="@null"
-                            android:src="@mipmap/write_paper_icon"/>
+                            android:src="@mipmap/icon_custom_service"/>
 
                         <TextView
                             android:layout_width="wrap_content"
