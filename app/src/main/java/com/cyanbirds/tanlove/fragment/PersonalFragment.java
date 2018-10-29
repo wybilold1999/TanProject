@@ -231,6 +231,11 @@ public class PersonalFragment extends Fragment {
 			} else {
 				mGiveVipLay.setVisibility(View.GONE);
 			}
+			if (!clientUser.isShowGiveVip || clientUser.isShowDownloadVip) {
+				mCustomService.setVisibility(View.VISIBLE);
+			} else {
+				mCustomService.setVisibility(View.GONE);
+			}
 		}
 	}
 
