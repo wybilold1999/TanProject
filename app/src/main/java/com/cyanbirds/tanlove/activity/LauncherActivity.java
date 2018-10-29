@@ -130,7 +130,7 @@ public class LauncherActivity extends AppCompatActivity {
             login();
         } else {
             if (AppManager.getClientUser() != null
-					&& !TextUtils.isEmpty(AppManager.getClientUser().userId)){// && Integer.parseInt(AppManager.getClientUser().userId) > 0) {
+					&& !TextUtils.isEmpty(AppManager.getClientUser().userId)){
 				mHandler.postDelayed(firstLauncher, SHOW_TIME_MIN);
 			} else {
 				mHandler.postDelayed(firstLauncher, SHOW_TIME_MIN);
@@ -195,7 +195,7 @@ public class LauncherActivity extends AppCompatActivity {
      */
     Runnable firstLauncher = () -> {
         Intent intent = new Intent(LauncherActivity.this,
-                EntranceActivity.class);
+                LoginActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();

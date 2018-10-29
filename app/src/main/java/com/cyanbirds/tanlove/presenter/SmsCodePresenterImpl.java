@@ -29,7 +29,7 @@ public class SmsCodePresenterImpl implements IUserLoginLogOut.CheckSmsCodePresen
         params.put("phone", phoneNum);
         params.put("zone", "86");
         params.put("code", code);
-        params.put("type", String.valueOf(mPhoneType)); //0:注册  1:找回密码
+        params.put("type", String.valueOf(mPhoneType)); //0:注册  1:找回密码 2:绑定手机
         params.put("device", "android");
         RetrofitFactory.getRetrofit().create(IUserApi.class)
                 .checkSmsCode(AppManager.getClientUser().sessionId, params)
