@@ -195,7 +195,7 @@ public class LauncherActivity extends AppCompatActivity {
      */
     Runnable firstLauncher = () -> {
         Intent intent = new Intent(LauncherActivity.this,
-                LoginActivity.class);
+                EntranceActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         startActivity(intent);
         finish();

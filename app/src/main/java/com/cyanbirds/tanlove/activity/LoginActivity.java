@@ -1,76 +1,78 @@
 package com.cyanbirds.tanlove.activity;
 
-import android.Manifest;
-import android.arch.lifecycle.Lifecycle;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.KeyEvent;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.amap.api.location.AMapLocation;
-import com.amap.api.location.AMapLocationClient;
-import com.amap.api.location.AMapLocationClientOption;
-import com.amap.api.location.AMapLocationListener;
+import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
 import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.ClientUser;
-import com.cyanbirds.tanlove.net.IUserApi;
-import com.cyanbirds.tanlove.net.base.RetrofitFactory;
+import com.cyanbirds.tanlove.eventtype.LocationEvent;
+import com.cyanbirds.tanlove.eventtype.WeinXinEvent;
+import com.cyanbirds.tanlove.manager.AppManager;
+import com.cyanbirds.tanlove.net.request.DownloadFileRequest;
 import com.cyanbirds.tanlove.presenter.UserLoginPresenterImpl;
 import com.cyanbirds.tanlove.utils.AESEncryptorUtil;
-import com.cyanbirds.tanlove.utils.CheckUtil;
-import com.cyanbirds.tanlove.utils.JsonUtils;
+import com.cyanbirds.tanlove.utils.FileAccessorUtils;
+import com.cyanbirds.tanlove.utils.Md5Util;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
+import com.cyanbirds.tanlove.utils.RxBus;
 import com.cyanbirds.tanlove.utils.ToastUtil;
-import com.cyanbirds.tanlove.utils.Utils;
+import com.cyanbirds.tanlove.utils.Util;
 import com.cyanbirds.tanlove.view.IUserLoginLogOut;
-import com.tbruyelle.rxpermissions2.RxPermissions;
-import com.uber.autodispose.AutoDispose;
-import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
+import com.tencent.connect.UserInfo;
+import com.tencent.connect.common.Constants;
+import com.tencent.mm.sdk.modelmsg.SendAuth;
+import com.tencent.tauth.IUiListener;
+import com.tencent.tauth.Tencent;
+import com.tencent.tauth.UiError;
 import com.umeng.analytics.MobclickAgent;
 
-import io.reactivex.android.schedulers.AndroidSchedulers;
-import io.reactivex.schedulers.Schedulers;
-import mehdi.sakout.fancybuttons.FancyButton;
+import org.json.JSONObject;
 
-import static com.cyanbirds.tanlove.config.AppConstants.BAIDU_LOCATION_API;
+import java.io.File;
+
+import io.reactivex.Observable;
+import mehdi.sakout.fancybuttons.FancyButton;
 
 /**
  * Created by Administrator on 2016/4/23.
  */
-public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> implements AMapLocationListener, View.OnClickListener, IUserLoginLogOut.View {
+public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> implements View.OnClickListener, IUserLoginLogOut.View {
 
     EditText loginAccount;
     EditText loginPwd;
     FancyButton btnLogin;
-    FancyButton btnRegister;
     TextView forgetPwd;
+    ImageView weiXinLogin;
+    ImageView qqLogin;
 
+    public static Tencent mTencent;
+    private UserInfo mInfo;
+    private String token;
+    private String openId;
+
+    private boolean activityIsRunning;
     private String mPhoneNum;
-    private final int REQUEST_LOCATION_PERMISSION = 1000;
-    private boolean isSecondAccess = false;
-    private RxPermissions rxPermissions;
-
-    private AMapLocationClientOption mLocationOption;
-    private AMapLocationClient mlocationClient;
     private String mCurrrentCity;//定位到的城市
-    private String curLat;
-    private String curLon;
+
+    private Observable<?> observable;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
+        rxBusSub();
         Toolbar toolbar = getActionBarToolbar();
         if (toolbar != null) {
             toolbar.setNavigationIcon(R.mipmap.ic_up);
@@ -78,195 +80,35 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
         setupView();
         setupEvent();
         setupData();
-
-        getIPAddress();
-        initLocationClient();
-        requestLocationPermission();
     }
 
     private void setupView() {
         loginAccount = findViewById(R.id.login_account);
         loginPwd = findViewById(R.id.login_pwd);
         btnLogin = findViewById(R.id.btn_login);
-        btnRegister = findViewById(R.id.btn_register);
         forgetPwd = findViewById(R.id.forget_pwd);
+        weiXinLogin = findViewById(R.id.weixin_login);
+        qqLogin = findViewById(R.id.qq_login);
 
     }
 
     private void setupEvent() {
         btnLogin.setOnClickListener(this);
         forgetPwd.setOnClickListener(this);
-        btnRegister.setOnClickListener(this);
+        qqLogin.setOnClickListener(this);
+        weiXinLogin.setOnClickListener(this);
     }
 
     private void setupData(){
+        if (mTencent == null) {
+            mTencent = Tencent.createInstance(AppConstants.mAppid, this);
+        }
         mPhoneNum = getIntent().getStringExtra(ValueKey.PHONE_NUMBER);
         if(!TextUtils.isEmpty(mPhoneNum)){
             loginAccount.setText(mPhoneNum);
             loginAccount.setSelection(mPhoneNum.length());
         }
         mCurrrentCity = getIntent().getStringExtra(ValueKey.LOCATION);
-    }
-
-    private void getIPAddress() {
-        RetrofitFactory.getRetrofit().create(IUserApi.class)
-                .getIPAddress()
-                .subscribeOn(Schedulers.io())
-                .map(responseBody -> JsonUtils.parseIPJson(responseBody.string()))
-                .observeOn(AndroidSchedulers.mainThread())
-                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
-                .subscribe(ipAddress -> {
-                    if (!TextUtils.isEmpty(ipAddress)) {
-                        getCityByIP(ipAddress);
-                    }
-                }, throwable -> {});
-    }
-
-    private void getCityByIP(String ip) {
-        String url = BAIDU_LOCATION_API + ip;
-        RetrofitFactory.getRetrofit().create(IUserApi.class)
-                .getCityByIP(url)
-                .subscribeOn(Schedulers.io())
-                .map(responseBody -> JsonUtils.parseCityJson(responseBody.string()))
-                .observeOn(AndroidSchedulers.mainThread())
-                .as(AutoDispose.autoDisposable(AndroidLifecycleScopeProvider.from(this, Lifecycle.Event.ON_DESTROY)))
-                .subscribe(result -> {}, throwable -> {});
-    }
-
-    /**
-     * 初始化定位
-     */
-    private void initLocationClient() {
-        mlocationClient = new AMapLocationClient(this);
-        //初始化定位参数
-        mLocationOption = new AMapLocationClientOption();
-        //设置定位监听
-        mlocationClient.setLocationListener(this);
-        //设置定位模式为高精度模式，Battery_Saving为低功耗模式，Device_Sensors是仅设备模式
-        mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
-        //获取最近3s内精度最高的一次定位结果：
-        mLocationOption.setOnceLocationLatest(true);
-    }
-
-    /**
-     * 开始定位
-     */
-    private void startLocation() {
-        //设置定位参数
-        mlocationClient.setLocationOption(mLocationOption);
-        //启动定位
-        mlocationClient.startLocation();
-    }
-
-    /**
-     * 停止定位
-     */
-    private void stopLocation(){
-        // 停止定位
-        mlocationClient.stopLocation();
-    }
-
-    /**
-     * 销毁定位
-     */
-    private void destroyLocation(){
-        if (null != mlocationClient) {
-            /**
-             * 如果AMapLocationClient是在当前Activity实例化的，
-             * 在Activity的onDestroy中一定要执行AMapLocationClient的onDestroy
-             */
-            mlocationClient.onDestroy();
-            mlocationClient = null;
-            mLocationOption = null;
-        }
-    }
-
-    @Override
-    public void onLocationChanged(AMapLocation aMapLocation) {
-        if (aMapLocation != null && !TextUtils.isEmpty(aMapLocation.getCity())) {
-            curLat = String.valueOf(aMapLocation.getLatitude());
-            curLon = String.valueOf(aMapLocation.getLongitude());
-            mCurrrentCity = aMapLocation.getCity();
-            PreferencesUtils.setCurrentCity(this, mCurrrentCity);
-            PreferencesUtils.setCurrentProvince(LoginActivity.this, aMapLocation.getProvince());
-            PreferencesUtils.setLatitude(this, curLat);
-            PreferencesUtils.setLongitude(this, curLon);
-            if (!TextUtils.isEmpty(mCurrrentCity)) {
-                stopLocation();
-                PreferencesUtils.setIsLocationSuccess(this, true);
-            }
-        }
-    }
-
-    private void requestLocationPermission() {
-        if (!CheckUtil.isGetPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) &&
-                !CheckUtil.isGetPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION)) {
-            if (rxPermissions == null) {
-                rxPermissions = new RxPermissions(this);
-            }
-            rxPermissions.requestEachCombined(Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION)
-                    .subscribe(permission -> {// will emit 1 Permission object
-                        if (permission.granted) {
-                            // All permissions are granted !
-                            startLocation();
-                        } else if (permission.shouldShowRequestPermissionRationale) {
-                            // At least one denied permission without ask never again
-                            if (!isSecondAccess) {
-                                showAccessLocationDialog();
-                            }
-                        } else {
-                            // At least one denied permission with ask never again
-                            // Need to go to the settings
-                            if (!isSecondAccess) {
-                                showAccessLocationDialog();
-                            }
-                        }
-                    }, throwable -> {
-
-                    });
-        } else {
-            startLocation();
-        }
-    }
-
-    private void showAccessLocationDialog() {
-        isSecondAccess = true;
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle(R.string.permission_request);
-        builder.setMessage(R.string.access_location);
-        builder.setPositiveButton(R.string.ok, (dialog, i) -> {
-            dialog.dismiss();
-            Utils.goToSetting(LoginActivity.this, REQUEST_LOCATION_PERMISSION);
-        });
-        builder.show();
-    }
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.register_menu, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-        if (id == R.id.register) {
-            Intent intent = new Intent(this, RegisterActivity.class);
-            intent.putExtra(ValueKey.LOCATION, mCurrrentCity);
-            intent.putExtra(ValueKey.LATITUDE, curLat);
-            intent.putExtra(ValueKey.LONGITUDE, curLon);
-            startActivity(intent);
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == REQUEST_LOCATION_PERMISSION) {
-            isSecondAccess = false;
-            requestLocationPermission();
-        }
     }
 
     @Override
@@ -289,14 +131,49 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
                 intent.putExtra(ValueKey.INPUT_PHONE_TYPE, 1);
                 startActivity(intent);
                 break;
-            case R.id.btn_register:
-                intent.setClass(this, RegisterActivity.class);
-                intent.putExtra(ValueKey.LOCATION, mCurrrentCity);
-                intent.putExtra(ValueKey.LATITUDE, curLat);
-                intent.putExtra(ValueKey.LONGITUDE, curLon);
-                startActivity(intent);
+            case R.id.qq_login:
+                ProgressDialogUtils.getInstance(this).show(R.string.wait);
+                if (!mTencent.isSessionValid() &&
+                        mTencent.getQQToken().getOpenId() == null) {
+                    mTencent.login(this, "all", loginListener);
+                }
+                break;
+            case R.id.weixin_login:
+                ProgressDialogUtils.getInstance(this).show(R.string.wait);
+                SendAuth.Req req = new SendAuth.Req();
+                req.scope = "snsapi_userinfo";
+                req.state = "wechat_sdk_demo_test";
+                if (null != AppManager.getIWXAPI()) {
+                    AppManager.getIWXAPI().sendReq(req);
+                } else {
+                    CSApplication.api.sendReq(req);
+                }
                 break;
         }
+    }
+
+    /**
+     * rx订阅
+     */
+    private void rxBusSub() {
+        observable = RxBus.getInstance().register(AppConstants.CITY_WE_CHAT_RESP_CODE);
+        observable.subscribe(o -> {
+            if (o instanceof LocationEvent) {
+                LocationEvent event = (LocationEvent) o;
+                mCurrrentCity = event.city;
+            } else {
+                ProgressDialogUtils.getInstance(this).dismiss();
+                WeinXinEvent event = (WeinXinEvent) o;
+                if (!TextUtils.isEmpty(AppManager.getClientUser().sex)) {
+                    onShowLoading();
+                    presenter.onWXLogin(event.code);
+                } else {
+                    Intent intent = new Intent(this, SelectSexActivity.class);
+                    intent.putExtra("code", event.code);
+                    startActivity(intent);
+                }
+            }
+        });
     }
 
     @Override
@@ -320,6 +197,15 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
         onHideLoading();
         if (clientUser != null) {
             hideSoftKeyboard();
+            File faceLocalFile = new File(FileAccessorUtils.FACE_IMAGE,
+                    Md5Util.md5(clientUser.face_url) + ".jpg");
+            if(!faceLocalFile.exists()
+                    && !TextUtils.isEmpty(clientUser.face_url)){
+                new DownloadPortraitTask().request(clientUser.face_url,
+                        FileAccessorUtils.FACE_IMAGE,
+                        Md5Util.md5(clientUser.face_url) + ".jpg");
+            }
+
             Intent intent = new Intent();
             intent.setClass(LoginActivity.this, MainActivity.class);
             startActivity(intent);
@@ -335,7 +221,115 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
             this.presenter = new UserLoginPresenterImpl(this);
         }
     }
-    
+
+    IUiListener loginListener = new BaseUiListener() {
+        @Override
+        protected void doComplete(JSONObject values) {
+            initOpenidAndToken(values);
+            updateUserInfo();
+        }
+    };
+
+    private class BaseUiListener implements IUiListener {
+
+        @Override
+        public void onComplete(Object response) {
+            if (null == response) {
+                ToastUtil.showMessage("登录失败");
+                return;
+            }
+            JSONObject jsonResponse = (JSONObject) response;
+            if (null != jsonResponse && jsonResponse.length() == 0) {
+                ToastUtil.showMessage("登录失败");
+                return;
+            }
+            doComplete((JSONObject)response);
+        }
+
+        protected void doComplete(JSONObject values) {
+
+        }
+
+        @Override
+        public void onError(UiError e) {
+            Util.toastMessage(LoginActivity.this, "onError: " + e.errorDetail);
+            Util.dismissDialog();
+        }
+
+        @Override
+        public void onCancel() {
+            Util.toastMessage(LoginActivity.this, "取消授权");
+        }
+    }
+
+    public  void initOpenidAndToken(JSONObject jsonObject) {
+        try {
+            token = jsonObject.getString(Constants.PARAM_ACCESS_TOKEN);
+            String expires = jsonObject.getString(Constants.PARAM_EXPIRES_IN);
+            openId = jsonObject.getString(Constants.PARAM_OPEN_ID);
+            if (!TextUtils.isEmpty(token) && !TextUtils.isEmpty(expires)
+                    && !TextUtils.isEmpty(openId)) {
+                mTencent.setAccessToken(token, expires);
+                mTencent.setOpenId(openId);
+            }
+        } catch(Exception e) {
+        }
+    }
+
+    private void updateUserInfo() {
+        if (mTencent != null && mTencent.isSessionValid()) {
+            IUiListener listener = new IUiListener() {
+                @Override
+                public void onError(UiError e) {
+                }
+                @Override
+                public void onComplete(final Object response) {
+                    if (!TextUtils.isEmpty(AppManager.getClientUser().sex)) {
+                        if (activityIsRunning) {
+                            onShowLoading();
+                        }
+                        presenter.onQQLogin(token, openId);
+                    } else {
+                        Intent intent = new Intent(LoginActivity.this, SelectSexActivity.class);
+                        intent.putExtra("token", token);
+                        intent.putExtra("openId", openId);
+                        startActivity(intent);
+                    }
+                }
+
+                @Override
+                public void onCancel() {
+
+                }
+            };
+            mInfo = new UserInfo(this, mTencent.getQQToken());
+            mInfo.getUserInfo(listener);
+        } else {
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == Constants.REQUEST_LOGIN ||
+                requestCode == Constants.REQUEST_APPBAR) {
+            Tencent.onActivityResultData(requestCode, resultCode, data, loginListener);
+        }
+    }
+
+
+    class DownloadPortraitTask extends DownloadFileRequest {
+        @Override
+        public void onPostExecute(String s) {
+            AppManager.getClientUser().face_local = s;
+            PreferencesUtils.setFaceLocal(LoginActivity.this, s);
+        }
+
+        @Override
+        public void onErrorExecute(String error) {
+        }
+    }
+
     /**
      * 验证输入
      */
@@ -357,6 +351,7 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
     @Override
     protected void onResume() {
         super.onResume();
+        activityIsRunning = true;
         MobclickAgent.onPageStart(this.getClass().getName());
         MobclickAgent.onResume(this);
     }
@@ -364,6 +359,7 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
     @Override
     protected void onPause() {
         super.onPause();
+        activityIsRunning = false;
         MobclickAgent.onPageEnd(this.getClass().getName());
         MobclickAgent.onPause(this);
     }
@@ -377,7 +373,7 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        destroyLocation();
+        RxBus.getInstance().unregister(AppConstants.CITY_WE_CHAT_RESP_CODE, observable);
     }
 
     @Override
