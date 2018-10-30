@@ -10,9 +10,9 @@ android {
         applicationId "com.cyanbirds.tanlove"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 62
-        versionName "1.7.2"
-        flavorDimensions "62"
+        versionCode 66
+        versionName "1.7.6"
+        flavorDimensions "66"
         multiDexEnabled true
 
         manifestPlaceholders = [
@@ -90,13 +90,10 @@ android {
         huawei {}
         sanxing {}
         lianxiang {}
-        leshi {}
         sj91 {}
         androidmarket {}
         sougou {}
         uc {}
-        jinli {}
-
 
         productFlavors.all { flavor ->
             flavor.manifestPlaceholders = [UMENG_CHANNEL_ID: flavor.name]
