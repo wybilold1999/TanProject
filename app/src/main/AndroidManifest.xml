@@ -642,6 +642,9 @@
         //下载主apk的service
         <service android:name=".service.DownloadUpdateService"/>
 
+        <meta-data android:name="BDAPPID" android:value="8911981" />
+        <meta-data android:name="BDAPPKEY" android:value="s4VcO7ijmXAehLVkjTDxtApspr7iuYx1" />
+
     </application>
 
 </manifest>
