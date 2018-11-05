@@ -1,6 +1,5 @@
 package com.cyanbirds.tanlove.activity;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AlertDialog;
@@ -126,13 +125,6 @@ public class SelectSexActivity extends BaseActivity<IUserLoginLogOut.Presenter> 
         }
     }
 
-    private void toBackStatus() {
-        mSelectMan.setEnabled(true);
-        mSelectLady.setEnabled(true);
-        mSelectMan.setImageResource(R.mipmap.radio_men_default_bg);
-        mSelectLady.setImageResource(R.mipmap.radio_women_default_bg);
-    }
-
     @Override
     public void onShowLoading() {
         ProgressDialogUtils.getInstance(SelectSexActivity.this).show(R.string.dialog_request_login);
@@ -147,7 +139,6 @@ public class SelectSexActivity extends BaseActivity<IUserLoginLogOut.Presenter> 
     public void onShowNetError() {
         onHideLoading();
         ToastUtil.showMessage(R.string.network_requests_error);
-        toBackStatus();
     }
 
     @Override
