@@ -16,7 +16,7 @@ import com.cyanbirds.tanlove.db.IMessageDaoManager;
 import com.cyanbirds.tanlove.db.MyGoldDaoManager;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.manager.AppManager;
-import com.cyanbirds.tanlove.manager.NotificationManager;
+import com.cyanbirds.tanlove.manager.NotificationManagerUtils;
 import com.cyanbirds.tanlove.presenter.UserLoginPresenterImpl;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
@@ -177,7 +177,7 @@ public class SettingActivity extends BaseActivity<IUserLoginLogOut.Presenter> im
         } else {
             MobclickAgent.onProfileSignOff();
             release();
-            NotificationManager.getInstance().cancelNotification();
+            NotificationManagerUtils.getInstance().cancelNotification();
             finishAll();
             PreferencesUtils.setIsLogin(SettingActivity.this, false);
             Intent intent = getBaseContext().getPackageManager()

@@ -42,7 +42,7 @@ import com.cyanbirds.tanlove.helper.BottomNavigationViewHelper;
 import com.cyanbirds.tanlove.helper.SDKCoreHelper;
 import com.cyanbirds.tanlove.listener.MessageUnReadListener;
 import com.cyanbirds.tanlove.manager.AppManager;
-import com.cyanbirds.tanlove.manager.NotificationManager;
+import com.cyanbirds.tanlove.manager.NotificationManagerUtils;
 import com.cyanbirds.tanlove.net.IUserApi;
 import com.cyanbirds.tanlove.net.IUserFollowApi;
 import com.cyanbirds.tanlove.net.IUserLoveApi;
@@ -213,7 +213,7 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		String msg = getIntent().getStringExtra(ValueKey.DATA);
 		if (!TextUtils.isEmpty(msg)) {
 			PushMsgUtil.getInstance().handlePushMsg(false, msg);
-			NotificationManager.getInstance().cancelNotification();
+			NotificationManagerUtils.getInstance().cancelNotification();
 			AppManager.isMsgClick = true;
 		}
 	}

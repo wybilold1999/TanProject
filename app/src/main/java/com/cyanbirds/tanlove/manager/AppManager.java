@@ -17,7 +17,6 @@ import com.alibaba.sdk.android.oss.OSS;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.entity.FederationToken;
 import com.cyanbirds.tanlove.entity.IMessage;
-import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.tencent.mm.sdk.openapi.IWXAPI;
 import com.tencent.mmkv.MMKV;
 
@@ -372,7 +371,7 @@ public class AppManager {
 	 */
 	public static void showNotification(IMessage message) {
 		if (checkNeedMsgNotify(message)) {
-			NotificationManager.getInstance().showMessageNotification(
+			NotificationManagerUtils.getInstance().showMessageNotification(
 					message);
 		}
 	}

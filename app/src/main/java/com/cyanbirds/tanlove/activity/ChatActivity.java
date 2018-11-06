@@ -57,7 +57,7 @@ import com.cyanbirds.tanlove.listener.MessageCallbackListener.OnMessageReportCal
 import com.cyanbirds.tanlove.listener.MessageStatusReportListener;
 import com.cyanbirds.tanlove.listener.MessageStatusReportListener.OnMessageStatusReport;
 import com.cyanbirds.tanlove.manager.AppManager;
-import com.cyanbirds.tanlove.manager.NotificationManager;
+import com.cyanbirds.tanlove.manager.NotificationManagerUtils;
 import com.cyanbirds.tanlove.ui.widget.WrapperLinearLayoutManager;
 import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.EmoticonUtil;
@@ -540,7 +540,7 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 		if (mClientUser != null) {
 			AppManager.currentChatTalker = mClientUser.userId;
 		}
-		NotificationManager.getInstance().cancelNotification();
+		NotificationManagerUtils.getInstance().cancelNotification();
 		MobclickAgent.onPageStart(this.getClass().getName());
 		MobclickAgent.onResume(this);
 	}
