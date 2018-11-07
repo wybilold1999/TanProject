@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+import static android.content.Context.ACTIVITY_SERVICE;
 import static com.cyanbirds.tanlove.utils.PreferencesUtils.SETTINGS_CURRENT_CITY;
 import static com.cyanbirds.tanlove.utils.PreferencesUtils.SETTINGS_LATITUDE;
 import static com.cyanbirds.tanlove.utils.PreferencesUtils.SETTINGS_LONGITUDE;
@@ -293,6 +294,16 @@ public class AppManager {
 		}
 
 		return isInBackground;
+	}
+
+	public static boolean isServiceRunning(Context context, String ServicePackageName) {
+		ActivityManager manager = (ActivityManager) context.getSystemService(ACTIVITY_SERVICE);
+		for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+			if (ServicePackageName.equals(service.service.getClassName())) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

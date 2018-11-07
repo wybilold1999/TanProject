@@ -27,7 +27,6 @@ import com.cyanbirds.tanlove.activity.LocationDetailActivity;
 import com.cyanbirds.tanlove.activity.PersonalInfoActivity;
 import com.cyanbirds.tanlove.activity.PhotoViewActivity;
 import com.cyanbirds.tanlove.config.ValueKey;
-import com.cyanbirds.tanlove.db.ConversationSqlManager;
 import com.cyanbirds.tanlove.db.IMessageDaoManager;
 import com.cyanbirds.tanlove.entity.Conversation;
 import com.cyanbirds.tanlove.entity.IMessage;
@@ -113,12 +112,8 @@ public class ChatMessageAdapter extends
                         } else {
                             textHolder.portrait.setImageURI(Uri.parse("file://" + mConversation.localPortrait));
                         }
-                    } else {
-                        mConversation = ConversationSqlManager.getInstance(mContext)
-                                .queryConversationForById(message.conversationId);
-                        if (null != mConversation) {
-                            textHolder.portrait.setImageURI(Uri.parse("file://" + mConversation.localPortrait));
-                        }
+                    } else if (null != mConversation){
+                        textHolder.portrait.setImageURI(Uri.parse(mConversation.faceUrl));
                     }
 
                     RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) textHolder.portrait
@@ -230,12 +225,8 @@ public class ChatMessageAdapter extends
                         } else {
                             imageHolder.portrait.setImageURI(Uri.parse("file://" + mConversation.localPortrait));
                         }
-                    } else {
-                        mConversation = ConversationSqlManager.getInstance(mContext)
-                                .queryConversationForById(message.conversationId);
-                        if (null != mConversation) {
-                            imageHolder.portrait.setImageURI(Uri.parse("file://" + mConversation.localPortrait));
-                        }
+                    }  else if (null != mConversation){
+                        imageHolder.portrait.setImageURI(Uri.parse(mConversation.faceUrl));
                     }
 
                     RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) imageHolder.portrait
@@ -301,12 +292,8 @@ public class ChatMessageAdapter extends
                         } else {
                             locationHolder.portrait.setImageURI(Uri.parse("file://" + mConversation.localPortrait));
                         }
-                    } else {
-                        mConversation = ConversationSqlManager.getInstance(mContext)
-                                .queryConversationForById(message.conversationId);
-                        if (null != mConversation) {
-                            locationHolder.portrait.setImageURI(Uri.parse("file://" + mConversation.localPortrait));
-                        }
+                    } else if (null != mConversation){
+                        locationHolder.portrait.setImageURI(Uri.parse(mConversation.faceUrl));
                     }
 
                     RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) locationHolder.portrait
@@ -381,12 +368,8 @@ public class ChatMessageAdapter extends
                         } else {
                             voipViewHolder.portrait.setImageURI(Uri.parse("file://" + mConversation.localPortrait));
                         }
-                    } else {
-                        mConversation = ConversationSqlManager.getInstance(mContext)
-                                .queryConversationForById(message.conversationId);
-                        if (null != mConversation) {
-                            voipViewHolder.portrait.setImageURI(Uri.parse("file://" + mConversation.localPortrait));
-                        }
+                    } else if (null != mConversation){
+                        voipViewHolder.portrait.setImageURI(Uri.parse(mConversation.faceUrl));
                     }
 
                     RelativeLayout.LayoutParams lp = (RelativeLayout.LayoutParams) voipViewHolder.portrait

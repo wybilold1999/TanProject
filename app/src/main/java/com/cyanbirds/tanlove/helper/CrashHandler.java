@@ -1,15 +1,12 @@
 package com.cyanbirds.tanlove.helper;
 
 import android.content.Context;
-import android.content.Intent;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Handler;
 import android.os.Process;
-import android.util.Log;
 
-import com.cyanbirds.tanlove.activity.LauncherActivity;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.request.UploadCrashRequest;
 import com.cyanbirds.tanlove.utils.CheckUtil;

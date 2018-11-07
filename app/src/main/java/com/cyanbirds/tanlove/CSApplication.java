@@ -1,9 +1,7 @@
 package com.cyanbirds.tanlove;
 
 import android.graphics.Bitmap;
-import android.preference.PreferenceManager;
 import android.support.multidex.MultiDexApplication;
-import android.text.TextUtils;
 import android.util.SparseIntArray;
 
 import com.cyanbirds.tanlove.config.AppConstants;
@@ -11,7 +9,6 @@ import com.cyanbirds.tanlove.helper.AppActivityLifecycleCallbacks;
 import com.cyanbirds.tanlove.helper.CrashHandler;
 import com.cyanbirds.tanlove.manager.AppManager;
 import com.cyanbirds.tanlove.net.base.RetrofitManager;
-import com.cyanbirds.tanlove.utils.FileAccessorUtils;
 import com.facebook.cache.disk.DiskCacheConfig;
 import com.facebook.common.util.ByteConstants;
 import com.facebook.drawee.backends.pipeline.Fresco;
@@ -22,6 +19,7 @@ import com.facebook.imagepipeline.listener.RequestLoggingListener;
 import com.facebook.imagepipeline.memory.PoolConfig;
 import com.facebook.imagepipeline.memory.PoolFactory;
 import com.facebook.imagepipeline.memory.PoolParams;
+import com.huawei.android.hms.agent.HMSAgent;
 import com.mob.MobSDK;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.tencent.mm.sdk.openapi.IWXAPI;
@@ -32,7 +30,6 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static com.cyanbirds.tanlove.config.AppConstants.BUGLY_ID;
-import static com.cyanbirds.tanlove.utils.PreferencesUtils.SETTINGS_RL_ACCOUNT;
 
 /**
  * 
@@ -62,9 +59,6 @@ public class CSApplication extends MultiDexApplication {
 			MMKV.initialize(sApplication);
 			AppManager.setMMKV(MMKV.defaultMMKV());
 			AppManager.setContext(sApplication);
-			if (TextUtils.isEmpty(AppManager.getMMKV().decodeString(SETTINGS_RL_ACCOUNT))) {
-				AppManager.getMMKV().importFromSharedPreferences(PreferenceManager.getDefaultSharedPreferences(sApplication));
-			}
 
 			AppManager.setUserInfo();
 
@@ -81,6 +75,10 @@ public class CSApplication extends MultiDexApplication {
 		CrashHandler.getInstance().init(sApplication);
 
 		initBugly();
+
+		if ("HUAWEI".equals(AppManager.getDeviceName())) {
+			HMSAgent.init(this);
+		}
 	}
 
 	private void initBugly() {

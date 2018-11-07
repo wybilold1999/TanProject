@@ -3,6 +3,7 @@ package com.cyanbirds.tanlove.receiver;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 
 import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.activity.ChatActivity;
@@ -15,6 +16,8 @@ import com.cyanbirds.tanlove.entity.Conversation;
 import com.cyanbirds.tanlove.listener.MessageChangedListener;
 import com.cyanbirds.tanlove.listener.MessageUnReadListener;
 import com.cyanbirds.tanlove.manager.AppManager;
+import com.cyanbirds.tanlove.manager.NotificationManagerUtils;
+import com.cyanbirds.tanlove.service.ConnectServerService;
 
 /**
  * 通知广播
@@ -24,17 +27,12 @@ public class NotificationReceiver extends BroadcastReceiver {
 
     @Override
     public void onReceive(Context context, Intent intent) {
-        if (AppManager.isAppAlive(context, AppManager.getPackageName())
-                && AppManager.getClientUser() != null/*
-                && Integer.parseInt(AppManager.getClientUser().userId) > 0*/) {
-            /*Intent mainIntent = new Intent(context, MainActivity.class);
-            mainIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK
-                    | Intent.FLAG_ACTIVITY_CLEAR_TOP
-                    | Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(mainIntent);*/
-
+//        if (AppManager.isAppAlive(context, AppManager.getPackageName())
+        if (AppManager.isServiceRunning(context, ConnectServerService.class.getName())
+                && AppManager.getClientUser() != null) {
             ClientUser clientUser = (ClientUser) intent.getSerializableExtra(ValueKey.USER);
             if (clientUser != null) {
+                NotificationManagerUtils.getInstance().cancelNotification();
                 Conversation conversation = ConversationSqlManager.getInstance(CSApplication.getInstance())
                         .queryConversationForByTalkerId(clientUser.userId);
                 if (conversation != null) {
@@ -58,9 +56,8 @@ public class NotificationReceiver extends BroadcastReceiver {
                 }
             }
         } else {
+            Log.e("tanlove_log", "notify");
             Intent launcherIntent = new Intent(context, LauncherActivity.class);
-            launcherIntent.setFlags(
-                    Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED);
             context.startActivity(launcherIntent);
         }
     }

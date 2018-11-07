@@ -35,17 +35,6 @@ public class DownloadUpdateService extends Service implements FileProgressListen
 	private String apkUrl = null;
 
 	public DownloadUpdateService() {
-		/*manager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-		builder = new NotificationCompat.Builder(DownloadUpdateService.this);
-		builder.setSmallIcon(R.mipmap.ic_launcher);
-		builder.setContentTitle(getString(R.string.app_name));
-		builder.setTicker(getString(R.string.downloading));
-		builder.setContentText(String.format(getString(R.string.download_progress), 0f));
-
-		notification = builder.build();
-		notification.vibrate = new long[]{500, 500};
-		notification.defaults = Notification.DEFAULT_VIBRATE | Notification.DEFAULT_SOUND;
-		manager.notify(0, notification);*/
 	}
 
 	@Nullable
