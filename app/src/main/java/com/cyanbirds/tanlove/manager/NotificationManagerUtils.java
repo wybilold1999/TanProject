@@ -1,6 +1,5 @@
 package com.cyanbirds.tanlove.manager;
 
-import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
@@ -76,12 +75,8 @@ public class NotificationManagerUtils {
             return null;
         cancelNotification();
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            String channelId = AppManager.pkgName;
-            String channelName = mContext.getResources().getString(R.string.app_name);
-            int importance = NotificationManagerCompat.IMPORTANCE_HIGH;
-            createNotificationChannel(channelId, channelName, importance);
-        }
+        createNotificationChannel();
+
         NotificationCompat.Builder builder = new NotificationCompat.Builder(mContext, AppManager.pkgName);
         String title;
         String content;
@@ -132,12 +127,6 @@ public class NotificationManagerUtils {
     }
 
     public Notification getNotification() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            String channelId = AppManager.pkgName;
-            String channelName = mContext.getResources().getString(R.string.app_name);
-            int importance = NotificationManagerCompat.IMPORTANCE_HIGH;
-            createNotificationChannel(channelId, channelName, importance);
-        }
         Notification notification = new NotificationCompat.Builder(mContext, AppManager.pkgName).build();
         return notification;
     }
@@ -169,15 +158,25 @@ public class NotificationManagerUtils {
     public void cancelNotification() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             mNotificationManager.deleteNotificationChannel(AppManager.pkgName);
+            mNotificationManager.cancelAll();
         } else {
             NotificationManagerCompat.from(mContext).cancelAll();
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.O)
-    private void createNotificationChannel(String channelId, String channelName, int importance) {
-        NotificationChannel channel = new NotificationChannel(channelId, channelName, importance);
-        channel.setShowBadge(true);
-        mNotificationManager.createNotificationChannel(channel);
+    public void createNotificationChannel() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            CharSequence channelName = mContext.getString(R.string.chat_message);
+            int importance = NotificationManager.IMPORTANCE_HIGH;
+            NotificationChannel channel = new NotificationChannel(AppManager.pkgName, channelName, importance);
+            channel.shouldShowLights();//是否会闪光
+            channel.enableLights(true);//是否显示通知指示灯
+            channel.enableVibration(true);//是否振动
+            channel.setBypassDnd(true);//设置可以绕过请勿打扰模式
+            channel.canBypassDnd();//可否绕过请勿打扰模式
+            channel.setLockscreenVisibility(Notification.VISIBILITY_SECRET);//锁屏显示通知
+            NotificationManager notificationManager = (NotificationManager) mContext.getSystemService(NOTIFICATION_SERVICE);
+            notificationManager.createNotificationChannel(channel);
+        }
     }
 }

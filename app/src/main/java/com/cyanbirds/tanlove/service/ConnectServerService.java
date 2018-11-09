@@ -2,10 +2,8 @@ package com.cyanbirds.tanlove.service;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.Build;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.cyanbirds.tanlove.manager.NotificationManagerUtils;
 
@@ -15,6 +13,7 @@ import com.cyanbirds.tanlove.manager.NotificationManagerUtils;
  * 描述：
  */
 public class ConnectServerService extends Service {
+
 
 	public ConnectServerService() {
 	}
@@ -28,20 +27,17 @@ public class ConnectServerService extends Service {
 	@Override
 	public void onCreate() {
 		super.onCreate();
+		startForeground(1, NotificationManagerUtils.getInstance().getNotification());
 	}
-
 	@Override
 	public int onStartCommand(Intent intent, int flags, int startId) {
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-			startForeground(1, NotificationManagerUtils.getInstance().getNotification());
-		}
 		return super.onStartCommand(intent, flags, startId);
 	}
 
 	@Override
 	public void onDestroy() {
 		super.onDestroy();
-		Log.e("tanlove_log", "service destroy");
 		stopForeground(true);
 	}
+
 }

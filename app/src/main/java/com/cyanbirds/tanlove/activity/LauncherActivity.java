@@ -17,6 +17,7 @@ import com.cyanbirds.tanlove.config.ValueKey;
 import com.cyanbirds.tanlove.entity.ClientUser;
 import com.cyanbirds.tanlove.helper.IMChattingHelper;
 import com.cyanbirds.tanlove.manager.AppManager;
+import com.cyanbirds.tanlove.manager.NotificationManagerUtils;
 import com.cyanbirds.tanlove.net.IUserApi;
 import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 import com.cyanbirds.tanlove.net.request.DownloadFileRequest;
@@ -82,6 +83,8 @@ public class LauncherActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mStartTime = System.currentTimeMillis();// 记录开始时间
+        NotificationManagerUtils.getInstance().cancelNotification();
+        NotificationManagerUtils.getInstance().createNotificationChannel();
         getKeys();
         requestPermission();
     }

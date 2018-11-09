@@ -16,7 +16,10 @@ android {
         multiDexEnabled true
 
         manifestPlaceholders = [
-                HMSVERSION:"2.6.1",PACKAGE_NAME: "com.cyanbirds.tanlove", APPID:"100236491", CPID:"890086000101001987"
+                HMSVERSION:"2.6.1",PACKAGE_NAME: "com.cyanbirds.tanlove", APPID:"100236491", CPID:"890086000101001987",
+                GETUI_APP_ID : "fn4zeTabxU6Z7jbRgm0d19",
+                GETUI_APP_KEY : "lhFmeD04jY7NEqOm6xW7E2",
+                GETUI_APP_SECRET : "SgdwgVRTVU8XW9UajLdjX1"
         ]
 
         ndk {
@@ -181,4 +184,6 @@ dependencies {
     implementation 'com.huawei.android.hms:hwid:'+HMSSDKVer
     implementation 'com.huawei.android.hms:push:'+HMSSDKVer
     implementation 'com.huawei.android.hms:opendevice:'+HMSSDKVer
+
+    implementation 'com.getui:sdk:2.12.5.0'
 }
