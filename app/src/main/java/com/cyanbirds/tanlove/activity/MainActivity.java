@@ -57,7 +57,6 @@ import com.cyanbirds.tanlove.utils.MsgUtil;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.PushMsgUtil;
 import com.cyanbirds.tanlove.utils.Utils;
-import com.huawei.android.hms.agent.HMSAgent;
 import com.igexin.sdk.PushManager;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.uber.autodispose.AutoDispose;
@@ -124,9 +123,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 
 				//个推
 				initGeTuiPush();
-
-				initHWPush();
-
 			}
 		});
 
@@ -273,23 +269,6 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		// SDK初始化，第三方程序启动时，都要进行SDK初始化工作
 		PushManager.getInstance().initialize(this.getApplicationContext(), MyPushService.class);
 		PushManager.getInstance().registerPushIntentService(this.getApplicationContext(), MyIntentService.class);
-	}
-
-	/**
-	 * 华为推送注册
-	 */
-	private void initHWPush() {
-		if ("HUAWEI".equals(AppManager.getDeviceName())) {
-			HMSAgent.Push.getToken((rst) -> {
-				if (rst != 0) {
-					initHWPush();
-				}
-			});
-			/**
-			 * 能接收透传消息
-			 */
-			HMSAgent.Push.enableReceiveNormalMsg(true ,(rst -> {}));
-		}
 	}
 
 	@Override
