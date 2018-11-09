@@ -76,9 +76,7 @@ public class CSApplication extends MultiDexApplication {
 
 		initBugly();
 
-		if ("HUAWEI".equals(AppManager.getDeviceName())) {
-			HMSAgent.init(this);
-		}
+		HMSAgent.init(this);
 	}
 
 	private void initBugly() {

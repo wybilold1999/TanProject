@@ -90,16 +90,13 @@ public class LauncherActivity extends AppCompatActivity {
     }
 
     private void hwConnect() {
-        if ("HUAWEI".equals(AppManager.getDeviceName())) {
-            // 在首个界面，需要调用connect进行连接
-            HMSAgent.connect(this, rst -> {
+        // 在首个界面，需要调用connect进行连接
+        HMSAgent.connect(this, rst -> {
+            HMSAgent.checkUpdate(this, (rstCheck) -> {
                 init();
                 loadData();
             });
-        } else {
-            init();
-            loadData();
-        }
+        });
     }
 
     private void requestPermission() {

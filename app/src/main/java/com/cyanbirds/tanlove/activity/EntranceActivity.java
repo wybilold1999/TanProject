@@ -22,7 +22,6 @@ import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.JsonUtils;
 import com.cyanbirds.tanlove.utils.PreferencesUtils;
 import com.cyanbirds.tanlove.utils.Utils;
-import com.huawei.android.hms.agent.HMSAgent;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 import com.uber.autodispose.AutoDispose;
 import com.uber.autodispose.android.lifecycle.AndroidLifecycleScopeProvider;
@@ -69,13 +68,6 @@ public class EntranceActivity extends BaseActivity implements AMapLocationListen
         getIPAddress();
         initLocationClient();
         requestLocationPermission();
-        checkHWUpdate();
-    }
-
-    private void checkHWUpdate() {
-        if ("HUAWEI".equals(AppManager.getDeviceName())) {
-            HMSAgent.checkUpdate(this, (rst) -> {});
-        }
     }
 
     /**
