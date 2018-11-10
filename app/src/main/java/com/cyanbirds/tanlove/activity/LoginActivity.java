@@ -285,10 +285,12 @@ public class LoginActivity extends BaseActivity<IUserLoginLogOut.Presenter> impl
                 @Override
                 public void onComplete(final Object response) {
                     if (!TextUtils.isEmpty(AppManager.getClientUser().sex)) {
-                        if (activityIsRunning) {
-                            onShowLoading();
+                        if (null != presenter) {
+                            if (activityIsRunning) {
+                                onShowLoading();
+                            }
+                            presenter.onQQLogin(token, openId);
                         }
-                        presenter.onQQLogin(token, openId);
                     } else {
                         Intent intent = new Intent(LoginActivity.this, SelectSexActivity.class);
                         intent.putExtra("token", token);

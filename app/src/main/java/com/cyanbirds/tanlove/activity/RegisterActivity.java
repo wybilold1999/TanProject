@@ -316,10 +316,12 @@ public class RegisterActivity extends BaseActivity<IUserLoginLogOut.Presenter> i
                 }
                 @Override
                 public void onComplete(final Object response) {
-                    if (activityIsRunning) {
-                        onShowLoading();
+                    if (presenter != null) {
+                        if (activityIsRunning) {
+                            onShowLoading();
+                        }
+                        presenter.onQQLogin(token, openId);
                     }
-                    presenter.onQQLogin(token, openId);
                 }
 
                 @Override
