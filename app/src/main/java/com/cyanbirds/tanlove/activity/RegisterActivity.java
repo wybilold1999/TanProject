@@ -176,8 +176,10 @@ public class RegisterActivity extends BaseActivity<IUserLoginLogOut.Presenter> i
             } else {
                 ProgressDialogUtils.getInstance(this).dismiss();
                 WeinXinEvent event = (WeinXinEvent) o;
-                onShowLoading();
-                presenter.onWXLogin(event.code);
+                if (null != presenter) {
+                    onShowLoading();
+                    presenter.onWXLogin(event.code);
+                }
             }
         });
     }
