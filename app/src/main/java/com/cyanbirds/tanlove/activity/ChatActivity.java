@@ -621,6 +621,9 @@ public class ChatActivity extends BaseActivity implements OnMessageReportCallbac
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		super.onActivityResult(requestCode, resultCode, data);
 		if (resultCode == RESULT_OK && requestCode == CAMERA_RESULT) {
+			if (mPhotoFile == null) {
+				return;
+			}
 			Uri inputUri;
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
 				inputUri = FileProvider.getUriForFile(this, AUTHORITY, mPhotoFile);//通过FileProvider创建一个content类型的Uri
