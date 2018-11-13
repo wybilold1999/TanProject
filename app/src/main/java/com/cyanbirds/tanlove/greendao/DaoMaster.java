@@ -24,9 +24,9 @@ public class DaoMaster extends AbstractDaoMaster {
         DynamicDao.createTable(db, ifNotExists);
         ConversationDao.createTable(db, ifNotExists);
         NameListDao.createTable(db, ifNotExists);
+        FConversationDao.createTable(db, ifNotExists);
         IMessageDao.createTable(db, ifNotExists);
         GoldDao.createTable(db, ifNotExists);
-        FConversationDao.createTable(db, ifNotExists);
     }
 
     /** Drops underlying database table using DAOs. */
@@ -34,9 +34,9 @@ public class DaoMaster extends AbstractDaoMaster {
         DynamicDao.dropTable(db, ifExists);
         ConversationDao.dropTable(db, ifExists);
         NameListDao.dropTable(db, ifExists);
+        FConversationDao.dropTable(db, ifExists);
         IMessageDao.dropTable(db, ifExists);
         GoldDao.dropTable(db, ifExists);
-        FConversationDao.dropTable(db, ifExists);
     }
 
     /**
@@ -58,9 +58,9 @@ public class DaoMaster extends AbstractDaoMaster {
         registerDaoClass(DynamicDao.class);
         registerDaoClass(ConversationDao.class);
         registerDaoClass(NameListDao.class);
+        registerDaoClass(FConversationDao.class);
         registerDaoClass(IMessageDao.class);
         registerDaoClass(GoldDao.class);
-        registerDaoClass(FConversationDao.class);
     }
 
     public DaoSession newSession() {

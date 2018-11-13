@@ -143,7 +143,7 @@ public class ConversationSqlManager extends DBManager {
 		return conversationDao.insertOrReplace(conversation);
 	}
 
-	public long insertConversation(String userData, ECMessage ecMessage) {
+	public synchronized long insertConversation(String userData, ECMessage ecMessage) {
 		String[] userInfos = userData.split(";");
 
 		String talker = "";
