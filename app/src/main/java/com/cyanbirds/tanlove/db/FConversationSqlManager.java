@@ -96,7 +96,7 @@ public class FConversationSqlManager extends DBManager {
 	 * 根据聊天对象的userid来查询会话
 	 * @return
 	 */
-	public FConversation queryConversationForByTalkerId(String talkerId) {
+	public synchronized FConversation queryConversationForByTalkerId(String talkerId) {
 		QueryBuilder<FConversation> qb = conversationDao.queryBuilder();
 		qb.where(FConversationDao.Properties.Talker.eq(talkerId));
 		return qb.unique();
@@ -164,7 +164,7 @@ public class FConversationSqlManager extends DBManager {
 	 * @param ecMessage
      * @return
      */
-	public long insertConversation(long rId, String userData, ECMessage ecMessage) {
+	public synchronized long insertConversation(long rId, String userData, ECMessage ecMessage) {
 		String[] userInfos = userData.split(";");
 
 		String talker = "";

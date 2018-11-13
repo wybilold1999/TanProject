@@ -94,7 +94,7 @@ public class ConversationSqlManager extends DBManager {
 	 * 根据聊天对象的userid来查询会话
 	 * @return
 	 */
-	public Conversation queryConversationForByTalkerId(String talkerId) {
+	public synchronized Conversation queryConversationForByTalkerId(String talkerId) {
 		QueryBuilder<Conversation> qb = conversationDao.queryBuilder();
 		qb.where(ConversationDao.Properties.Talker.eq(talkerId));
 		return qb.unique();
