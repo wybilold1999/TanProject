@@ -108,7 +108,7 @@ public class IMChattingHelper implements OnChatReceiveListener{
 				.append(";")
 				.append(clientUser.user_name)
 				.append(";")
-				.append(clientUser.face_url)//假用户信息
+				.append(clientUser.face_url)
 				.append(";")
 				.append(channel)
 				.append(";")
@@ -212,7 +212,7 @@ public class IMChattingHelper implements OnChatReceiveListener{
 					.append(";")
 					.append(clientUser.user_name)
 					.append(";")
-					.append(clientUser.face_url)//假用户信息
+					.append(clientUser.face_url)
 					.append(";")
 					.append(channel)
 					.append(";")
@@ -320,7 +320,7 @@ public class IMChattingHelper implements OnChatReceiveListener{
 					.append(";")
 					.append(clientUser.user_name)
 					.append(";")
-					.append(clientUser.face_url)//假用户信息
+					.append(clientUser.face_url)
 					.append(";")
 					.append(channel)
 					.append(";")
