@@ -10,8 +10,8 @@ android {
         applicationId "com.cyanbirds.tanlove"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 70
-        versionName "1.8.0"
+        versionCode 71
+        versionName "1.8.1"
         flavorDimensions "70"
         multiDexEnabled true
 

@@ -32,7 +32,6 @@ import com.cyanbirds.tanlove.net.IUserApi;
 import com.cyanbirds.tanlove.net.IUserFollowApi;
 import com.cyanbirds.tanlove.net.IUserLoveApi;
 import com.cyanbirds.tanlove.net.base.RetrofitFactory;
-import com.cyanbirds.tanlove.utils.CheckUtil;
 import com.cyanbirds.tanlove.utils.JsonUtils;
 import com.cyanbirds.tanlove.utils.ProgressDialogUtils;
 import com.cyanbirds.tanlove.utils.RxBus;
@@ -85,8 +84,6 @@ public class PersonalInfoActivity extends BaseActivity {
 	LinearLayout mBottomLayout;
 	@BindView(R.id.gift)
 	TextView mGift;
-	@BindView(R.id.identify_state)
-	TextView mIdentifyState;
 
 	private List<String> tabList;
 	private List<Fragment> fragmentList;
@@ -95,7 +92,6 @@ public class PersonalInfoActivity extends BaseActivity {
 
 	private ClientUser mClientUser; //当前用户
 	private String curUserId; //当前用户id
-	private String channel = "";
 
 	private Observable<UserEvent> observable;
 
@@ -147,7 +143,6 @@ public class PersonalInfoActivity extends BaseActivity {
 	}
 
 	private void setupData() {
-		channel = CheckUtil.getAppMetaData(this, "UMENG_CHANNEL");
 		curUserId = getIntent().getStringExtra(ValueKey.USER_ID);
 		if (!TextUtils.isEmpty(curUserId)) {
 			if (AppManager.getClientUser().userId.equals(curUserId)) {
@@ -168,8 +163,6 @@ public class PersonalInfoActivity extends BaseActivity {
 	public boolean onCreateOptionsMenu(Menu menu) {
 		if (AppManager.getClientUser().userId.equals(curUserId)) {
 			getMenuInflater().inflate(R.menu.personal_menu, menu);
-		} else if (AppManager.getClientUser().isShowVip && !AppManager.getClientUser().is_vip) {
-			getMenuInflater().inflate(R.menu.call_menu, menu);
 		}
 		return super.onCreateOptionsMenu(menu);
 	}
@@ -178,12 +171,6 @@ public class PersonalInfoActivity extends BaseActivity {
 	public boolean onOptionsItemSelected(MenuItem item) {
 		if (item.getItemId() == R.id.modify_info) {
 			Intent intent = new Intent(this, ModifyUserInfoActivity.class);
-			startActivity(intent);
-		} else if (item.getItemId() == R.id.call) {
-			Intent intent = new Intent(this, VoipCallActivity.class);
-			intent.putExtra(ValueKey.IMAGE_URL, mClientUser == null ? "" : mClientUser.face_url);
-			intent.putExtra(ValueKey.USER_NAME, mClientUser == null ? "" : mClientUser.user_name);
-			intent.putExtra(ValueKey.FROM_ACTIVITY, "PersonalInfoActivity");
 			startActivity(intent);
 		} else {
 			finish();
@@ -393,11 +380,6 @@ public class PersonalInfoActivity extends BaseActivity {
 			mPortrait.setImageURI(Uri.parse(imagePath));
 		}
 		mCollapsingToolbarLayout.setTitle(clientUser.user_name);
-		if (AppManager.getClientUser().isShowVip && clientUser.is_vip) {
-			mIdentifyState.setVisibility(View.VISIBLE);
-		} else {
-			mIdentifyState.setVisibility(View.GONE);
-		}
 
 		if (mClientUser.isFollow) {
 			mAttention.setText("已关注");
