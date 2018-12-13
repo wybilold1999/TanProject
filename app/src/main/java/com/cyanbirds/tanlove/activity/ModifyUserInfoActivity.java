@@ -226,6 +226,13 @@ public class ModifyUserInfoActivity extends BaseActivity implements ModifyUserIn
 	private void setupData() {
 		mVals = new ArrayList<>();
 		setUserInfo();
+		if (AppManager.getClientUser().isShowVip) {
+			mTvFriend.setVisibility(View.VISIBLE);
+			mCardFriend.setVisibility(View.VISIBLE);
+		} else {
+			mTvFriend.setVisibility(View.GONE);
+			mCardFriend.setVisibility(View.GONE);
+		}
 	}
 
 	private void setUserInfo() {
