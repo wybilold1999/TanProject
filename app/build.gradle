@@ -10,9 +10,9 @@ android {
         applicationId "com.cyanbirds.tanlove"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 72
-        versionName "1.8.2"
-        flavorDimensions "72"
+        versionCode 73
+        versionName "1.8.3"
+        flavorDimensions "73"
         multiDexEnabled true
 
         manifestPlaceholders = [
