@@ -24,6 +24,8 @@ import com.amap.api.location.AMapLocation;
 import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
+import com.baidu.soleagencysdk.api.CheckCompletion;
+import com.baidu.soleagencysdk.api.SoleAgencySDK;
 import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.R;
 import com.cyanbirds.tanlove.activity.base.BaseActivity;
@@ -135,6 +137,17 @@ public class MainActivity extends BaseActivity implements MessageUnReadListener.
 		}
 
 		loadData();
+
+		/**
+		 * 百度独家
+		 */
+		if (AppManager.getClientUser().isShowLovers) {
+			SoleAgencySDK.startToCheckShouzhu(this, new CheckCompletion() {
+				@Override
+				public void checkDidComplete() {
+				}
+			});
+		}
 	}
 
 	/**

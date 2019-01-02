@@ -125,6 +125,7 @@ def packageTime() {
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
+    implementation(name: "BDSoleAgencySDK_V1.1_20170504", ext: "aar")
     implementation 'com.android.support:support-v4:27.1.1'
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:design:27.1.1'
