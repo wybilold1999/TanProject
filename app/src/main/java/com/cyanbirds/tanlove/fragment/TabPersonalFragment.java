@@ -264,45 +264,6 @@ public class TabPersonalFragment extends Fragment implements GeocodeSearch.OnGeo
 			getLocation();
 			if (clientUser != null) {
 				setUserInfo(clientUser);
-				/**
-				 * 用户的图片
-				 */
-				/*if (!TextUtils.isEmpty(clientUser.imgUrls)) {
-					Type listType = new TypeToken<ArrayList<String>>() {
-					}.getType();
-					List<String> urls = gson.fromJson(clientUser.imgUrls, listType);
-					if (urls != null && urls.size() > 0) {
-						mPhotoCard.setVisibility(View.VISIBLE);
-						mPhotoList = new ArrayList<>();
-						mPhotoList.addAll(urls);
-						mAdapter = new TabPersonalPhotosAdapter(getActivity(), mPhotoList);
-						mRecyclerview.setAdapter(mAdapter);
-					} else {
-						mPhotoCard.setVisibility(View.GONE);
-					}
-				} else {
-					mPhotoCard.setVisibility(View.GONE);
-				}*/
-				/**
-				 * 用户收到的礼物
-				 */
-				if (!TextUtils.isEmpty(clientUser.gifts)) {
-					mGiftText.setVisibility(View.VISIBLE);
-					mGiftCard.setVisibility(View.VISIBLE);
-					mAdapter = new TabPersonalPhotosAdapter(getActivity(),
-							StringUtil.stringToIntList(clientUser.gifts));
-					mGiftRecyclerview.setAdapter(mAdapter);
-				} else {
-					mGiftText.setVisibility(View.GONE);
-					mGiftCard.setVisibility(View.GONE);
-				}
-				if (AppManager.getClientUser().isShowLovers) {
-					mCardFriend.setVisibility(View.VISIBLE);
-					mTvFriend.setVisibility(View.VISIBLE);
-				} else {
-					mCardFriend.setVisibility(View.GONE);
-					mTvFriend.setVisibility(View.GONE);
-				}
 			}
 		}
 	}
@@ -517,16 +478,6 @@ public class TabPersonalFragment extends Fragment implements GeocodeSearch.OnGeo
 						.getRegeocodeAddress().getFormatAddress());
 				mAddress = poiItem.getSnippet();
 				mAdress.setText(mAddress);
-				if (AppManager.getClientUser().isShowMap &&
-						!TextUtils.isEmpty(clientUser.distance) &&
-						!"0.0".equals(clientUser.distance) &&
-						!TextUtils.isEmpty(mAddress)) {
-					mMyLocation.setVisibility(View.VISIBLE);
-					mMapCard.setVisibility(View.VISIBLE);
-				} else {
-					mMapCard.setVisibility(View.GONE);
-					mMyLocation.setVisibility(View.GONE);
-				}
 				if (clientUser.userId.equals(AppManager.getClientUser().userId)) {
 					mMyLocation.setVisibility(View.GONE);
 					mMapCard.setVisibility(View.GONE);
