@@ -15,7 +15,8 @@
         android:id="@+id/speaker_lay"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:background="#fff">
+        android:background="#fff"
+        android:visibility="gone">
         <ImageView
             android:id="@+id/iv_speaker"
             android:layout_width="20dp"

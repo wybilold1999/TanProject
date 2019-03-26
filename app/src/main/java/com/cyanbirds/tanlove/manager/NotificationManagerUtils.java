@@ -128,7 +128,8 @@ public class NotificationManagerUtils {
     }
 
     public Notification getNotification() {
-        Notification notification = new NotificationCompat.Builder(mContext, AppManager.pkgName).build();
+        Notification notification = new NotificationCompat.Builder(mContext, AppManager.pkgName)
+                .setChannelId(AppManager.pkgName).build();
         return notification;
     }
 

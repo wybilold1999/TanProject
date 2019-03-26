@@ -1,6 +1,5 @@
 package com.cyanbirds.tanlove.net.base;
 
-import com.cyanbirds.tanlove.BuildConfig;
 import com.cyanbirds.tanlove.CSApplication;
 import com.cyanbirds.tanlove.config.AppConstants;
 
@@ -9,7 +8,6 @@ import java.util.concurrent.TimeUnit;
 
 import okhttp3.Cache;
 import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
@@ -42,16 +40,12 @@ public class RetrofitManager {
     private static void initOkHttp() {
         // https://drakeet.me/retrofit-2-0-okhttp-3-0-config
         final File baseDir = CSApplication.getInstance().getApplicationContext().getCacheDir(); //缓存数据的路径
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor();
-        logging.setLevel(BuildConfig.DEBUG ? HttpLoggingInterceptor.Level.BODY : HttpLoggingInterceptor.Level.NONE);
         okHttpClient = new OkHttpClient();
         okHttpClient.newBuilder()
-//                .addInterceptor(logging)
                 .retryOnConnectionFailure(true) //设置出现错误进行重新连接
                 .readTimeout(30, TimeUnit.SECONDS)
-                .writeTimeout(10, TimeUnit.SECONDS)
-                .connectTimeout(10, TimeUnit.SECONDS)
-                .cookieJar(okHttpClient.cookieJar())
+                .writeTimeout(30, TimeUnit.SECONDS)
+                .connectTimeout(30, TimeUnit.SECONDS)
                 .cache(new Cache(baseDir, HTTP_RESPONSE_DISK_CACHE_MAX_SIZE))
                 .build();
     }
