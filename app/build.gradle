@@ -90,11 +90,9 @@ android {
         vivo {}
         huawei {}
         sanxing {}
-        lianxiang {}
         sj91 {}
         androidmarket {}
         sougou {}
-        uc {}
 
         productFlavors.all { flavor ->
             flavor.manifestPlaceholders = [UMENG_CHANNEL_ID: flavor.name]
