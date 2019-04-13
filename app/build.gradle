@@ -10,9 +10,9 @@ android {
         applicationId "com.cyanbirds.tanlove"
         minSdkVersion 16
         targetSdkVersion 27
-        versionCode 79
-        versionName "1.8.9"
-        flavorDimensions "79"
+        versionCode 80
+        versionName "1.9.0"
+        flavorDimensions "80"
         multiDexEnabled true
 
         manifestPlaceholders = [
@@ -171,4 +171,6 @@ dependencies {
     implementation 'com.tencent:mmkv:1.0.12'
 
     implementation 'com.getui:sdk:2.12.5.0'
+
+    implementation 'com.from.view.swipeback:view_module_swipeback:1.0.3'
 }
