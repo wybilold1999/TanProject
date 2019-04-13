@@ -172,5 +172,4 @@ dependencies {
 
     implementation 'com.getui:sdk:2.12.5.0'
 
-    implementation 'com.from.view.swipeback:view_module_swipeback:1.0.3'
 }

@@ -19,7 +19,6 @@ import com.facebook.imagepipeline.listener.RequestLoggingListener;
 import com.facebook.imagepipeline.memory.PoolConfig;
 import com.facebook.imagepipeline.memory.PoolFactory;
 import com.facebook.imagepipeline.memory.PoolParams;
-import com.from.view.swipeback.SwipeBackHelper;
 import com.mob.MobSDK;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.tencent.mm.sdk.openapi.IWXAPI;
@@ -68,7 +67,6 @@ public class CSApplication extends MultiDexApplication {
 
 			registerWeiXin();
 
-			SwipeBackHelper.init(this);
 		});
 
 		//初始化短信sdk
