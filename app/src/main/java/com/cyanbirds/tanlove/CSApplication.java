@@ -20,6 +20,7 @@ import com.facebook.imagepipeline.listener.RequestLoggingListener;
 import com.facebook.imagepipeline.memory.PoolConfig;
 import com.facebook.imagepipeline.memory.PoolFactory;
 import com.facebook.imagepipeline.memory.PoolParams;
+import com.from.view.swipeback.SwipeBackHelper;
 import com.mob.MobSDK;
 import com.tencent.bugly.crashreport.CrashReport;
 import com.tencent.mm.sdk.openapi.IWXAPI;
@@ -54,13 +55,12 @@ public class CSApplication extends MultiDexApplication {
 	public void onCreate() {
 		super.onCreate();
 		sApplication = this;
+		SwipeBackHelper.init(this);
 		AppManager.getExecutorService().execute(new Runnable() {
 			@Override
 			public void run() {
 				AppManager.setContext(sApplication);
 				AppManager.setUserInfo();
-
-				registerActivityLifecycleCallbacks(AppActivityLifecycleCallbacks.getInstance());
 
 				initFresco();
 
