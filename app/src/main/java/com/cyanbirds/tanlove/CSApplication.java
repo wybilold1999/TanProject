@@ -8,7 +8,7 @@ import com.cyanbirds.tanlove.config.AppConstants;
 import com.cyanbirds.tanlove.helper.AppActivityLifecycleCallbacks;
 import com.cyanbirds.tanlove.helper.CrashHandler;
 import com.cyanbirds.tanlove.manager.AppManager;
-import com.cyanbirds.tanlove.net.base.RetrofitManager;
+import com.cyanbirds.tanlove.net.base.RetrofitFactory;
 import com.facebook.cache.disk.DiskCacheConfig;
 import com.facebook.common.util.ByteConstants;
 import com.facebook.drawee.backends.pipeline.Fresco;
@@ -121,7 +121,7 @@ public class CSApplication extends MultiDexApplication {
 						.build());
 
 		ImagePipelineConfig config = OkHttpImagePipelineConfigFactory
-				.newBuilder(this, RetrofitManager.getInstance().getOkHttpClient())
+				.newBuilder(this, RetrofitFactory.initOkHttpClient())
 				.setBitmapsConfig(Bitmap.Config.RGB_565)
 				.setDownsampleEnabled(true)
 				.setPoolFactory(factory)
